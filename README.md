@@ -1,2 +1,2 @@
-# rdf_fetcher
-Python script to fetch RDF data from multiple sources
+# rdf_updater
+Python script to fetch RDF data from multiple sources and write it to a triple store

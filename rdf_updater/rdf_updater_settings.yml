@@ -1,0 +1,36 @@
+rdf_configs:
+  ga_igsn_codelists:
+    name: GA IGSN Vocabularies
+    uri: http://pid.geoscience.gov.au/def/voc/ga/igsncode
+    rdf_file_path: ../data/ga_igsn_codelists.rdf
+    source_type: sparql
+    sparql_endpoint: http://vocabs.ands.org.au/repository/api/sparql/ga_igsn-codelist_v0-9-2
+
+  odm2_specimentype:
+    name: ODM2 Specimen Type Vocabulary
+    uri: http://vocabulary.odm2.org/api/v1/specimentype
+    rdf_file_path: ../data/odm2_specimentype.rdf
+    source_type: http_get
+
+  odm2_medium:
+    name: ODM2 Medium Vocabulary
+    uri: http://vocabulary.odm2.org/api/v1/medium
+    rdf_file_path: ../data/odm2_medium.rdf
+    source_type: http_get
+
+  geosciml_lithology:
+    name: GeoSciML Lithology Vocabulary
+    uri: http://resource.geosciml.org/classifier/cgi/lithology
+    rdf_file_path: ../data/geosciml_lithology.rdf
+    source_type: sparql
+    sparql_endpoint: http://vocabs.ands.org.au/repository/api/sparql/ga_simple-lithology_v0-1
+
+  odm2_sampling_feature_type:
+    name: ODM2 Sampling Feature Type Vocabulary
+    uri: http://vocabulary.odm2.org/api/v1/samplingfeaturetype
+    rdf_file_path: ../data/odm2_samplingfeaturetype.rdf
+    source_type: http_get
+    
+timeout: 10
+
+triple_store_url: http://ec2-54-252-216-15.ap-southeast-2.compute.amazonaws.com/fuseki/vocabs
