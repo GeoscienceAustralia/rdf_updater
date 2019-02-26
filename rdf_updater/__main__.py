@@ -17,12 +17,14 @@ def main():
     #logger.debug(pformat(rdf_updater.__dict__))
     
     print()
-    
+     
     rdf_updater.get_rdfs() # Read RDFs from sources into files
-    
+     
     print()
-    
+     
     rdf_updater.put_rdfs() # Write RDFs to triple-store from files
+
+
     
     
     

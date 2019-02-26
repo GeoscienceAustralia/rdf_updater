@@ -18,19 +18,28 @@ rdf_configs:
     rdf_file_path: ../data/odm2_medium.rdf
     source_type: http_get
 
-  geosciml_lithology:
-    name: GeoSciML Lithology Vocabulary
-    uri: http://resource.geosciml.org/classifier/cgi/lithology
-    rdf_file_path: ../data/geosciml_lithology.rdf
-    source_type: sparql
-    sparql_endpoint: http://vocabs.ands.org.au/repository/api/sparql/ga_simple-lithology_v0-1
-
   odm2_sampling_feature_type:
     name: ODM2 Sampling Feature Type Vocabulary
     uri: http://vocabulary.odm2.org/api/v1/samplingfeaturetype
     rdf_file_path: ../data/odm2_samplingfeaturetype.rdf
     source_type: http_get
-    
+
+git_configs:
+  cgi_vocabs:
+    github_url: https://github.com/GeoscienceAustralia/geosciml.org
+    source_tree: resource/static/vocabulary/cgi/2016
+    rdf_dir: ../data/cgi
+
+  earthresourceml_vocabs:
+    github_url: https://github.com/GeoscienceAustralia/geosciml.org
+    source_tree: resource/static/vocabulary/earthresourceml/2016
+    rdf_dir: ../data/earthresourceml
+
+  timescale_vocabs:
+    github_url: https://github.com/GeoscienceAustralia/geosciml.org
+    source_tree: resource/static/vocabulary/timescale
+    rdf_dir: ../data/timescale
+
 timeout: 10
 
 triple_store_url: http://ec2-54-252-216-15.ap-southeast-2.compute.amazonaws.com/fuseki/vocabs
