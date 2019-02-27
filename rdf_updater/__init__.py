@@ -112,7 +112,7 @@ WHERE {?s ?p ?o .}'''
             return(response.content)
                 
         logger.info('Writing RDFs to triple-store {} from files'.format(self.settings['triple_store_url']))           
-        for rdf_name, rdf_config in self.rdf_configs.items():
+        for _rdf_name, rdf_config in self.rdf_configs.items():
             logger.info('Writing data for {}'.format(rdf_config['name']))
             try:
                 logger.info('Reading RDF from {}'.format(rdf_config['rdf_file_path']))
@@ -149,25 +149,37 @@ WHERE {?s ?p ?o .}'''
                         logger.debug('Skipping {}'.format(rdf_url))
                         continue
                     
-                    logger.debug('Reading config for {}'.format(rdf_name))
+                    logger.debug('Reading config from {}'.format(rdf_name))
                     response = requests.get(rdf_url, timeout=self.settings['timeout'])
                     #logger.debug('Response content: {}'.format(str(response.content)))
                     assert response.status_code == 200, 'Response status code != 200'
     
                     vocab_tree = etree.fromstring(response.content)
                     
-                    #TODO: Make this work correctly when there are multiple collections in one RDF
-                    collection_element = vocab_tree.find(path='skos:Collection', namespaces=vocab_tree.nsmap)
-                    if collection_element is None: #No skos:collection defined                       
-                        resource_element = vocab_tree.find(path='.//rdf:Description/rdf:type[@rdf:resource="http://www.w3.org/2004/02/skos/core#Collection"]', namespaces=vocab_tree.nsmap)
-                        collection_element = resource_element.getparent()
+                    # Find all collection elements
+                    collection_elements = vocab_tree.findall(path='skos:Collection', namespaces=vocab_tree.nsmap)
+                    if not collection_elements: #No skos:collections defined - look for resource element parents instead                      
+                        resource_elements = vocab_tree.findall(path='.//rdf:Description/rdf:type[@rdf:resource="http://www.w3.org/2004/02/skos/core#Collection"]', namespaces=vocab_tree.nsmap)
+                        collection_elements = [resource_element.getparent() for resource_element in resource_elements]
                     
+                    #logger.debug('collection_elements = {}'.format(pformat(collection_elements)))
+                    
+                    #TODO: Make this work better when there are multiple collections in one RDF
+                    # Find shortest URI for collection and use that for named graphs
+                    # This is a bit nasty, but it works for poorly-defined subcollection schemes
+                    collection_element = None
+                    collection_uri = None
+                    for search_collection_element in collection_elements:
+                        search_collection_uri = search_collection_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
+                        if (not collection_uri) or len(search_collection_uri) < len(collection_uri):
+                            collection_uri = search_collection_uri
+                            collection_element = search_collection_element
+                        
                     label_element = collection_element.find(path = 'rdfs:label', namespaces=vocab_tree.nsmap)
                     if label_element is None:
                         label_element = collection_element.find(path = 'dcterms:title[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
                     collection_label = label_element.text
-                    
-                    collection_uri = collection_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')                        
+                                            
                 except Exception as e:
                     logger.warning('Unable to find collection information in {}: {}'.format(rdf_url, e))
                     continue
@@ -178,6 +190,7 @@ WHERE {?s ?p ?o .}'''
                                'rdf_file_path': github_config['rdf_dir'] + '/' + rdf_name,
                                'rdf_url': rdf_url
                                }
+                logger.debug('collection_dict = {}'.format(pformat(collection_dict)))
                 result_dict[os.path.splitext(rdf_name)[0]] = collection_dict
         return result_dict       
     
