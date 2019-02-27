@@ -78,7 +78,7 @@ WHERE {?s ?p ?o .}'''
                 
         logger.info('Reading RDFs from sources to files')    
         
-        for rdf_name, rdf_config in self.rdf_configs.items():
+        for _rdf_name, rdf_config in self.rdf_configs.items():
             logger.info('Obtaining data for {}'.format(rdf_config['name']))
             try:
                 rdf = get_rdf(rdf_config)
@@ -159,21 +159,27 @@ WHERE {?s ?p ?o .}'''
                     # Find all collection elements
                     collection_elements = vocab_tree.findall(path='skos:Collection', namespaces=vocab_tree.nsmap)
                     if not collection_elements: #No skos:collections defined - look for resource element parents instead                      
+                        logger.warning('WARNING: {} has no explicit skos:Collection elements'.format(rdf_name))
                         resource_elements = vocab_tree.findall(path='.//rdf:Description/rdf:type[@rdf:resource="http://www.w3.org/2004/02/skos/core#Collection"]', namespaces=vocab_tree.nsmap)
                         collection_elements = [resource_element.getparent() for resource_element in resource_elements]
                     
                     #logger.debug('collection_elements = {}'.format(pformat(collection_elements)))
                     
-                    #TODO: Make this work better when there are multiple collections in one RDF
-                    # Find shortest URI for collection and use that for named graphs
-                    # This is a bit nasty, but it works for poorly-defined subcollection schemes
-                    collection_element = None
-                    collection_uri = None
-                    for search_collection_element in collection_elements:
-                        search_collection_uri = search_collection_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
-                        if (not collection_uri) or len(search_collection_uri) < len(collection_uri):
-                            collection_uri = search_collection_uri
-                            collection_element = search_collection_element
+                    if len(collection_elements) == 1:
+                        collection_element = collection_elements[0]
+                        collection_uri = collection_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
+                    else:
+                        logger.warning('WARNING: {} has multiple Collection elements'.format(rdf_name))
+                        #TODO: Make this work better when there are multiple collections in one RDF
+                        # Find shortest URI for collection and use that for named graphs
+                        # This is a bit nasty, but it works for poorly-defined subcollection schemes
+                        collection_element = None
+                        collection_uri = None
+                        for search_collection_element in collection_elements:
+                            search_collection_uri = search_collection_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
+                            if (not collection_uri) or len(search_collection_uri) < len(collection_uri):
+                                collection_uri = search_collection_uri
+                                collection_element = search_collection_element
                         
                     label_element = collection_element.find(path = 'rdfs:label', namespaces=vocab_tree.nsmap)
                     if label_element is None:
