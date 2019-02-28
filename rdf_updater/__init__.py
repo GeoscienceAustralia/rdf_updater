@@ -14,6 +14,8 @@ import re
 import base64
 from pprint import pprint, pformat
 from lxml import etree
+import skosify  # contains skosify, config, and infer
+from rdflib import Graph
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO) # Initial logging level for this module
@@ -46,7 +48,8 @@ class RDFUpdater(object):
                 url = rdf_config['sparql_endpoint']
                 http_method = requests.post
                 headers = {'Accept': 'application/rdf+xml',
-                           'Content-Type': 'application/sparql-query'
+                           'Content-Type': 'application/sparql-query',
+                           'Accept-Encoding': 'UTF-8'
                            }
                 params = None
                 data = '''CONSTRUCT {?s ?p ?o}
@@ -59,7 +62,9 @@ WHERE {?s ?p ?o .}'''
                     headers = None
                     params = {'_format': 'text/turtle'}
                 else:
-                    headers = {'Accept': 'application/rdf+xml'}
+                    headers = {'Accept': 'application/rdf+xml',
+                               'Accept-Encoding': 'UTF-8'
+                               }
                     params = None
 
                     if rdf_config.get('rdf_url'):
@@ -69,12 +74,12 @@ WHERE {?s ?p ?o .}'''
                 data = None
             else:
                 raise Exception('Bad source type for RDF')
-            logger.debug('http_method = {}, url = {}, headers = {}, params = {}, data = {}'.format(http_method, url, headers, params, data))
+            #logger.debug('http_method = {}, url = {}, headers = {}, params = {}, data = {}'.format(http_method, url, headers, params, data))
             logger.info('Reading RDF from {} via {}'.format(url, rdf_config['source_type']))
             response = http_method(url, headers=headers, params=params, data=data, timeout=self.settings['timeout'])
             #logger.debug('Response content: {}'.format(str(response.content)))
             assert response.status_code == 200, 'Response status code != 200'
-            return(response.content)
+            return(response.content).decode('utf-8') # Convert binary to UTF-8 string
                 
         logger.info('Reading RDFs from sources to files')    
         
@@ -82,16 +87,19 @@ WHERE {?s ?p ?o .}'''
             logger.info('Obtaining data for {}'.format(rdf_config['name']))
             try:
                 rdf = get_rdf(rdf_config)
+                rdf = re.sub('^(\<\?xml version="1.0")\s*(\?\>.*)', '\\1 encoding="UTF-8"\\2', rdf) # Add encoding if missing
+                rdf = re.sub('\r\n', '\n', rdf) # Fix bad EOLs
+                
                 #logger.debug('rdf = {}'.format(rdf))
                 logger.info('Writing RDF to file {}'.format(rdf_config['rdf_file_path']))
                 rdf_directory = os.path.dirname(os.path.abspath(rdf_config['rdf_file_path']))
                 if not os.path.exists(rdf_directory):
                     logger.debug('Creating directory {}'.format(rdf_directory))
                     os.makedirs(rdf_directory)
-                with open(rdf_config['rdf_file_path'], 'wb') as rdf_file:
+                with open(rdf_config['rdf_file_path'], 'w', encoding='utf-8') as rdf_file:
                     rdf_file.write(rdf)
             except Exception as e:
-                logger.warning('RDF get from {} to file failed: {}'.format(rdf_config['source_type'], e))
+                logger.error('ERROR: RDF get from {} to file failed: {}'.format(rdf_config['source_type'], e))
                 
         logger.info('Finished reading to files')
         
@@ -106,7 +114,7 @@ WHERE {?s ?p ?o .}'''
             params = {'graph': rdf_config['uri']}
             
             logger.info('Writing RDF to {}'.format(url))
-            response = requests.put(url, headers=headers, params=params, data=rdf, timeout=self.settings['timeout'])
+            response = requests.put(url, headers=headers, params=params, data=rdf.encode('utf-8'), timeout=self.settings['timeout'])
             #logger.debug('Response content: {}'.format(response.content))
             assert response.status_code == 200 or response.status_code == 201, 'Response status code {}  != 200 or 201: {}'.format(response.status_code, response.content)
             return(response.content)
@@ -116,14 +124,14 @@ WHERE {?s ?p ?o .}'''
             logger.info('Writing data for {}'.format(rdf_config['name']))
             try:
                 logger.info('Reading RDF from {}'.format(rdf_config['rdf_file_path']))
-                with open(rdf_config['rdf_file_path'], 'rb') as rdf_file:
+                with open(rdf_config['rdf_file_path'], 'r', encoding='utf-8') as rdf_file:
                     rdf = rdf_file.read()
                 #logger.debug('rdf = {}'.format(rdf))
                 result = json.loads(put_rdf(rdf_config, rdf))
                 #logger.debug('result = {}'.format(result))
                 logger.info('{} triples (re)written'.format(result['tripleCount']))
             except Exception as e:
-                logger.warning('RDF put from file to triple-store failed: {}'.format(e))
+                logger.error('ERROR: RDF put from file to triple-store failed: {}'.format(e))
                 
         logger.info('Finished writing to triple-store')
         
@@ -198,7 +206,45 @@ WHERE {?s ?p ?o .}'''
                                }
                 logger.debug('collection_dict = {}'.format(pformat(collection_dict)))
                 result_dict[os.path.splitext(rdf_name)[0]] = collection_dict
-        return result_dict       
+        return result_dict  
+    
+    def validate_rdfs(self):
+        def skosify_rdf(rdf_config):
+            #temp_rdf_path = os.path.splitext(rdf_path)[0] + '_tmp.rdf'
+            
+            voc = skosify.skosify(rdf_config['rdf_file_path'], label=rdf_config['name'])
+            #===================================================================
+            # voc.serialize(destination=os, format='xml')
+            # 
+            # rdf = Graph()
+            # rdf.parse(rdf_config['rdf_file_path'])
+            # config = skosify.config('owl2skos.cfg')
+            # voc = skosify.skosify(rdf, **config)
+            # 
+            # skosify.infer.skos_related(rdf)
+            # skosify.infer.skos_topConcept(rdf)
+            # skosify.infer.skos_hierarchical(rdf, narrower=True)
+            # skosify.infer.skos_transitive(rdf, narrower=True)
+            # 
+            # skosify.infer.rdfs_classes(rdf)
+            # skosify.infer.rdfs_properties(rdf)
+            #===================================================================
+            
+        logger.info('Validating RDFs from files')           
+        for _rdf_name, rdf_config in self.rdf_configs.items():
+            #logger.info('Validating data for {}'.format(rdf_config['name']))
+            try:
+                logger.info('Validating RDF from {}'.format(rdf_config['rdf_file_path']))
+                #===============================================================
+                # with open(rdf_config['rdf_file_path'], 'rb') as rdf_file:
+                #     rdf = rdf_file.read()
+                #===============================================================
+                skosify_rdf(rdf_config)
+            except Exception as e:
+                logger.warning('RDF validation from file {} failed: {}'.format(rdf_config['rdf_file_path'], e))
+                continue
+            
+        logger.info('Validation of RDF files completed')
     
     
     @property
