@@ -208,28 +208,31 @@ WHERE {?s ?p ?o .}'''
                 result_dict[os.path.splitext(rdf_name)[0]] = collection_dict
         return result_dict  
     
-    def validate_rdfs(self):
+    def skosify_rdfs(self):
         def skosify_rdf(rdf_config):
             #temp_rdf_path = os.path.splitext(rdf_path)[0] + '_tmp.rdf'
             
-            voc = skosify.skosify(rdf_config['rdf_file_path'], label=rdf_config['name'])
-            #===================================================================
-            # voc.serialize(destination=os, format='xml')
-            # 
-            # rdf = Graph()
-            # rdf.parse(rdf_config['rdf_file_path'])
-            # config = skosify.config('owl2skos.cfg')
-            # voc = skosify.skosify(rdf, **config)
-            # 
-            # skosify.infer.skos_related(rdf)
-            # skosify.infer.skos_topConcept(rdf)
-            # skosify.infer.skos_hierarchical(rdf, narrower=True)
-            # skosify.infer.skos_transitive(rdf, narrower=True)
-            # 
-            # skosify.infer.rdfs_classes(rdf)
-            # skosify.infer.rdfs_properties(rdf)
-            #===================================================================
+            # The following is a work-around for a unicode issue in rdflib
+            rdf_file = open(rdf_config['rdf_file_path'], 'rb') # Note binary reading
+            rdf = Graph()
+            rdf.parse(rdf_file, format='xml')
+            rdf_file.close()
             
+            voc = skosify.skosify(rdf, label=rdf_config['name'])
+             
+            skosify.infer.skos_related(voc)
+            skosify.infer.skos_topConcept(voc)
+            skosify.infer.skos_hierarchical(voc, narrower=True)
+            skosify.infer.skos_transitive(voc, narrower=True)
+              
+            skosify.infer.rdfs_classes(voc)
+            skosify.infer.rdfs_properties(voc)
+            
+            rdf_file = open(rdf_config['rdf_file_path'], 'wb') # Note binary writing
+            voc.serialize(destination=rdf_file, format='xml')
+            rdf_file.close()
+
+        
         logger.info('Validating RDFs from files')           
         for _rdf_name, rdf_config in self.rdf_configs.items():
             #logger.info('Validating data for {}'.format(rdf_config['name']))

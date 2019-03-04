@@ -20,9 +20,9 @@ def main():
      
     rdf_updater.get_rdfs() # Read RDFs from sources into files
      
-    #print()
+    print()
     
-    #rdf_updater.validate_rdfs()
+    rdf_updater.skosify_rdfs()
      
     print()
     
