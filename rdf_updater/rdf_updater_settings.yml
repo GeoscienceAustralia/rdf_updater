@@ -1,45 +1,224 @@
-rdf_configs:
-  ga_igsn_codelists:
-    name: GA IGSN Vocabularies
-    uri: http://pid.geoscience.gov.au/def/voc/ga/igsncode
-    rdf_file_path: ../data/ga_igsn_codelists.rdf
-    source_type: sparql
-    sparql_endpoint: http://vocabs.ands.org.au/repository/api/sparql/ga_igsn-codelist_v0-9-2
-
-  odm2_specimentype:
-    name: ODM2 Specimen Type Vocabulary
-    uri: http://vocabulary.odm2.org/api/v1/specimentype
-    rdf_file_path: ../data/odm2_specimentype.rdf
-    source_type: http_get
-
-  odm2_medium:
-    name: ODM2 Medium Vocabulary
-    uri: http://vocabulary.odm2.org/api/v1/medium
-    rdf_file_path: ../data/odm2_medium.rdf
-    source_type: http_get
-
-  odm2_sampling_feature_type:
-    name: ODM2 Sampling Feature Type Vocabulary
-    uri: http://vocabulary.odm2.org/api/v1/samplingfeaturetype
-    rdf_file_path: ../data/odm2_samplingfeaturetype.rdf
-    source_type: http_get
-
 git_configs:
-  cgi_vocabs:
-    github_url: https://github.com/GeoscienceAustralia/geosciml.org
-    source_tree: resource/static/vocabulary/cgi/2016
-    rdf_dir: ../data/cgi
-
-  earthresourceml_vocabs:
-    github_url: https://github.com/GeoscienceAustralia/geosciml.org
-    source_tree: resource/static/vocabulary/earthresourceml/2016
-    rdf_dir: ../data/earthresourceml
-
-  timescale_vocabs:
-    github_url: https://github.com/GeoscienceAustralia/geosciml.org
-    source_tree: resource/static/vocabulary/timescale
-    rdf_dir: ../data/timescale
-
+  cgi_vocabs: {github_url: 'https://github.com/GeoscienceAustralia/geosciml.org',
+    rdf_dir: ../data/cgi, source_tree: resource/static/vocabulary/cgi/2016}
+  earthresourceml_vocabs: {github_url: 'https://github.com/GeoscienceAustralia/geosciml.org',
+    rdf_dir: ../data/earthresourceml, source_tree: resource/static/vocabulary/earthresourceml/2016}
+  timescale_vocabs: {github_url: 'https://github.com/GeoscienceAustralia/geosciml.org',
+    rdf_dir: ../data/timescale, source_tree: resource/static/vocabulary/timescale}
+rdf_configs:
+  1GE_PCExtension: {name: oneGeology Europe precambrian timescale elements, rdf_file_path: ../data/timescale/1GE_PCExtension.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/1GE_PCExtension.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/stratchart/'}
+  ClassificationMethodUsed: {name: Mineral Resource Reporting Classification Method
+      - All Concepts, rdf_file_path: ../data/earthresourceml/ClassificationMethodUsed.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ClassificationMethodUsed.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/classification-method-used'}
+  CommodityCode: {name: Commodity Code - All Concepts, rdf_file_path: ../data/earthresourceml/CommodityCode.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/CommodityCode.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/commodity-code'}
+  EarthResourceExpression: {name: Earth Resource Expression - All Concepts, rdf_file_path: ../data/earthresourceml/EarthResourceExpression.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EarthResourceExpression.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/earth-resource-expression'}
+  EarthResourceForm: {name: Earth Resource Form - All Concepts, rdf_file_path: ../data/earthresourceml/EarthResourceForm.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EarthResourceForm.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/earth-resource-form'}
+  EarthResourceMaterialRole: {name: Earth Resource Material Role - All Concepts, rdf_file_path: ../data/earthresourceml/EarthResourceMaterialRole.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EarthResourceMaterialRole.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/earth-resource-material-role'}
+  EarthResourceShape: {name: Earth Resource Shape - All Concepts, rdf_file_path: ../data/earthresourceml/EarthResourceShape.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EarthResourceShape.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/earth-resource-shape'}
+  EndUsePotential: {name: End Use Potential - All Concepts, rdf_file_path: ../data/earthresourceml/EndUsePotential.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EndUsePotential.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/end-use-potential'}
+  EnvironmentalImpact: {name: Environmental Impact - All Concepts, rdf_file_path: ../data/earthresourceml/EnvironmentalImpact.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EnvironmentalImpact.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/environmental-impact'}
+  ExplorationActivityType: {name: Exploration Activity Type - All Concepts, rdf_file_path: ../data/earthresourceml/ExplorationActivityType.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ExplorationActivityType.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/exploration-activity-type'}
+  ExplorationResult: {name: Exploration Result - All Concepts, rdf_file_path: ../data/earthresourceml/ExplorationResult.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ExplorationResult.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/exploration-result'}
+  IUGS_CGI_register__for_INSPIRE_geologic_timescale_with_content: {name: Geologic
+      Timescale Elements, rdf_file_path: ../data/timescale/IUGS_CGI_register__for_INSPIRE_geologic_timescale_with_content.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/IUGS_CGI_register__for_INSPIRE_geologic_timescale_with_content.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
+  IUGS_CGI_register__for_INSPIRE_lithology_with_content: {name: lithology concepts,
+    rdf_file_path: ../data/cgi/IUGS_CGI_register__for_INSPIRE_lithology_with_content.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/IUGS_CGI_register__for_INSPIRE_lithology_with_content.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/lithology/'}
+  MineStatus: {name: Mine Status - All Concepts, rdf_file_path: ../data/earthresourceml/MineStatus.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/MineStatus.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/mine-status'}
+  MineralOccurrenceType: {name: Mineral Occurrence Type - All Concepts, rdf_file_path: ../data/earthresourceml/MineralOccurrenceType.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/MineralOccurrenceType.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/mineral-occurrence-type'}
+  MiningActivity: {name: Mining Activity - All Concepts, rdf_file_path: ../data/earthresourceml/MiningActivity.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/MiningActivity.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/mining-activity'}
+  ProcessingActivity: {name: Processing Activity - All Concepts, rdf_file_path: ../data/earthresourceml/ProcessingActivity.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ProcessingActivity.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/mining-processing-activity'}
+  RawMaterialRole: {name: Raw Material Role - All Concepts, rdf_file_path: ../data/earthresourceml/RawMaterialRole.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/RawMaterialRole.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/raw-material-role'}
+  ReserveCategory: {name: Reserve Assessment Category - All Concepts, rdf_file_path: ../data/earthresourceml/ReserveCategory.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ReserveCategory.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/reserve-assessment-category'}
+  ResourceCategory: {name: Resource Assessment Category - All Concepts, rdf_file_path: ../data/earthresourceml/ResourceCategory.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ResourceCategory.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/resource-assessment-category'}
+  UNFCValue: {name: UNFC Code - All Concepts, rdf_file_path: ../data/earthresourceml/UNFCValue.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/UNFCValue.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/unfc'}
+  WasteStorage: {name: Waste Storage - All Concepts, rdf_file_path: ../data/earthresourceml/WasteStorage.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/WasteStorage.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/waste-storage'}
+  alterationtype: {name: Alteration Type - All Concepts, rdf_file_path: ../data/cgi/alterationtype.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/alterationtype.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/alterationtype'}
+  boreholedrillingmethod: {name: Borehole Drilling Method - All Concepts, rdf_file_path: ../data/cgi/boreholedrillingmethod.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/boreholedrillingmethod.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/boreholedrillingmethod'}
+  compositioncategory: {name: Composition Category - All Concepts, rdf_file_path: ../data/cgi/compositioncategory.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/compositioncategory.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/compositioncategory'}
+  compoundmaterialconstituentpartrole: {name: Compound Material Constituent Part -
+      All Concepts, rdf_file_path: ../data/cgi/compoundmaterialconstituentpartrole.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/compoundmaterialconstituentpartrole.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/compoundmaterialconstituentpartrole'}
+  consolidationdegree: {name: Consolidation Degree - All Concepts, rdf_file_path: ../data/cgi/consolidationdegree.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/consolidationdegree.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/consolidationdegree'}
+  contacttype: {name: Contact Type - All Concepts, rdf_file_path: ../data/cgi/contacttype.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/contacttype.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/contacttype'}
+  conventioncode: {name: Convention Code for Strike and Dip Measurements - All Concepts,
+    rdf_file_path: ../data/cgi/conventioncode.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/conventioncode.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/conventioncode'}
+  deformationstyle: {name: Deformation Style - All Concepts, rdf_file_path: ../data/cgi/deformationstyle.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/deformationstyle.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/deformationstyle'}
+  descriptionpurpose: {name: Description Purpose - All Concepts, rdf_file_path: ../data/cgi/descriptionpurpose.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/descriptionpurpose.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/descriptionpurpose'}
+  determinationmethodorientation: {name: Orientation Determination Method - All Concepts,
+    rdf_file_path: ../data/cgi/determinationmethodorientation.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/determinationmethodorientation.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/determinationmethodorientation'}
+  eventenvironment: {name: Event Environment - All Concepts, rdf_file_path: ../data/cgi/eventenvironment.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/eventenvironment.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/eventenvironment'}
+  eventprocess: {name: Event Process - All Concepts, rdf_file_path: ../data/cgi/eventprocess.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/eventprocess.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/eventprocess'}
+  faultmovementsense: {name: Fault Movement Sense - All Concepts, rdf_file_path: ../data/cgi/faultmovementsense.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/faultmovementsense.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/faultmovementsense'}
+  faultmovementtype: {name: Fault Movement Type - All Concepts, rdf_file_path: ../data/cgi/faultmovementtype.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/faultmovementtype.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/faultmovementtype'}
+  faulttype: {name: Fault Type - All Concepts, rdf_file_path: ../data/cgi/faulttype.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/faulttype.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/faulttype'}
+  featureobservationmethod: {name: Observation Method (Geologic Feature) - All Concepts,
+    rdf_file_path: ../data/cgi/featureobservationmethod.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/featureobservationmethod.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/featureobservationmethod'}
+  foliationtype: {name: Foliation Type - All Concepts, rdf_file_path: ../data/cgi/foliationtype.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/foliationtype.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/foliationtype'}
+  ga_igsn_codelists: {name: GA IGSN Vocabularies, rdf_file_path: ../data/ga_igsn_codelists.rdf,
+    source_type: sparql, sparql_endpoint: 'http://vocabs.ands.org.au/repository/api/sparql/ga_igsn-codelist_v0-9-2',
+    uri: 'http://pid.geoscience.gov.au/def/voc/ga/igsncode'}
+  geneticcategory: {name: Genetic Category - All Concepts, rdf_file_path: ../data/cgi/geneticcategory.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/geneticcategory.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/geneticcategory'}
+  geologicunitmorphology: {name: Geologic Unit Morphology - All Concepts, rdf_file_path: ../data/cgi/geologicunitmorphology.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/geologicunitmorphology.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/geologicunitmorphology'}
+  geologicunitpartrole: {name: Geologic Unit Part Role - All Concepts, rdf_file_path: ../data/cgi/geologicunitpartrole.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/geologicunitpartrole.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/geologicunitpartrole'}
+  geologicunittype: {name: Geologic Unit Type - All Concepts, rdf_file_path: ../data/cgi/geologicunittype.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/geologicunittype.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/geologicunittype'}
+  isc2004: {name: Geologic Timescale Elements, rdf_file_path: ../data/timescale/isc2004.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2004.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
+  isc2005: {name: Geologic Timescale Elements, rdf_file_path: ../data/timescale/isc2005.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2005.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
+  isc2006: {name: Geologic Timescale Elements, rdf_file_path: ../data/timescale/isc2006.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2006.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
+  isc2008: {name: Geologic Timescale Elements, rdf_file_path: ../data/timescale/isc2008.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2008.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
+  isc2009: {name: Geologic Timescale Elements, rdf_file_path: ../data/timescale/isc2009.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2009.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
+  isc2010: {name: Geologic Timescale Elements, rdf_file_path: ../data/timescale/isc2010.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2010.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
+  isc2012: {name: Geologic Timescale Elements, rdf_file_path: ../data/timescale/isc2012.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2012.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
+  isc2013: {name: Geologic Timescale Elements in the International Chronostratigraphic
+      Chart, rdf_file_path: ../data/timescale/isc2013.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2013.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
+  isc2014: {name: Geologic Timescale Elements in the International Chronostratigraphic
+      Chart, rdf_file_path: ../data/timescale/isc2014.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2014.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
+  isc2017: {name: Geologic Timescale Elements in the International Chronostratigraphic
+      Chart, rdf_file_path: ../data/timescale/isc2017.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2017.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
+  lineationtype: {name: Lineation Type - All Concepts, rdf_file_path: ../data/cgi/lineationtype.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/lineationtype.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/lineationtype'}
+  mappedfeatureobservationmethod: {name: Observation Method (Mapped Feature) - All
+      Concepts, rdf_file_path: ../data/cgi/mappedfeatureobservationmethod.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/mappedfeatureobservationmethod.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/mappedfeatureobservationmethod'}
+  mappingframe: {name: Mapping Frame - All Concepts, rdf_file_path: ../data/cgi/mappingframe.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/mappingframe.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/mappingframe'}
+  metamorphicfacies: {name: Metamorphic Facies - All Concepts, rdf_file_path: ../data/cgi/metamorphicfacies.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/metamorphicfacies.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/metamorphicfacies'}
+  metamorphicgrade: {name: Metamorphic Grade - All Concepts, rdf_file_path: ../data/cgi/metamorphicgrade.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/metamorphicgrade.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/metamorphicgrade'}
+  odm2_medium: {name: ODM2 Medium Vocabulary, rdf_file_path: ../data/odm2_medium.rdf,
+    source_type: http_get, uri: 'http://vocabulary.odm2.org/api/v1/medium'}
+  odm2_sampling_feature_type: {name: ODM2 Sampling Feature Type Vocabulary, rdf_file_path: ../data/odm2_samplingfeaturetype.rdf,
+    source_type: http_get, uri: 'http://vocabulary.odm2.org/api/v1/samplingfeaturetype'}
+  odm2_specimentype: {name: ODM2 Specimen Type Vocabulary, rdf_file_path: ../data/odm2_specimentype.rdf,
+    source_type: http_get, uri: 'http://vocabulary.odm2.org/api/v1/specimentype'}
+  particleaspectratio: {name: Particle Aspect Ratio - All Concepts, rdf_file_path: ../data/cgi/particleaspectratio.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/particleaspectratio.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/particleaspectratio'}
+  particleshape: {name: Particle Shape - All Concepts, rdf_file_path: ../data/cgi/particleshape.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/particleshape.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/particleshape'}
+  particletype: {name: Particle Type - All Concepts, rdf_file_path: ../data/cgi/particletype.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/particletype.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/particletype'}
+  planarpolaritycode: {name: Planar Polarity Code - All Concepts, rdf_file_path: ../data/cgi/planarpolaritycode.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/planarpolaritycode.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/planarpolaritycode'}
+  proportionterm: {name: Proportion Term - All Concepts, rdf_file_path: ../data/cgi/proportionterm.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/proportionterm.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/proportionterm'}
+  simplelithology: {name: Simple Lithology - All Concepts, rdf_file_path: ../data/cgi/simplelithology.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/simplelithology.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/lithology'}
+  stratigraphicrank: {name: Stratigraphic Rank - All Concepts, rdf_file_path: ../data/cgi/stratigraphicrank.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/stratigraphicrank.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/stratigraphicrank'}
+  valuequalifier: {name: Value Qualifier - All Concepts, rdf_file_path: ../data/cgi/valuequalifier.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/valuequalifier.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/valuequalifier'}
+  vocabularyrelation: {name: Vocabulary Relation - All Concepts, rdf_file_path: ../data/cgi/vocabularyrelation.rdf,
+    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/vocabularyrelation.rdf',
+    source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/vocabularyrelation'}
 timeout: 10
-
 triple_store_url: http://ec2-54-252-216-15.ap-southeast-2.compute.amazonaws.com/fuseki/vocabs

@@ -24,7 +24,10 @@ logger.debug('__name__ = {}'.format(__name__))
 class RDFUpdater(object):
     settings = None
     
-    def __init__(self, settings_path=None, debug=False):
+    def __init__(self, 
+                 settings_path=None, 
+                 update_github=False,
+                 debug=False):
         
         # Initialise and set debug property
         self._debug = None
@@ -34,10 +37,15 @@ class RDFUpdater(object):
         settings_path = settings_path or os.path.join(package_dir, 'rdf_updater_settings.yml')
         self.settings = yaml.safe_load(open(settings_path))
         
-        self.rdf_configs = self.settings['rdf_configs']
         
-        logger.info('Reading vocab configs from GitHub')
-        self.rdf_configs.update(self.get_github_settings())
+        
+        if update_github:
+            logger.info('Reading vocab configs from GitHub')
+            self.settings['rdf_configs'].update(self.get_github_settings())
+            
+            logger.info('Writing updated vocab configs to settings file {}'.format(settings_path))
+            with open(settings_path, 'w') as settings_file:
+                yaml.safe_dump(self.settings, settings_file)
         
         #logger.debug('Settings: {}'.format(pformat(self.settings)))
         
@@ -83,7 +91,7 @@ WHERE {?s ?p ?o .}'''
                 
         logger.info('Reading RDFs from sources to files')    
         
-        for _rdf_name, rdf_config in self.rdf_configs.items():
+        for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
             logger.info('Obtaining data for {}'.format(rdf_config['name']))
             try:
                 rdf = get_rdf(rdf_config)
@@ -120,7 +128,7 @@ WHERE {?s ?p ?o .}'''
             return(response.content)
                 
         logger.info('Writing RDFs to triple-store {} from files'.format(self.settings['triple_store_url']))           
-        for _rdf_name, rdf_config in self.rdf_configs.items():
+        for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
             logger.info('Writing data for {}'.format(rdf_config['name']))
             try:
                 logger.info('Reading RDF from {}'.format(rdf_config['rdf_file_path']))
@@ -218,6 +226,13 @@ WHERE {?s ?p ?o .}'''
             rdf.parse(rdf_file, format='xml')
             rdf_file.close()
             
+            backup_file_path = rdf_config['rdf_file_path'] + '.bck'
+            try:
+                os.remove(backup_file_path)
+            except:
+                pass
+            os.rename(rdf_config['rdf_file_path'], backup_file_path)
+            
             voc = skosify.skosify(rdf, label=rdf_config['name'])
              
             skosify.infer.skos_related(voc)
@@ -234,7 +249,7 @@ WHERE {?s ?p ?o .}'''
 
         
         logger.info('Validating RDFs from files')           
-        for _rdf_name, rdf_config in self.rdf_configs.items():
+        for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
             #logger.info('Validating data for {}'.format(rdf_config['name']))
             try:
                 logger.info('Validating RDF from {}'.format(rdf_config['rdf_file_path']))

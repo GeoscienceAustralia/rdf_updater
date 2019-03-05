@@ -6,6 +6,7 @@ Created on 25 Feb. 2019
 '''
 import logging
 import sys
+import argparse
 from rdf_updater import RDFUpdater
 
 logger = logging.getLogger('rdf_updater')
@@ -13,7 +14,24 @@ logger = logging.getLogger('rdf_updater')
 DEBUG = False
 
 def main():
-    rdf_updater = RDFUpdater(debug=DEBUG) 
+    # Define command line arguments
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument("-s", "--settings", help="Settings file", type=str)
+    parser.add_argument('-n', '--no_skos', action='store_const', const=True, default=False,
+                        help='Do not perform SKOS validation and inferencing. Default is SKOS enabled')
+    parser.add_argument('-g', '--update_github', action='store_const', const=True, default=False,
+                        help='Update vocab settings from GitHub. Default is no update')
+    parser.add_argument('--debug', action='store_const', const=True, default=False,
+                        help='output debug information. Default is no debug info')
+    
+    args = parser.parse_args()
+
+
+    rdf_updater = RDFUpdater(settings_path=args.settings, 
+                             update_github=args.update_github, 
+                             debug=args.debug
+                             ) 
     #logger.debug(pformat(rdf_updater.__dict__))
     
     print()
@@ -22,9 +40,9 @@ def main():
      
     print()
     
-    rdf_updater.skosify_rdfs()
-     
-    print()
+    if not args.no_skos:
+        rdf_updater.skosify_rdfs()
+        print()
     
     rdf_updater.put_rdfs() # Write RDFs to triple-store from files
 
