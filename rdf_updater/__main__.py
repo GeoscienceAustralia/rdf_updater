@@ -18,7 +18,7 @@ def main():
     parser = argparse.ArgumentParser()
     
     parser.add_argument("-s", "--settings", help="Settings file", type=str)
-    parser.add_argument('-n', '--no_skos', action='store_const', const=True, default=False,
+    parser.add_argument('-n', '--no_skosify', action='store_const', const=True, default=False,
                         help='Do not perform SKOS validation and inferencing. Default is SKOS enabled')
     parser.add_argument('-g', '--update_github', action='store_const', const=True, default=False,
                         help='Update vocab settings from GitHub. Default is no update')
@@ -40,15 +40,11 @@ def main():
      
     print()
     
-    if not args.no_skos:
+    if not args.no_skosify:
         rdf_updater.skosify_rdfs()
         print()
     
     rdf_updater.put_rdfs() # Write RDFs to triple-store from files
-
-
-    
-    
     
     
 if __name__ == '__main__':

@@ -217,24 +217,44 @@ WHERE {?s ?p ?o .}'''
         return result_dict  
     
     def skosify_rdfs(self):
-        def skosify_rdf(rdf_config):
-            #temp_rdf_path = os.path.splitext(rdf_path)[0] + '_tmp.rdf'
+        def skosify_rdf(rdf_config, root_logger):
+            rdf_file_path = rdf_config['rdf_file_path']
+            log_file_name = os.path.splitext(rdf_file_path)[0] + '.log'
+            backup_file_path = rdf_file_path + '.bck'
+            nt_file_path = os.path.splitext(rdf_file_path)[0] + '.nt'
             
+            logger.info('Validating RDF from {}'.format(rdf_file_path))
+
             # The following is a work-around for a unicode issue in rdflib
-            rdf_file = open(rdf_config['rdf_file_path'], 'rb') # Note binary reading
+            rdf_file = open(rdf_file_path, 'rb') # Note binary reading
             rdf = Graph()
             rdf.parse(rdf_file, format='xml')
             rdf_file.close()
             
-            backup_file_path = rdf_config['rdf_file_path'] + '.bck'
             try:
                 os.remove(backup_file_path)
             except:
                 pass
-            os.rename(rdf_config['rdf_file_path'], backup_file_path)
+            os.rename(rdf_file_path, backup_file_path)
             
-            voc = skosify.skosify(rdf, label=rdf_config['name'])
-             
+            # Capture SKOSify WARNING level output to log file    
+            try:
+                os.remove(log_file_name)
+            except:
+                pass
+            log_file_handler = logging.FileHandler(log_file_name)
+            log_file_handler.setLevel(logging.WARNING)
+            log_file_formatter = logging.Formatter('%(message)s')
+            log_file_handler.setFormatter(log_file_formatter)
+            root_logger.addHandler(log_file_handler)
+            
+            voc = skosify.skosify(rdf, 
+                                  label=rdf_config['name'],
+                                  eliminate_redundancy=True,
+                                  preflabel_policy='all' #TODO: This is necessary to avoid a unicode bug in skosify - fix it
+                                  )
+            
+            logger.debug('Adding SKOS inferences') 
             skosify.infer.skos_related(voc)
             skosify.infer.skos_topConcept(voc)
             skosify.infer.skos_hierarchical(voc, narrower=True)
@@ -243,25 +263,38 @@ WHERE {?s ?p ?o .}'''
             skosify.infer.rdfs_classes(voc)
             skosify.infer.rdfs_properties(voc)
             
-            rdf_file = open(rdf_config['rdf_file_path'], 'wb') # Note binary writing
+            rdf_file = open(rdf_file_path, 'wb') # Note binary writing
             voc.serialize(destination=rdf_file, format='xml')
             rdf_file.close()
+            
+            logger.debug('Writing hashable n-triple file {}'.format(nt_file_path))
+            with open(nt_file_path, 'w') as nt_file: # Note string writing
+                for line in [line.decode('utf-8') 
+                             for line in sorted(voc.serialize(format='nt').splitlines())
+                             if line
+                             ]:
+                    nt_file.write(line + '\n')
+                    
+            root_logger.removeHandler(log_file_handler) # Stop logging to file
+            del log_file_handler # Force closing of log file
+            if os.stat(log_file_name).st_size:
+                logger.debug('SKOSify messages written to {}'.format(log_file_name))
+            else:
+                os.remove(log_file_name) # No messages
 
         
-        logger.info('Validating RDFs from files')           
+        logger.info('Validating RDFs from files') 
+        root_logger = logging.getLogger() # Capture output from Skosify to log file   
+             
         for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
             #logger.info('Validating data for {}'.format(rdf_config['name']))
+            
             try:
-                logger.info('Validating RDF from {}'.format(rdf_config['rdf_file_path']))
-                #===============================================================
-                # with open(rdf_config['rdf_file_path'], 'rb') as rdf_file:
-                #     rdf = rdf_file.read()
-                #===============================================================
-                skosify_rdf(rdf_config)
+                skosify_rdf(rdf_config, root_logger)
             except Exception as e:
                 logger.warning('RDF validation from file {} failed: {}'.format(rdf_config['rdf_file_path'], e))
                 continue
-            
+                        
         logger.info('Validation of RDF files completed')
     
     
