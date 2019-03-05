@@ -37,8 +37,6 @@ class RDFUpdater(object):
         settings_path = settings_path or os.path.join(package_dir, 'rdf_updater_settings.yml')
         self.settings = yaml.safe_load(open(settings_path))
         
-        
-        
         if update_github:
             logger.info('Reading vocab configs from GitHub')
             self.settings['rdf_configs'].update(self.get_github_settings())
