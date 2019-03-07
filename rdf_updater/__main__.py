@@ -26,7 +26,8 @@ def main():
                         help='output debug information. Default is no debug info')
     
     args = parser.parse_args()
-
+    
+    skosify = not args.no_skosify
 
     rdf_updater = RDFUpdater(settings_path=args.settings, 
                              update_github=args.update_github, 
@@ -34,17 +35,15 @@ def main():
                              ) 
     #logger.debug(pformat(rdf_updater.__dict__))
     
-    print()
-     
     rdf_updater.get_rdfs() # Read RDFs from sources into files
      
     print()
     
-    if not args.no_skosify:
+    if skosify:
         rdf_updater.skosify_rdfs()
         print()
     
-    rdf_updater.put_rdfs() # Write RDFs to triple-store from files
+    rdf_updater.put_rdfs(skosified=skosify) # Write RDFs to triple-store from files
     
     
 if __name__ == '__main__':

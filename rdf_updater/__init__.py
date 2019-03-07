@@ -110,7 +110,7 @@ WHERE {?s ?p ?o .}'''
         logger.info('Finished reading to files')
         
         
-    def put_rdfs(self):
+    def put_rdfs(self, skosified=True):
         def put_rdf(rdf_config, rdf):
             url = self.settings['triple_store_url'] + '/data'
             if rdf_config.get('format') == 'ttl': 
@@ -127,10 +127,15 @@ WHERE {?s ?p ?o .}'''
                 
         logger.info('Writing RDFs to triple-store {} from files'.format(self.settings['triple_store_url']))           
         for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
-            logger.info('Writing data for {}'.format(rdf_config['name']))
+            logger.info('Writing data for {} to triple-store'.format(rdf_config['name']))
+            if skosified:
+                rdf_file_path = os.path.splitext(rdf_config['rdf_file_path'])[0] + '_skos.rdf'
+            else:
+                rdf_file_path = rdf_config['rdf_file_path'] # Original RDF
+                
             try:
-                logger.info('Reading RDF from {}'.format(rdf_config['rdf_file_path']))
-                with open(rdf_config['rdf_file_path'], 'r', encoding='utf-8') as rdf_file:
+                logger.info('Reading RDF from {}'.format(rdf_file_path))
+                with open(rdf_file_path, 'r', encoding='utf-8') as rdf_file:
                     rdf = rdf_file.read()
                 #logger.debug('rdf = {}'.format(rdf))
                 result = json.loads(put_rdf(rdf_config, rdf))
@@ -217,23 +222,17 @@ WHERE {?s ?p ?o .}'''
     def skosify_rdfs(self):
         def skosify_rdf(rdf_config, root_logger):
             rdf_file_path = rdf_config['rdf_file_path']
+            skos_rdf_file_path = os.path.splitext(rdf_file_path)[0] + '_skos.rdf'
+            skos_nt_file_path = os.path.splitext(rdf_file_path)[0] + '_skos.nt'
             log_file_name = os.path.splitext(rdf_file_path)[0] + '.log'
-            backup_file_path = rdf_file_path + '.bck'
-            nt_file_path = os.path.splitext(rdf_file_path)[0] + '.nt'
             
-            logger.info('Validating RDF from {}'.format(rdf_file_path))
+            logger.info('SKOSifying RDF from {}'.format(rdf_file_path))
 
             # The following is a work-around for a unicode issue in rdflib
             rdf_file = open(rdf_file_path, 'rb') # Note binary reading
             rdf = Graph()
             rdf.parse(rdf_file, format='xml')
             rdf_file.close()
-            
-            try:
-                os.remove(backup_file_path)
-            except:
-                pass
-            os.rename(rdf_file_path, backup_file_path)
             
             # Capture SKOSify WARNING level output to log file    
             try:
@@ -246,32 +245,32 @@ WHERE {?s ?p ?o .}'''
             log_file_handler.setFormatter(log_file_formatter)
             root_logger.addHandler(log_file_handler)
             
-            voc = skosify.skosify(rdf, 
+            skos_rdf = skosify.skosify(rdf, 
                                   label=rdf_config['name'],
                                   eliminate_redundancy=True,
                                   preflabel_policy='all' #TODO: This is necessary to avoid a unicode bug in skosify - fix it
                                   )
             
-            logger.debug('Adding SKOS inferences') 
-            skosify.infer.skos_related(voc)
-            skosify.infer.skos_topConcept(voc)
-            skosify.infer.skos_hierarchical(voc, narrower=True)
-            skosify.infer.skos_transitive(voc, narrower=True)
+            logger.debug('Adding SKOS inferences to {}'.format(skos_rdf_file_path)) 
+            skosify.infer.skos_related(skos_rdf)
+            skosify.infer.skos_topConcept(skos_rdf)
+            skosify.infer.skos_hierarchical(skos_rdf, narrower=True)
+            skosify.infer.skos_transitive(skos_rdf, narrower=True)
               
-            skosify.infer.rdfs_classes(voc)
-            skosify.infer.rdfs_properties(voc)
+            skosify.infer.rdfs_classes(skos_rdf)
+            skosify.infer.rdfs_properties(skos_rdf)
             
-            rdf_file = open(rdf_file_path, 'wb') # Note binary writing
-            voc.serialize(destination=rdf_file, format='xml')
-            rdf_file.close()
+            logger.debug('Writing RDF-XML SKOS file {}'.format(skos_rdf_file_path))
+            with open(skos_rdf_file_path, 'wb') as skos_rdf_file: # Note binary writing
+                skos_rdf.serialize(destination=skos_rdf_file, format='xml')
             
-            logger.debug('Writing hashable n-triple file {}'.format(nt_file_path))
-            with open(nt_file_path, 'w') as nt_file: # Note string writing
+            logger.debug('Writing hashable n-triple SKOS file {}'.format(skos_nt_file_path))
+            with open(skos_nt_file_path, 'w') as skos_nt_file: # Note string writing
                 for line in [line.decode('utf-8') 
-                             for line in sorted(voc.serialize(format='nt').splitlines())
+                             for line in sorted(skos_rdf.serialize(format='nt').splitlines())
                              if line
                              ]:
-                    nt_file.write(line + '\n')
+                    skos_nt_file.write(line + '\n')
                     
             root_logger.removeHandler(log_file_handler) # Stop logging to file
             del log_file_handler # Force closing of log file
@@ -281,7 +280,7 @@ WHERE {?s ?p ?o .}'''
                 os.remove(log_file_name) # No messages
 
         
-        logger.info('Validating RDFs from files') 
+        logger.info('SKOSifying RDFs from files') 
         root_logger = logging.getLogger() # Capture output from Skosify to log file   
              
         for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
@@ -290,10 +289,10 @@ WHERE {?s ?p ?o .}'''
             try:
                 skosify_rdf(rdf_config, root_logger)
             except Exception as e:
-                logger.warning('RDF validation from file {} failed: {}'.format(rdf_config['rdf_file_path'], e))
+                logger.warning('RDF SKOSification from file {} failed: {}'.format(rdf_config['rdf_file_path'], e))
                 continue
                         
-        logger.info('Validation of RDF files completed')
+        logger.info('SKOSification of RDF files completed')
     
     
     @property
