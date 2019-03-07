@@ -37,7 +37,7 @@ def main():
                              ) 
     #logger.debug(pformat(rdf_updater.__dict__))
     
-    #rdf_updater.get_rdfs() # Read RDFs from sources into files
+    rdf_updater.get_rdfs() # Read RDFs from sources into files
      
     print()
     
@@ -45,7 +45,7 @@ def main():
         rdf_updater.skosify_rdfs()
         print()
     
-    #rdf_updater.put_rdfs(skosified=skosify) # Write RDFs to triple-store from files
+    rdf_updater.put_rdfs(skosified=skosify) # Write RDFs to triple-store from files
     
     for graph_name in rdf_updater.get_graph_names():
         print('graph: {}'.format(graph_name))

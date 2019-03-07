@@ -389,12 +389,11 @@ WHERE {
     OPTIONAL {?collection rdfs:label ?collection_label .}
     OPTIONAL {?concept skos:definition ?concept_description .}
     OPTIONAL {?concept skos:broader ?broader_concept .}
-    FILTER( 
-        (lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "") && 
-        (lang(?concept_description) = "en" || lang(?concept_description) = ""))
+    FILTER(lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "")
         }
 '''.replace('{graph_name}', graph_name)
-#(lang(?collection_label) = "en" || lang(?collection_label) = "") &&
+#(lang(?collection_label) = "en" || lang(?collection_label) = "")
+#(lang(?concept_description) = "en" || lang(?concept_description) = "")
 
         response_dict = json.loads(self.submit_sparql_query(sparql_query)
                                  )  
