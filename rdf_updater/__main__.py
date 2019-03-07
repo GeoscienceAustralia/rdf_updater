@@ -7,6 +7,8 @@ Created on 25 Feb. 2019
 import logging
 import sys
 import argparse
+import os
+from pprint import pprint
 from rdf_updater import RDFUpdater
 
 logger = logging.getLogger('rdf_updater')
@@ -35,16 +37,24 @@ def main():
                              ) 
     #logger.debug(pformat(rdf_updater.__dict__))
     
-    rdf_updater.get_rdfs() # Read RDFs from sources into files
+    #rdf_updater.get_rdfs() # Read RDFs from sources into files
      
     print()
     
-    if skosify:
+    if False:#skosify:
         rdf_updater.skosify_rdfs()
         print()
     
-    rdf_updater.put_rdfs(skosified=skosify) # Write RDFs to triple-store from files
+    #rdf_updater.put_rdfs(skosified=skosify) # Write RDFs to triple-store from files
     
+    for graph_name in rdf_updater.get_graph_names():
+        print('graph: {}'.format(graph_name))
+    
+        collection_data = rdf_updater.get_collection_data(graph_name)
+        #print(collection_data)
+        
+        rdf_updater.print_collection_data(collection_data)
+
     
 if __name__ == '__main__':
     # Setup logging handler if required

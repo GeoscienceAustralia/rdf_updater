@@ -16,6 +16,7 @@ from pprint import pprint, pformat
 from lxml import etree
 import skosify  # contains skosify, config, and infer
 from rdflib import Graph
+from unidecode import unidecode
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO) # Initial logging level for this module
@@ -112,20 +113,29 @@ WHERE {?s ?p ?o .}'''
         
     def put_rdfs(self, skosified=True):
         def put_rdf(rdf_config, rdf):
-            url = self.settings['triple_store_url'] + '/data'
+            url = self.settings['triple_store']['url'] + '/data'
             if rdf_config.get('format') == 'ttl': 
                 headers = {'Content-Type': 'text/turtle'}
             else:
                 headers = {'Content-Type': 'application/rdf+xml'}
+                
+            username = self.settings['triple_store'].get('username')
+            password = self.settings['triple_store'].get('password')
+            
+            if (username and password):
+                logger.debug('Authenticating with username {} and password {}'.format(username, password))
+                headers['Authorization'] = 'Basic ' + base64.encodebytes('{}:{}'.format(username, password).encode('utf-8')).strip().decode('utf-8')
+            
             params = {'graph': rdf_config['uri']}
             
             logger.info('Writing RDF to {}'.format(url))
+            #logger.debug('url = {}, headers = {}, params = {}'.format(url, headers, params))
             response = requests.put(url, headers=headers, params=params, data=rdf.encode('utf-8'), timeout=self.settings['timeout'])
             #logger.debug('Response content: {}'.format(response.content))
             assert response.status_code == 200 or response.status_code == 201, 'Response status code {}  != 200 or 201: {}'.format(response.status_code, response.content)
             return(response.content)
                 
-        logger.info('Writing RDFs to triple-store {} from files'.format(self.settings['triple_store_url']))           
+        logger.info('Writing RDFs to triple-store {} from files'.format(self.settings['triple_store']['url']))           
         for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
             logger.info('Writing data for {} to triple-store'.format(rdf_config['name']))
             if skosified:
@@ -294,7 +304,135 @@ WHERE {?s ?p ?o .}'''
                         
         logger.info('SKOSification of RDF files completed')
     
+    def submit_sparql_query(self, sparql_query, accept_format='json'):
+        accept_format = {'json': 'application/json',
+                         'xml': 'application/xml'}.get(accept_format) or 'application/json'
+        headers = {'Accept': accept_format,
+                   'Content-Type': 'application/sparql-query',
+                   'Accept-Encoding': 'UTF-8'
+                   }
+        username = self.settings['triple_store'].get('username')
+        password = self.settings['triple_store'].get('password')
+            
+        if (username and password):
+            logger.debug('Authenticating with username {} and password {}'.format(username, password))
+            headers['Authorization'] = 'Basic ' + base64.encodebytes('{}:{}'.format(username, password).encode('utf-8')).strip().decode('utf-8')
+            
+        params = None
+        response = requests.post(self.settings['triple_store']['url'], 
+                               headers=headers, 
+                               params=params, 
+                               data=sparql_query, 
+                               timeout=self.settings['timeout'])
+        #logger.debug('Response content: {}'.format(str(response.content)))
+        assert response.status_code == 200, 'Response status code != 200'
+        return(response.content).decode('utf-8') # Convert binary to UTF-8 string
     
+    def get_graph_names(self):
+        sparql_query = '''SELECT DISTINCT ?graph
+WHERE {
+    GRAPH ?graph {
+        ?s ?p ?o .
+    }
+}
+'''
+        return [bindings_dict['graph']['value']
+                for bindings_dict in json.loads(self.submit_sparql_query(sparql_query))["results"]["bindings"]
+                ]
+            
+        
+        
+    def get_collection_data(self, graph_name):
+        
+        def get_concept_tree(bindings_list, collection, broader_concept=None):
+        
+            def get_narrower_concepts(bindings_list, collection, broader_concept):
+                bindings_sublist = [bindings_dict for bindings_dict in bindings_list
+                                    if (bindings_dict['collection']['value'] == collection
+                                        and (
+                                             (broader_concept is None and bindings_dict.get('broader_concept') is None)
+                                             or ((broader_concept is not None) and (bindings_dict.get('broader_concept') is not None) and (bindings_dict['broader_concept']['value'] == broader_concept))
+                                             )
+                                        )
+                                    ]
+                #print(collection, broader_concept, bindings_sublist)
+                return bindings_sublist
+            
+            concept_tree_dict = {}
+            
+            for bindings_dict in get_narrower_concepts(bindings_list, collection, broader_concept):
+                concept = bindings_dict["concept"]["value"]
+                
+                concept_dict = {'preflabel': bindings_dict["concept_preflabel"]["value"]}
+                
+                if bindings_dict.get('concept_description'):
+                    concept_dict['description'] = bindings_dict["concept_description"]["value"]
+                    
+                narrower_concept_tree_dict = get_concept_tree(bindings_list, collection, broader_concept=concept)
+                if narrower_concept_tree_dict:
+                    concept_dict['narrower_concepts'] = narrower_concept_tree_dict
+                
+                concept_tree_dict[concept] = concept_dict
+                
+            return concept_tree_dict
+                
+        
+        sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+
+SELECT ?collection ?collection_label ?concept ?concept_preflabel ?concept_description ?broader_concept
+FROM <{graph_name}>
+WHERE {
+    ?collection a skos:Collection .
+    ?collection skos:member ?concept .
+    ?concept skos:prefLabel ?concept_preflabel .
+    OPTIONAL {?collection rdfs:label ?collection_label .}
+    OPTIONAL {?concept skos:definition ?concept_description .}
+    OPTIONAL {?concept skos:broader ?broader_concept .}
+    FILTER( 
+        (lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "") && 
+        (lang(?concept_description) = "en" || lang(?concept_description) = ""))
+        }
+'''.replace('{graph_name}', graph_name)
+#(lang(?collection_label) = "en" || lang(?collection_label) = "") &&
+
+        response_dict = json.loads(self.submit_sparql_query(sparql_query)
+                                 )  
+        bindings_list = response_dict["results"]["bindings"]
+        #print(bindings_list)
+        
+        result_dict = {bindings_dict['collection']['value']: 
+            {'label': (bindings_dict['collection_label']['value'] 
+                      if bindings_dict.get('collection_label')
+                      else os.path.basename(bindings_dict['collection']['value']))}
+            for bindings_dict in bindings_list}
+        
+        for collection, collection_dict in result_dict.items():
+            collection_dict['concepts'] = get_concept_tree(bindings_list, collection, broader_concept=None) 
+            
+        return result_dict
+    
+    
+    def print_collection_data(self, concept_tree_dict, level=0):
+        if not level:
+            for collection, collection_dict in concept_tree_dict.items():
+                print(unidecode('Collection "{}": {}'.format(collection_dict['label'], collection))) 
+                #print(collection_dict)
+                self.print_collection_data(collection_dict['concepts'], level=level+1)
+        else:
+            for concept, concept_dict in concept_tree_dict.items():
+                #print(concept_dict)
+                print(unidecode('{}Concept "{}": {} ({})'.format(('  ' * level),
+                    concept_dict['preflabel'], 
+                    concept,
+                    concept_dict.get('description') or ''))
+                    ) 
+                narrower_concepts_dict = concept_dict.get('narrower_concepts')
+                if narrower_concepts_dict:
+                    self.print_collection_data(narrower_concepts_dict, level=level+1)
+            
+                
+        
     @property
     def debug(self):
         return self._debug

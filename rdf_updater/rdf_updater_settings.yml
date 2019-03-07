@@ -221,4 +221,9 @@ rdf_configs:
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/vocabularyrelation.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/vocabularyrelation'}
 timeout: 10
-triple_store_url: http://ec2-54-252-216-15.ap-southeast-2.compute.amazonaws.com/fuseki/vocabs
+triple_store:
+  #triple_store_url: http://ec2-54-252-216-15.ap-southeast-2.compute.amazonaws.com/fuseki/vocabs
+  url: http://52.65.31.119/fuseki/vocabs
+  username: "vocabmanager"
+  password: "vocab1234%^&*"
+
