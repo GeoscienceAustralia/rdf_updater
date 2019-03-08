@@ -47,13 +47,8 @@ def main():
     
     rdf_updater.put_rdfs(skosified=skosify) # Write RDFs to triple-store from files
     
-    for graph_name in rdf_updater.get_graph_names():
-        print('graph: {}'.format(graph_name))
-    
-        collection_data = rdf_updater.get_collection_data(graph_name)
-        #print(collection_data)
-        
-        rdf_updater.print_collection_data(collection_data)
+    rdf_updater.output_summary_text()
+
 
     
 if __name__ == '__main__':

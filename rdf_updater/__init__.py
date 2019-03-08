@@ -305,6 +305,9 @@ WHERE {?s ?p ?o .}'''
         logger.info('SKOSification of RDF files completed')
     
     def submit_sparql_query(self, sparql_query, accept_format='json'):
+        '''
+        Function to submit a sparql query and return the textual response
+        '''
         accept_format = {'json': 'application/json',
                          'xml': 'application/xml'}.get(accept_format) or 'application/json'
         headers = {'Accept': accept_format,
@@ -329,6 +332,9 @@ WHERE {?s ?p ?o .}'''
         return(response.content).decode('utf-8') # Convert binary to UTF-8 string
     
     def get_graph_names(self):
+        '''
+        Function to generate a list of all graph names
+        '''
         sparql_query = '''SELECT DISTINCT ?graph
 WHERE {
     GRAPH ?graph {
@@ -343,19 +349,38 @@ WHERE {
         
         
     def get_collection_data(self, graph_name):
+        '''
+        Function to generate a tree of all collections and concepts in a given graph
+        '''
         
         def get_concept_tree(bindings_list, collection, broader_concept=None):
-        
+            '''
+            Recursive helper function to generate tree of broader/narrower concepts in graph
+            '''
             def get_narrower_concepts(bindings_list, collection, broader_concept):
+                '''
+                Helper function to generate sublist of narrower concepts for a given broader concept
+                N.B: when broader_concept is None, the list will contain top concepts and also 
+                concepts with broader concepts in other collections
+                '''
+                collection_concepts = set([bindings_dict['concept']['value'] 
+                                       for bindings_dict in bindings_list
+                                       if (bindings_dict['collection']['value'] == collection)
+                                       ])
+                
                 bindings_sublist = [bindings_dict for bindings_dict in bindings_list
                                     if (bindings_dict['collection']['value'] == collection
                                         and (
-                                             (broader_concept is None and bindings_dict.get('broader_concept') is None)
-                                             or ((broader_concept is not None) and (bindings_dict.get('broader_concept') is not None) and (bindings_dict['broader_concept']['value'] == broader_concept))
+                                             (broader_concept is None and 
+                                                ((bindings_dict.get('broader_concept') is None) # Top concept?
+                                                 or (bindings_dict['broader_concept']['value'] not in collection_concepts))) # Broader concept not in same collection
+                                             or ((broader_concept is not None) and (bindings_dict.get('broader_concept') is not None) 
+                                                 and (bindings_dict['broader_concept']['value'] == broader_concept))
                                              )
                                         )
                                     ]
                 #print(collection, broader_concept, bindings_sublist)
+                
                 return bindings_sublist
             
             concept_tree_dict = {}
@@ -383,14 +408,16 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 SELECT ?collection ?collection_label ?concept ?concept_preflabel ?concept_description ?broader_concept
 FROM <{graph_name}>
 WHERE {
-    ?collection a skos:Collection .
-    ?collection skos:member ?concept .
+    OPTIONAL {?collection a skos:Collection .}
+    OPTIONAL {?collection a skos:ConceptScheme .}
+    OPTIONAL {?collection skos:member ?concept .}
+    OPTIONAL {?concept skos:inScheme ?collection .}
     ?concept skos:prefLabel ?concept_preflabel .
     OPTIONAL {?collection rdfs:label ?collection_label .}
     OPTIONAL {?concept skos:definition ?concept_description .}
     OPTIONAL {?concept skos:broader ?broader_concept .}
     FILTER(lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "")
-        }
+}
 '''.replace('{graph_name}', graph_name)
 #(lang(?collection_label) = "en" || lang(?collection_label) = "")
 #(lang(?concept_description) = "en" || lang(?concept_description) = "")
@@ -398,8 +425,8 @@ WHERE {
         response_dict = json.loads(self.submit_sparql_query(sparql_query)
                                  )  
         bindings_list = response_dict["results"]["bindings"]
-        #print(bindings_list)
-        
+        #pprint(bindings_list)
+              
         result_dict = {bindings_dict['collection']['value']: 
             {'label': (bindings_dict['collection_label']['value'] 
                       if bindings_dict.get('collection_label')
@@ -412,26 +439,48 @@ WHERE {
         return result_dict
     
     
-    def print_collection_data(self, concept_tree_dict, level=0):
+    def output_collection_data(self, concept_tree_dict, output_stream=sys.stdout, level=0):
+        '''
+        Recursive function to output concept_tree_dict to specified stream
+        '''
         if not level:
             for collection, collection_dict in concept_tree_dict.items():
-                print(unidecode('Collection "{}": {}'.format(collection_dict['label'], collection))) 
+                output_stream.write(unidecode('Collection "{}": {}\n'.format(collection_dict['label'], collection))) 
                 #print(collection_dict)
-                self.print_collection_data(collection_dict['concepts'], level=level+1)
+                self.output_collection_data(collection_dict['concepts'], output_stream, level=level+1)
         else:
             for concept, concept_dict in concept_tree_dict.items():
                 #print(concept_dict)
-                print(unidecode('{}Concept "{}": {} ({})'.format(('  ' * level),
+                output_stream.write(unidecode('{}Concept "{}": {} ({})\n'.format(('  ' * level),
                     concept_dict['preflabel'], 
                     concept,
                     concept_dict.get('description') or ''))
                     ) 
                 narrower_concepts_dict = concept_dict.get('narrower_concepts')
                 if narrower_concepts_dict:
-                    self.print_collection_data(narrower_concepts_dict, level=level+1)
-            
-                
+                    self.output_collection_data(narrower_concepts_dict, output_stream, level=level+1)
+
+
+    def output_summary_text(self):               
+        '''
+        Function to output summary text file
+        '''
+        summary_output_path = self.settings.get('summary_output_path')
+        if summary_output_path:
+            logger.debug('Outputting summary text to {}'.format(summary_output_path))
+            output_stream = open(summary_output_path, 'w')
+        else:
+            output_stream = sys.stdout
+                    
+        for graph_name in self.get_graph_names():
+            output_stream.write('Graph: {}'.format(graph_name) + '\n')
         
+            collection_data = self.get_collection_data(graph_name)
+            #pprint(collection_data)
+            
+            self.output_collection_data(collection_data, output_stream)
+            output_stream.write('\n')
+                
     @property
     def debug(self):
         return self._debug
