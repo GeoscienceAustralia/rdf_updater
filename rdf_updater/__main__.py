@@ -7,8 +7,6 @@ Created on 25 Feb. 2019
 import logging
 import sys
 import argparse
-import os
-from pprint import pprint
 from rdf_updater import RDFUpdater
 
 logger = logging.getLogger('rdf_updater')
@@ -41,7 +39,7 @@ def main():
      
     print()
     
-    if False:#skosify:
+    if skosify:
         rdf_updater.skosify_rdfs()
         print()
     

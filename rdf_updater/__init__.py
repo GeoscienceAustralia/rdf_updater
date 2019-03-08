@@ -17,6 +17,7 @@ from lxml import etree
 import skosify  # contains skosify, config, and infer
 from rdflib import Graph
 from unidecode import unidecode
+from _collections import OrderedDict
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO) # Initial logging level for this module
@@ -348,16 +349,16 @@ WHERE {
             
         
         
-    def get_collection_data(self, graph_name):
+    def get_collection_data(self, graph=None, collection=None):
         '''
-        Function to generate a tree of all collections and concepts in a given graph
+        Function to generate a tree of collections and concepts
         '''
         
-        def get_concept_tree(bindings_list, collection, broader_concept=None):
+        def get_concept_tree(bindings_list, graph, collection, broader_concept=None):
             '''
             Recursive helper function to generate tree of broader/narrower concepts in graph
             '''
-            def get_narrower_concepts(bindings_list, collection, broader_concept):
+            def get_narrower_concepts(bindings_list, graph, collection, broader_concept):
                 '''
                 Helper function to generate sublist of narrower concepts for a given broader concept
                 N.B: when broader_concept is None, the list will contain top concepts and also 
@@ -365,27 +366,38 @@ WHERE {
                 '''
                 collection_concepts = set([bindings_dict['concept']['value'] 
                                        for bindings_dict in bindings_list
-                                       if (bindings_dict['collection']['value'] == collection)
+                                       if (bindings_dict['graph']['value'] == graph)
+                                       and (bindings_dict['collection']['value'] == collection)
                                        ])
                 
-                bindings_sublist = [bindings_dict for bindings_dict in bindings_list
-                                    if (bindings_dict['collection']['value'] == collection
+                bindings_sublist = [bindings_dict 
+                                    for bindings_dict in bindings_list
+                                    if (
+                                        # Narrower concepts must be in same graph and collection
+                                        (bindings_dict['graph']['value'] == graph) 
+                                        and (bindings_dict['collection']['value'] == collection)
                                         and (
-                                             (broader_concept is None and 
-                                                ((bindings_dict.get('broader_concept') is None) # Top concept?
-                                                 or (bindings_dict['broader_concept']['value'] not in collection_concepts))) # Broader concept not in same collection
-                                             or ((broader_concept is not None) and (bindings_dict.get('broader_concept') is not None) 
-                                                 and (bindings_dict['broader_concept']['value'] == broader_concept))
-                                             )
+                                                (
+                                                (broader_concept is None) # Get top concepts
+                                                and (
+                                                    (bindings_dict.get('broader_concept') is None) # Top concept?
+                                                    or (bindings_dict['broader_concept']['value'] not in collection_concepts) # Broader concept not in same collection
+                                                    )
+                                                )
+                                                or (
+                                                    (broader_concept is not None) 
+                                                    and (bindings_dict.get('broader_concept') is not None) 
+                                                    and (bindings_dict['broader_concept']['value'] == broader_concept)
+                                                )
+                                            )
                                         )
                                     ]
-                #print(collection, broader_concept, bindings_sublist)
                 
                 return bindings_sublist
             
             concept_tree_dict = {}
             
-            for bindings_dict in get_narrower_concepts(bindings_list, collection, broader_concept):
+            for bindings_dict in get_narrower_concepts(bindings_list, graph, collection, broader_concept):
                 concept = bindings_dict["concept"]["value"]
                 
                 concept_dict = {'preflabel': bindings_dict["concept_preflabel"]["value"]}
@@ -393,7 +405,7 @@ WHERE {
                 if bindings_dict.get('concept_description'):
                     concept_dict['description'] = bindings_dict["concept_description"]["value"]
                     
-                narrower_concept_tree_dict = get_concept_tree(bindings_list, collection, broader_concept=concept)
+                narrower_concept_tree_dict = get_concept_tree(bindings_list, graph, collection, broader_concept=concept)
                 if narrower_concept_tree_dict:
                     concept_dict['narrower_concepts'] = narrower_concept_tree_dict
                 
@@ -401,57 +413,83 @@ WHERE {
                 
             return concept_tree_dict
                 
-        
         sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 
-SELECT ?collection ?collection_label ?concept ?concept_preflabel ?concept_description ?broader_concept
-FROM <{graph_name}>
+SELECT distinct ?graph ?collection ?collection_label ?concept ?concept_preflabel ?concept_description ?broader_concept
 WHERE {
-    OPTIONAL {?collection a skos:Collection .}
-    OPTIONAL {?collection a skos:ConceptScheme .}
-    OPTIONAL {?collection skos:member ?concept .}
-    OPTIONAL {?concept skos:inScheme ?collection .}
-    ?concept skos:prefLabel ?concept_preflabel .
-    OPTIONAL {?collection rdfs:label ?collection_label .}
-    OPTIONAL {?concept skos:definition ?concept_description .}
-    OPTIONAL {?concept skos:broader ?broader_concept .}
-    FILTER(lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "")
+    GRAPH ?graph {
+        OPTIONAL {?collection a skos:Collection .}
+        OPTIONAL {?collection a skos:ConceptScheme .}
+        OPTIONAL {?collection rdfs:label ?collection_label .}
+        
+        OPTIONAL {?collection skos:member ?concept .}
+        OPTIONAL {?concept skos:inScheme ?collection .}
+        ?concept skos:prefLabel ?concept_preflabel .
+        OPTIONAL {?concept skos:definition ?concept_description .}
+        OPTIONAL {?concept skos:broader ?broader_concept .}
+        FILTER(lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "")'''
+       
+        if graph:
+            sparql_query += '''
+        FILTER(?graph = <{}>)'''.format(graph)
+        
+        if collection:
+            sparql_query += '''
+        FILTER(?collection = <{}>)'''.format(collection)
+        
+        sparql_query += '''
+       }
 }
-'''.replace('{graph_name}', graph_name)
-#(lang(?collection_label) = "en" || lang(?collection_label) = "")
-#(lang(?concept_description) = "en" || lang(?concept_description) = "")
+'''
+        
 
         response_dict = json.loads(self.submit_sparql_query(sparql_query)
                                  )  
         bindings_list = response_dict["results"]["bindings"]
-        #pprint(bindings_list)
               
-        result_dict = {bindings_dict['collection']['value']: 
-            {'label': (bindings_dict['collection_label']['value'] 
-                      if bindings_dict.get('collection_label')
-                      else os.path.basename(bindings_dict['collection']['value']))}
-            for bindings_dict in bindings_list}
+        result_dict = OrderedDict()
+        graph_list = sorted(list(set([bindings_dict['graph']['value'] 
+                                      for bindings_dict in bindings_list])))
+        for graph in graph_list:
+            graph_dict = OrderedDict()
+            result_dict[graph] = graph_dict
+            collection_list = sorted(list(set([bindings_dict['collection']['value'] 
+                                               for bindings_dict in bindings_list
+                                               if bindings_dict['graph']['value'] == graph])))
+            for collection in collection_list:
+                collection_label = [bindings_dict['collection']['value'] 
+                                    for bindings_dict in bindings_list
+                                    if bindings_dict['graph']['value'] == graph
+                                    and bindings_dict['collection']['value'] == collection
+                                    ][0]
+            
+                result_dict[graph][collection] = {'label': collection_label}
         
-        for collection, collection_dict in result_dict.items():
-            collection_dict['concepts'] = get_concept_tree(bindings_list, collection, broader_concept=None) 
+        for graph, graph_dict in result_dict.items():
+            for collection in sorted(graph_dict.keys()):
+                collection_dict = graph_dict[collection]
+                collection_dict['concepts'] = get_concept_tree(bindings_list, graph, collection, broader_concept=None) 
             
         return result_dict
     
     
-    def output_collection_data(self, concept_tree_dict, output_stream=sys.stdout, level=0):
+    def output_collection_data(self, concept_tree_dict, output_stream=sys.stdout, level=0, indent='\t'):
         '''
         Recursive function to output concept_tree_dict to specified stream
         '''
-        if not level:
+        if level == 0: # Graph
+            for graph, graph_dict in concept_tree_dict.items():
+                output_stream.write(unidecode('Graph "{}"\n'.format(graph))) 
+                self.output_collection_data(graph_dict, output_stream, level=level+1)
+                output_stream.write('\n')
+        elif level == 1: # Collection
             for collection, collection_dict in concept_tree_dict.items():
-                output_stream.write(unidecode('Collection "{}": {}\n'.format(collection_dict['label'], collection))) 
-                #print(collection_dict)
+                output_stream.write(unidecode('{}Collection "{}": {}\n'.format(indent, collection_dict['label'], collection))) 
                 self.output_collection_data(collection_dict['concepts'], output_stream, level=level+1)
-        else:
+        else: # Concept
             for concept, concept_dict in concept_tree_dict.items():
-                #print(concept_dict)
-                output_stream.write(unidecode('{}Concept "{}": {} ({})\n'.format(('  ' * level),
+                output_stream.write(unidecode('{}Concept "{}": {} ({})\n'.format((indent * level),
                     concept_dict['preflabel'], 
                     concept,
                     concept_dict.get('description') or ''))
@@ -461,7 +499,7 @@ WHERE {
                     self.output_collection_data(narrower_concepts_dict, output_stream, level=level+1)
 
 
-    def output_summary_text(self):               
+    def output_summary_text(self, graph=None, collection=None):               
         '''
         Function to output summary text file
         '''
@@ -472,14 +510,9 @@ WHERE {
         else:
             output_stream = sys.stdout
                     
-        for graph_name in self.get_graph_names():
-            output_stream.write('Graph: {}'.format(graph_name) + '\n')
+        collection_data = self.get_collection_data(graph, collection)
         
-            collection_data = self.get_collection_data(graph_name)
-            #pprint(collection_data)
-            
-            self.output_collection_data(collection_data, output_stream)
-            output_stream.write('\n')
+        self.output_collection_data(collection_data, output_stream)
                 
     @property
     def debug(self):
