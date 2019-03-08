@@ -458,11 +458,12 @@ WHERE {
                                                for bindings_dict in bindings_list
                                                if bindings_dict['graph']['value'] == graph])))
             for collection in collection_list:
-                collection_label = [bindings_dict['collection']['value'] 
+                collection_label = [bindings_dict['collection_label']['value'] if bindings_dict.get('collection_label')
+                                    else os.path.basename(collection) # Use basename if label not defined
                                     for bindings_dict in bindings_list
                                     if bindings_dict['graph']['value'] == graph
                                     and bindings_dict['collection']['value'] == collection
-                                    ][0]
+                                    ][0] # Use first item - they should all be the same
             
                 result_dict[graph][collection] = {'label': collection_label}
         

@@ -33,7 +33,6 @@ def main():
                              update_github=args.update_github, 
                              debug=args.debug
                              ) 
-    #logger.debug(pformat(rdf_updater.__dict__))
     
     rdf_updater.get_rdfs() # Read RDFs from sources into files
      
@@ -45,8 +44,7 @@ def main():
     
     rdf_updater.put_rdfs(skosified=skosify) # Write RDFs to triple-store from files
     
-    rdf_updater.output_summary_text()
-
+    rdf_updater.output_summary_text() # Output text summary to file
 
     
 if __name__ == '__main__':
