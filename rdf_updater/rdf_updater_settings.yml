@@ -1,3 +1,9 @@
+directory_configs:
+  oracle_vocabs:
+    rdf_dir: ../data/oracle
+    regex_replacements: &id001
+    - ['http://pid.geoscience.gov.au/def/', 'http://pid.geoscience.gov.au/def/voc/ga/']
+    source_dir: \\prod.lan\active\data\oracle\oracle_apps\workdir
 git_configs:
   cgi_vocabs: {github_url: 'https://github.com/GeoscienceAustralia/geosciml.org',
     rdf_dir: ../data/cgi, source_tree: resource/static/vocabulary/cgi/2016}
@@ -9,13 +15,314 @@ rdf_configs:
   1GE_PCExtension: {name: oneGeology Europe precambrian timescale elements, rdf_file_path: ../data/timescale/1GE_PCExtension.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/1GE_PCExtension.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/stratchart/'}
+  Access_Codes:
+    name: Geoscience Australia Vocabulary - Access Codes
+    rdf_file_path: ../data/oracle/Access_Codes.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Access_Codes.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Access_Codes
+  Access_Method:
+    name: Geoscience Australia Vocabulary - Access Method
+    rdf_file_path: ../data/oracle/Access_Method.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Access_Method.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Access_Method
+  Activity_Codes:
+    name: Geoscience Australia Vocabulary - Activity Codes
+    rdf_file_path: ../data/oracle/Activity_Codes.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Activity_Codes.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Activity_Codes
+  Age_Methods:
+    name: Geoscience Australia Vocabulary - Age Methods
+    rdf_file_path: ../data/oracle/Age_Methods.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Age_Methods.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Age_Methods
+  Airborn_Altimeter:
+    name: Geoscience Australia Vocabulary - Airborn Altimeter
+    rdf_file_path: ../data/oracle/Airborn_Altimeter.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Airborn_Altimeter.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/voc/Airborn_Altimeter
+  Airborn_Barometer:
+    name: Geoscience Australia Vocabulary - Airborn Barometer
+    rdf_file_path: ../data/oracle/Airborn_Barometer.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Airborn_Barometer.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/voc/Airborn_Barometer
+  Airborn_GPS:
+    name: Geoscience Australia Vocabulary - Airborn GPS
+    rdf_file_path: ../data/oracle/Airborn_GPS.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Airborn_GPS.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/voc/Airborn_GPS
+  Airborn_Magnetic:
+    name: Geoscience Australia Vocabulary - Airborn Magnetic
+    rdf_file_path: ../data/oracle/Airborn_Magnetic.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Airborn_Magnetic.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/voc/Airborn_Magnetic
+  Airborn_Radiometric:
+    name: Geoscience Australia Vocabulary - Airborn Radiometric
+    rdf_file_path: ../data/oracle/Airborn_Radiometric.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Airborn_Radiometric.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/voc/Airborn_Radiometric
+  Analysis:
+    name: Geoscience Australia Vocabulary - Analysis
+    rdf_file_path: ../data/oracle/Analysis.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Analysis.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Analysis
+  Analyte:
+    name: Geoscience Australia Vocabulary - Analyte
+    rdf_file_path: ../data/oracle/Analyte.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Analyte.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Analyte
+  Antenna_Dome:
+    name: Geoscience Australia Vocabulary - Antenna Dome
+    rdf_file_path: ../data/oracle/Antenna_Dome.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Antenna_Dome.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Antenna_Dome
+  Antenna_Reference_Point:
+    name: Geoscience Australia Vocabulary - Antenna Reference Point
+    rdf_file_path: ../data/oracle/Antenna_Reference_Point.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Antenna_Reference_Point.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Antenna_Reference_Point
+  Archive:
+    name: Geoscience Australia Vocabulary - Archive
+    rdf_file_path: ../data/oracle/Archive.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Archive.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Archive
+  Association_Type:
+    name: Geoscience Australia Vocabulary - Association Type
+    rdf_file_path: ../data/oracle/Association_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Association_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Association_Type
+  Beacon_Eccentricity:
+    name: Geoscience Australia Vocabulary - Beacon Eccentricity
+    rdf_file_path: ../data/oracle/Beacon_Eccentricity.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Beacon_Eccentricity.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Beacon_Eccentricity
+  Beacon_Material:
+    name: Geoscience Australia Vocabulary - Beacon Material
+    rdf_file_path: ../data/oracle/Beacon_Material.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Beacon_Material.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Beacon_Material
+  Beacon_Type:
+    name: Geoscience Australia Vocabulary - Beacon Type
+    rdf_file_path: ../data/oracle/Beacon_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Beacon_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Beacon_Type
+  Bed_Material:
+    name: Geoscience Australia Vocabulary - Bed Material
+    rdf_file_path: ../data/oracle/Bed_Material.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Bed_Material.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Bed_Material
+  Cable_Amplifier:
+    name: Geoscience Australia Vocabulary - Cable Amplifier
+    rdf_file_path: ../data/oracle/Cable_Amplifier.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Cable_Amplifier.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Cable_Amplifier
+  Cable_Connector:
+    name: Geoscience Australia Vocabulary - Cable Connector
+    rdf_file_path: ../data/oracle/Cable_Connector.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Cable_Connector.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Cable_Connector
+  Cable_Type:
+    name: Geoscience Australia Vocabulary - Cable Type
+    rdf_file_path: ../data/oracle/Cable_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Cable_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Cable_Type
+  Cairn_Type:
+    name: Geoscience Australia Vocabulary - Cairn Type
+    rdf_file_path: ../data/oracle/Cairn_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Cairn_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Cairn_Type
+  Calibration_Authority:
+    name: Geoscience Australia Vocabulary - Calibration Authority
+    rdf_file_path: ../data/oracle/Calibration_Authority.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Calibration_Authority.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Calibration_Authority
   ClassificationMethodUsed: {name: Mineral Resource Reporting Classification Method
       - All Concepts, rdf_file_path: ../data/earthresourceml/ClassificationMethodUsed.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ClassificationMethodUsed.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/classification-method-used'}
+  Commitment:
+    name: Geoscience Australia Vocabulary - Commitment
+    rdf_file_path: ../data/oracle/Commitment.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Commitment.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Commitment
   CommodityCode: {name: Commodity Code - All Concepts, rdf_file_path: ../data/earthresourceml/CommodityCode.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/CommodityCode.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/commodity-code'}
+  Computer_Manufactid:
+    name: Geoscience Australia Vocabulary - Computer Manufactid
+    rdf_file_path: ../data/oracle/Computer_Manufactid.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Computer_Manufactid.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Computer_Manufactid
+  Confidence:
+    name: Geoscience Australia Vocabulary - Confidence
+    rdf_file_path: ../data/oracle/Confidence.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Confidence.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Confidence
+  Connection_Equip_Manufactid:
+    name: Geoscience Australia Vocabulary - Connection Equip Manufactid
+    rdf_file_path: ../data/oracle/Connection_Equip_Manufactid.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Connection_Equip_Manufactid.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Connection_Equip_Manufactid
+  Connection_Equip_Model:
+    name: Geoscience Australia Vocabulary - Connection Equip Model
+    rdf_file_path: ../data/oracle/Connection_Equip_Model.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Connection_Equip_Model.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Connection_Equip_Model
+  Connection_Equip_Type:
+    name: Geoscience Australia Vocabulary - Connection Equip Type
+    rdf_file_path: ../data/oracle/Connection_Equip_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Connection_Equip_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Connection_Equip_Type
+  Container_Location:
+    name: Geoscience Australia Vocabulary - Container Location
+    rdf_file_path: ../data/oracle/Container_Location.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Container_Location.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Container_Location
+  Container_Type:
+    name: Geoscience Australia Vocabulary - Container Type
+    rdf_file_path: ../data/oracle/Container_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Container_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Container_Type
+  Copy_Type:
+    name: Geoscience Australia Vocabulary - Copy Type
+    rdf_file_path: ../data/oracle/Copy_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Copy_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Copy_Type
+  Countries:
+    name: Geoscience Australia Vocabulary - Countries
+    rdf_file_path: ../data/oracle/Countries.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Countries.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Countries
+  Data_Classification:
+    name: Geoscience Australia Vocabulary - Data Classification
+    rdf_file_path: ../data/oracle/Data_Classification.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Data_Classification.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Data_Classification
+  Data_Product_Type:
+    name: Geoscience Australia Vocabulary - Data Product Type
+    rdf_file_path: ../data/oracle/Data_Product_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Data_Product_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Data_Product_Type
+  Data_Sampling_Rate:
+    name: Geoscience Australia Vocabulary - Data Sampling Rate
+    rdf_file_path: ../data/oracle/Data_Sampling_Rate.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Data_Sampling_Rate.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Data_Sampling_Rate
+  Data_Source:
+    name: Geoscience Australia Vocabulary - Data Source
+    rdf_file_path: ../data/oracle/Data_Source.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Data_Source.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Data_Source
+  Data_Transfer_Frequency:
+    name: Geoscience Australia Vocabulary - Data Transfer Frequency
+    rdf_file_path: ../data/oracle/Data_Transfer_Frequency.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Data_Transfer_Frequency.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Data_Transfer_Frequency
+  Data_Type:
+    name: Geoscience Australia Vocabulary - Data Type
+    rdf_file_path: ../data/oracle/Data_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Data_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Data_Type
+  Data_Types:
+    name: Geoscience Australia Vocabulary - Data Types
+    rdf_file_path: ../data/oracle/Data_Types.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Data_Types.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Data_Types
+  Depositional_Environment:
+    name: Geoscience Australia Vocabulary - Depositional Environment
+    rdf_file_path: ../data/oracle/Depositional_Environment.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Depositional_Environment.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Depositional_Environment
+  Distributed_Computing_Platform:
+    name: Geoscience Australia Vocabulary - Distributed Computing Platform
+    rdf_file_path: ../data/oracle/Distributed_Computing_Platform.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Distributed_Computing_Platform.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Distributed_Computing_Platform
   EarthResourceExpression: {name: Earth Resource Expression - All Concepts, rdf_file_path: ../data/earthresourceml/EarthResourceExpression.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EarthResourceExpression.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/earth-resource-expression'}
@@ -28,18 +335,277 @@ rdf_configs:
   EarthResourceShape: {name: Earth Resource Shape - All Concepts, rdf_file_path: ../data/earthresourceml/EarthResourceShape.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EarthResourceShape.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/earth-resource-shape'}
+  Ellipsoid_Height_Source:
+    name: Geoscience Australia Vocabulary - Ellipsoid Height Source
+    rdf_file_path: ../data/oracle/Ellipsoid_Height_Source.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Ellipsoid_Height_Source.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Ellipsoid_Height_Source
   EndUsePotential: {name: End Use Potential - All Concepts, rdf_file_path: ../data/earthresourceml/EndUsePotential.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EndUsePotential.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/end-use-potential'}
+  Environment_Type:
+    name: Geoscience Australia Vocabulary - Environment Type
+    rdf_file_path: ../data/oracle/Environment_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Environment_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Environment_Type
   EnvironmentalImpact: {name: Environmental Impact - All Concepts, rdf_file_path: ../data/earthresourceml/EnvironmentalImpact.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EnvironmentalImpact.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/environmental-impact'}
+  Equipment_Manufactid:
+    name: Geoscience Australia Vocabulary - Equipment Manufactid
+    rdf_file_path: ../data/oracle/Equipment_Manufactid.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Equipment_Manufactid.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Equipment_Manufactid
+  Equipment_Model:
+    name: Geoscience Australia Vocabulary - Equipment Model
+    rdf_file_path: ../data/oracle/Equipment_Model.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Equipment_Model.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Equipment_Model
+  Equipment_Rack_Manufactid:
+    name: Geoscience Australia Vocabulary - Equipment Rack Manufactid
+    rdf_file_path: ../data/oracle/Equipment_Rack_Manufactid.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Equipment_Rack_Manufactid.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Equipment_Rack_Manufactid
+  Equipment_Rack_Model:
+    name: Geoscience Australia Vocabulary - Equipment Rack Model
+    rdf_file_path: ../data/oracle/Equipment_Rack_Model.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Equipment_Rack_Model.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Equipment_Rack_Model
+  Equipment_Repairer:
+    name: Geoscience Australia Vocabulary - Equipment Repairer
+    rdf_file_path: ../data/oracle/Equipment_Repairer.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Equipment_Repairer.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Equipment_Repairer
+  Equipment_Status:
+    name: Geoscience Australia Vocabulary - Equipment Status
+    rdf_file_path: ../data/oracle/Equipment_Status.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Equipment_Status.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Equipment_Status
+  Equipment_Type:
+    name: Geoscience Australia Vocabulary - Equipment Type
+    rdf_file_path: ../data/oracle/Equipment_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Equipment_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Equipment_Type
+  Eventtypes:
+    name: Geoscience Australia Vocabulary - Eventtypes
+    rdf_file_path: ../data/oracle/Eventtypes.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Eventtypes.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Eventtypes
   ExplorationActivityType: {name: Exploration Activity Type - All Concepts, rdf_file_path: ../data/earthresourceml/ExplorationActivityType.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ExplorationActivityType.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/exploration-activity-type'}
   ExplorationResult: {name: Exploration Result - All Concepts, rdf_file_path: ../data/earthresourceml/ExplorationResult.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ExplorationResult.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/exploration-result'}
+  Ext_Clock_Frequency:
+    name: Geoscience Australia Vocabulary - Ext Clock Frequency
+    rdf_file_path: ../data/oracle/Ext_Clock_Frequency.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Ext_Clock_Frequency.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Ext_Clock_Frequency
+  Facility_Type:
+    name: Geoscience Australia Vocabulary - Facility Type
+    rdf_file_path: ../data/oracle/Facility_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Facility_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Facility_Type
+  Feature_Of_Interest_Type:
+    name: Geoscience Australia Vocabulary - Feature Of Interest Type
+    rdf_file_path: ../data/oracle/Feature_Of_Interest_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Feature_Of_Interest_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Feature_Of_Interest_Type
+  Folk_MSG_Classification:
+    name: Geoscience Australia Vocabulary - Folk MSG Classification
+    rdf_file_path: ../data/oracle/Folk_MSG_Classification.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Folk_MSG_Classification.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Folk_MSG_Classification
+  Folk_MSG_Texture:
+    name: Geoscience Australia Vocabulary - Folk MSG Texture
+    rdf_file_path: ../data/oracle/Folk_MSG_Texture.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Folk_MSG_Texture.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Folk_MSG_Texture
+  Funding_Type:
+    name: Geoscience Australia Vocabulary - Funding Type
+    rdf_file_path: ../data/oracle/Funding_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Funding_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Funding_Type
+  Gamma_Ray_Spectrometry:
+    name: Geoscience Australia Vocabulary - Gamma Ray Spectrometry
+    rdf_file_path: ../data/oracle/Gamma_Ray_Spectrometry.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Gamma_Ray_Spectrometry.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Gamma_Ray_Spectrometry
+  Geodetic_Observation:
+    name: Geoscience Australia Vocabulary - Geodetic Observation
+    rdf_file_path: ../data/oracle/Geodetic_Observation.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Geodetic_Observation.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Geodetic_Observation
+  Grid_Type:
+    name: Geoscience Australia Vocabulary - Grid Type
+    rdf_file_path: ../data/oracle/Grid_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Grid_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Grid_Type
+  HJTEST:
+    name: Geoscience Australia Vocabulary - HJTEST
+    rdf_file_path: ../data/oracle/HJTEST.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\HJTEST.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/HJTEST
+  HJTEST_CHILD:
+    name: Geoscience Australia Vocabulary - HJTEST CHILD
+    rdf_file_path: ../data/oracle/HJTEST_CHILD.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\HJTEST_CHILD.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/HJTEST_CHILD
+  HJTEST_UOM:
+    name: Geoscience Australia Vocabulary - HJTEST_UOM
+    rdf_file_path: ../data/oracle/HJTEST_UOM.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\HJTEST_UOM.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/HJTEST_UOM
+  Horizontal_Class:
+    name: Geoscience Australia Vocabulary - Horizontal Class
+    rdf_file_path: ../data/oracle/Horizontal_Class.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Horizontal_Class.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Horizontal_Class
+  Horizontal_Order:
+    name: Geoscience Australia Vocabulary - Horizontal Order
+    rdf_file_path: ../data/oracle/Horizontal_Order.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Horizontal_Order.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Horizontal_Order
+  Humidity_Aspiration:
+    name: Geoscience Australia Vocabulary - Humidity Aspiration
+    rdf_file_path: ../data/oracle/Humidity_Aspiration.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Humidity_Aspiration.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Humidity_Aspiration
+  Hydrocarbon_Occurance:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Occurance
+    rdf_file_path: ../data/oracle/Hydrocarbon_Occurance.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Occurance.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Occurance
+  Hydrocarbon_Show:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Show
+    rdf_file_path: ../data/oracle/Hydrocarbon_Show.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Show
+  Hydrocarbon_Show_Category:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Show Category
+    rdf_file_path: ../data/oracle/Hydrocarbon_Show_Category.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show_Category.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Show_Category
+  Hydrocarbon_Show_Core:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Show Core
+    rdf_file_path: ../data/oracle/Hydrocarbon_Show_Core.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show_Core.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Show_Core
+  Hydrocarbon_Show_Cuttings:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Show Cuttings
+    rdf_file_path: ../data/oracle/Hydrocarbon_Show_Cuttings.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show_Cuttings.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Show_Cuttings
+  Hydrocarbon_Show_Flow:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Show Flow
+    rdf_file_path: ../data/oracle/Hydrocarbon_Show_Flow.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show_Flow.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Show_Flow
+  Hydrocarbon_Show_Interpretation:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Show Interpretation
+    rdf_file_path: ../data/oracle/Hydrocarbon_Show_Interpretation.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show_Interpretation.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Show_Interpretation
+  Hydrocarbon_Show_Log:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Show Log
+    rdf_file_path: ../data/oracle/Hydrocarbon_Show_Log.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show_Log.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Show_Log
+  Hydrocarbon_Show_Mud_Logging:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Show Mud Logging
+    rdf_file_path: ../data/oracle/Hydrocarbon_Show_Mud_Logging.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show_Mud_Logging.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Show_Mud_Logging
+  Hydrocarbon_Show_Pressure_Survey:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Show Pressure Survey
+    rdf_file_path: ../data/oracle/Hydrocarbon_Show_Pressure_Survey.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show_Pressure_Survey.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Show_Pressure_Survey
+  Hydrocarbon_Show_Recovery:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Show Recovery
+    rdf_file_path: ../data/oracle/Hydrocarbon_Show_Recovery.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show_Recovery.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Show_Recovery
+  Hydrocarbon_Show_Swc:
+    name: Geoscience Australia Vocabulary - Hydrocarbon Show Swc
+    rdf_file_path: ../data/oracle/Hydrocarbon_Show_Swc.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show_Swc.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Hydrocarbon_Show_Swc
   IUGS_CGI_register__for_INSPIRE_geologic_timescale_with_content: {name: Geologic
       Timescale Elements, rdf_file_path: ../data/timescale/IUGS_CGI_register__for_INSPIRE_geologic_timescale_with_content.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/IUGS_CGI_register__for_INSPIRE_geologic_timescale_with_content.rdf',
@@ -48,33 +614,747 @@ rdf_configs:
     rdf_file_path: ../data/cgi/IUGS_CGI_register__for_INSPIRE_lithology_with_content.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/IUGS_CGI_register__for_INSPIRE_lithology_with_content.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/lithology/'}
+  Information_Source:
+    name: Geoscience Australia Vocabulary - Information Source
+    rdf_file_path: ../data/oracle/Information_Source.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Information_Source.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Information_Source
+  Input_Format:
+    name: Geoscience Australia Vocabulary - Input Format
+    rdf_file_path: ../data/oracle/Input_Format.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Input_Format.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Input_Format
+  Instrument_Maker:
+    name: Geoscience Australia Vocabulary - Instrument Maker
+    rdf_file_path: ../data/oracle/Instrument_Maker.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Instrument_Maker.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Instrument_Maker
+  Instrument_Model:
+    name: Geoscience Australia Vocabulary - Instrument Model
+    rdf_file_path: ../data/oracle/Instrument_Model.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Instrument_Model.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Instrument_Model
+  Instrument_Type:
+    name: Geoscience Australia Vocabulary - Instrument Type
+    rdf_file_path: ../data/oracle/Instrument_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Instrument_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Instrument_Type
+  Iso_Role_Code:
+    name: Geoscience Australia Vocabulary - Iso Role Code
+    rdf_file_path: ../data/oracle/Iso_Role_Code.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Iso_Role_Code.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Iso_Role_Code
+  Isotope_Baselines:
+    name: Geoscience Australia Vocabulary - Isotope Baselines
+    rdf_file_path: ../data/oracle/Isotope_Baselines.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Isotope_Baselines.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Isotope_Baselines
+  Isotope_Collection_Systems:
+    name: Geoscience Australia Vocabulary - Isotope Collection Systems
+    rdf_file_path: ../data/oracle/Isotope_Collection_Systems.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Isotope_Collection_Systems.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Isotope_Collection_Systems
+  Isotope_Extraction_Systems:
+    name: Geoscience Australia Vocabulary - Isotope Extraction Systems
+    rdf_file_path: ../data/oracle/Isotope_Extraction_Systems.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Isotope_Extraction_Systems.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Isotope_Extraction_Systems
+  Isotope_Group_Types:
+    name: Geoscience Australia Vocabulary - Isotope Group Types
+    rdf_file_path: ../data/oracle/Isotope_Group_Types.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Isotope_Group_Types.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Isotope_Group_Types
+  Isotope_Measure_Types:
+    name: Geoscience Australia Vocabulary - Isotope Measure Types
+    rdf_file_path: ../data/oracle/Isotope_Measure_Types.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Isotope_Measure_Types.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Isotope_Measure_Types
+  Isotope_Reservoirs:
+    name: Geoscience Australia Vocabulary - Isotope Reservoirs
+    rdf_file_path: ../data/oracle/Isotope_Reservoirs.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Isotope_Reservoirs.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Isotope_Reservoirs
+  Item_Condition:
+    name: Geoscience Australia Vocabulary - Item Condition
+    rdf_file_path: ../data/oracle/Item_Condition.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Item_Condition.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Item_Condition
+  Line_Tape_Status:
+    name: Geoscience Australia Vocabulary - Line Tape Status
+    rdf_file_path: ../data/oracle/Line_Tape_Status.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Line_Tape_Status.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Line_Tape_Status
+  Lithology_Groups:
+    name: Geoscience Australia Vocabulary - Lithology Groups
+    rdf_file_path: ../data/oracle/Lithology_Groups.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Lithology_Groups.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Lithology_Groups
+  Lithology_Qualifiers:
+    name: Geoscience Australia Vocabulary - Lithology Qualifiers
+    rdf_file_path: ../data/oracle/Lithology_Qualifiers.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Lithology_Qualifiers.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Lithology_Qualifiers
+  Loan_Status:
+    name: Geoscience Australia Vocabulary - Loan Status
+    rdf_file_path: ../data/oracle/Loan_Status.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Loan_Status.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Loan_Status
+  Location_Method:
+    name: Geoscience Australia Vocabulary - Location Method
+    rdf_file_path: ../data/oracle/Location_Method.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Location_Method.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Location_Method
+  Magnetic_Susceptibility:
+    name: Geoscience Australia Vocabulary - Magnetic Susceptibility
+    rdf_file_path: ../data/oracle/Magnetic_Susceptibility.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Magnetic_Susceptibility.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Magnetic_Susceptibility
+  Mark_Material:
+    name: Geoscience Australia Vocabulary - Mark Material
+    rdf_file_path: ../data/oracle/Mark_Material.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Mark_Material.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Mark_Material
+  Mark_Position:
+    name: Geoscience Australia Vocabulary - Mark Position
+    rdf_file_path: ../data/oracle/Mark_Position.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Mark_Position.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Mark_Position
+  Mark_Status:
+    name: Geoscience Australia Vocabulary - Mark Status
+    rdf_file_path: ../data/oracle/Mark_Status.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Mark_Status.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Mark_Status
+  Mark_Type:
+    name: Geoscience Australia Vocabulary - Mark Type
+    rdf_file_path: ../data/oracle/Mark_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Mark_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Mark_Type
+  Maturity:
+    name: Geoscience Australia Vocabulary - Maturity
+    rdf_file_path: ../data/oracle/Maturity.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Maturity.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Maturity
+  Media_Brand:
+    name: Geoscience Australia Vocabulary - Media Brand
+    rdf_file_path: ../data/oracle/Media_Brand.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Media_Brand.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Media_Brand
+  Media_Capacity:
+    name: Geoscience Australia Vocabulary - Media Capacity
+    rdf_file_path: ../data/oracle/Media_Capacity.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Media_Capacity.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Media_Capacity
+  Media_Format:
+    name: Geoscience Australia Vocabulary - Media Format
+    rdf_file_path: ../data/oracle/Media_Format.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Media_Format.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Media_Format
+  Media_Type:
+    name: Geoscience Australia Vocabulary - Media Type
+    rdf_file_path: ../data/oracle/Media_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Media_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Media_Type
+  Method:
+    name: Geoscience Australia Vocabulary - Method
+    rdf_file_path: ../data/oracle/Method.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Method.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Method
+  Mime_Type:
+    name: Geoscience Australia Vocabulary - Mime Type
+    rdf_file_path: ../data/oracle/Mime_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Mime_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Mime_Type
   MineStatus: {name: Mine Status - All Concepts, rdf_file_path: ../data/earthresourceml/MineStatus.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/MineStatus.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/mine-status'}
+  Mineral:
+    name: Geoscience Australia Vocabulary - Mineral
+    rdf_file_path: ../data/oracle/Mineral.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Mineral.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Mineral
   MineralOccurrenceType: {name: Mineral Occurrence Type - All Concepts, rdf_file_path: ../data/earthresourceml/MineralOccurrenceType.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/MineralOccurrenceType.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/mineral-occurrence-type'}
   MiningActivity: {name: Mining Activity - All Concepts, rdf_file_path: ../data/earthresourceml/MiningActivity.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/MiningActivity.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/mining-activity'}
+  Monitor_Type:
+    name: Geoscience Australia Vocabulary - Monitor Type
+    rdf_file_path: ../data/oracle/Monitor_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Monitor_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Monitor_Type
+  Monument_Foundation:
+    name: Geoscience Australia Vocabulary - Monument Foundation
+    rdf_file_path: ../data/oracle/Monument_Foundation.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Monument_Foundation.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Monument_Foundation
+  Munsell_Colour:
+    name: Geoscience Australia Vocabulary - Munsell Colour
+    rdf_file_path: ../data/oracle/Munsell_Colour.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Munsell_Colour.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Munsell_Colour
+  N_Source:
+    name: Geoscience Australia Vocabulary - N Source
+    rdf_file_path: ../data/oracle/N_Source.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\N_Source.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/N_Source
+  Observation_Type:
+    name: Geoscience Australia Vocabulary - Observation Type
+    rdf_file_path: ../data/oracle/Observation_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Observation_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Observation_Type
+  Offshore_Field:
+    name: Geoscience Australia Vocabulary - Offshore Field
+    rdf_file_path: ../data/oracle/Offshore_Field.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Offshore_Field.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Offshore_Field
+  OnLine_Function:
+    name: Geoscience Australia Vocabulary - OnLine Function
+    rdf_file_path: ../data/oracle/OnLine_Function.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\OnLine_Function.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/OnLine_Function
+  Operating_System:
+    name: Geoscience Australia Vocabulary - Operating System
+    rdf_file_path: ../data/oracle/Operating_System.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Operating_System.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Operating_System
+  Orientation_Type:
+    name: Geoscience Australia Vocabulary - Orientation Type
+    rdf_file_path: ../data/oracle/Orientation_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Orientation_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Orientation_Type
+  Photo_Category:
+    name: Geoscience Australia Vocabulary - Photo Category
+    rdf_file_path: ../data/oracle/Photo_Category.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Photo_Category.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Photo_Category
+  Photo_Subject:
+    name: Geoscience Australia Vocabulary - Photo Subject
+    rdf_file_path: ../data/oracle/Photo_Subject.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Photo_Subject.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Photo_Subject
+  Pick_Type:
+    name: Geoscience Australia Vocabulary - Pick Type
+    rdf_file_path: ../data/oracle/Pick_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Pick_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Pick_Type
+  Port_Attribute:
+    name: Geoscience Australia Vocabulary - Port Attribute
+    rdf_file_path: ../data/oracle/Port_Attribute.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Port_Attribute.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Port_Attribute
+  Port_Commodity_Attribute:
+    name: Geoscience Australia Vocabulary - Port Commodity Attribute
+    rdf_file_path: ../data/oracle/Port_Commodity_Attribute.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Port_Commodity_Attribute.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Port_Commodity_Attribute
+  Power_Device_Manufactid:
+    name: Geoscience Australia Vocabulary - Power Device Manufactid
+    rdf_file_path: ../data/oracle/Power_Device_Manufactid.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Power_Device_Manufactid.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Power_Device_Manufactid
+  Power_Device_Model:
+    name: Geoscience Australia Vocabulary - Power Device Model
+    rdf_file_path: ../data/oracle/Power_Device_Model.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Power_Device_Model.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Power_Device_Model
+  Power_Device_Type:
+    name: Geoscience Australia Vocabulary - Power Device Type
+    rdf_file_path: ../data/oracle/Power_Device_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Power_Device_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Power_Device_Type
+  Power_Station_Attribute:
+    name: Geoscience Australia Vocabulary - Power Station Attribute
+    rdf_file_path: ../data/oracle/Power_Station_Attribute.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Power_Station_Attribute.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Power_Station_Attribute
+  Preparation:
+    name: Geoscience Australia Vocabulary - Preparation
+    rdf_file_path: ../data/oracle/Preparation.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Preparation.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Preparation
   ProcessingActivity: {name: Processing Activity - All Concepts, rdf_file_path: ../data/earthresourceml/ProcessingActivity.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ProcessingActivity.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/mining-processing-activity'}
+  Processing_Plant_Attribute:
+    name: Geoscience Australia Vocabulary - Processing Plant Attribute
+    rdf_file_path: ../data/oracle/Processing_Plant_Attribute.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Processing_Plant_Attribute.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Processing_Plant_Attribute
+  Property:
+    name: Geoscience Australia Vocabulary - Property
+    rdf_file_path: ../data/oracle/Property.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Property.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Property
+  Protocol_Type:
+    name: Geoscience Australia Vocabulary - Protocol Type
+    rdf_file_path: ../data/oracle/Protocol_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Protocol_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Protocol_Type
+  Provranks:
+    name: Geoscience Australia Vocabulary - Provranks
+    rdf_file_path: ../data/oracle/Provranks.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Provranks.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Provranks
+  Provreltypes:
+    name: Geoscience Australia Vocabulary - Provreltypes
+    rdf_file_path: ../data/oracle/Provreltypes.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Provreltypes.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Provreltypes
+  Provtypes:
+    name: Geoscience Australia Vocabulary - Provtypes
+    rdf_file_path: ../data/oracle/Provtypes.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Provtypes.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Provtypes
+  Publication_Type:
+    name: Geoscience Australia Vocabulary - Publication Type
+    rdf_file_path: ../data/oracle/Publication_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Publication_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Publication_Type
+  Purchase_Type:
+    name: Geoscience Australia Vocabulary - Purchase Type
+    rdf_file_path: ../data/oracle/Purchase_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Purchase_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Purchase_Type
+  QA_Status_Codes:
+    name: Geoscience Australia Vocabulary - QA Status Codes
+    rdf_file_path: ../data/oracle/QA_Status_Codes.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\QA_Status_Codes.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/QA_Status_Codes
+  Qualifier:
+    name: Geoscience Australia Vocabulary - Qualifier
+    rdf_file_path: ../data/oracle/Qualifier.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Qualifier.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Qualifier
+  RESERVOIRS:
+    name: Geoscience Australia Vocabulary - RESERVOIRS
+    rdf_file_path: ../data/oracle/RESERVOIRS.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\RESERVOIRS.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/RESERVOIRS
   RawMaterialRole: {name: Raw Material Role - All Concepts, rdf_file_path: ../data/earthresourceml/RawMaterialRole.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/RawMaterialRole.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/raw-material-role'}
+  Reference_Ellipsoid:
+    name: Geoscience Australia Vocabulary - Reference Ellipsoid
+    rdf_file_path: ../data/oracle/Reference_Ellipsoid.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Reference_Ellipsoid.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Reference_Ellipsoid
   ReserveCategory: {name: Reserve Assessment Category - All Concepts, rdf_file_path: ../data/earthresourceml/ReserveCategory.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ReserveCategory.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/reserve-assessment-category'}
   ResourceCategory: {name: Resource Assessment Category - All Concepts, rdf_file_path: ../data/earthresourceml/ResourceCategory.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ResourceCategory.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/resource-assessment-category'}
+  Resource_Project_Attribute:
+    name: Geoscience Australia Vocabulary - Resource Project Attribute
+    rdf_file_path: ../data/oracle/Resource_Project_Attribute.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Resource_Project_Attribute.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Resource_Project_Attribute
+  Rls_Tablename:
+    name: Geoscience Australia Vocabulary - Rls_Tablename
+    rdf_file_path: ../data/oracle/Rls_Tablename.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Rls_Tablename.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Rls_Tablename
+  Rock_Properties_Instrument_Type:
+    name: Geoscience Australia Vocabulary - Rock Properties Instrument Type
+    rdf_file_path: ../data/oracle/Rock_Properties_Instrument_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Rock_Properties_Instrument_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Rock_Properties_Instrument_Type
+  Sample_Type:
+    name: Geoscience Australia Vocabulary - Sample Type
+    rdf_file_path: ../data/oracle/Sample_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Sample_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Sample_Type
+  Sampling_Method:
+    name: Geoscience Australia Vocabulary - Sampling Method
+    rdf_file_path: ../data/oracle/Sampling_Method.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Sampling_Method.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Sampling_Method
+  Satellite_Cutoff_Elevation:
+    name: Geoscience Australia Vocabulary - Satellite Cutoff Elevation
+    rdf_file_path: ../data/oracle/Satellite_Cutoff_Elevation.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Satellite_Cutoff_Elevation.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Satellite_Cutoff_Elevation
+  Satellite_System:
+    name: Geoscience Australia Vocabulary - Satellite System
+    rdf_file_path: ../data/oracle/Satellite_System.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Satellite_System.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Satellite_System
+  Server_Type:
+    name: Geoscience Australia Vocabulary - Server Type
+    rdf_file_path: ../data/oracle/Server_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Server_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Server_Type
+  Service_Type:
+    name: Geoscience Australia Vocabulary - Service Type
+    rdf_file_path: ../data/oracle/Service_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Service_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Service_Type
+  Service_Types:
+    name: Geoscience Australia Vocabulary - Service Types
+    rdf_file_path: ../data/oracle/Service_Types.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Service_Types.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Service_Types
+  Slip_Rate_Category:
+    name: Geoscience Australia Vocabulary - Slip Rate Category
+    rdf_file_path: ../data/oracle/Slip_Rate_Category.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Slip_Rate_Category.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Slip_Rate_Category
+  Splitter_Powered_Amp:
+    name: Geoscience Australia Vocabulary - Splitter Powered Amp
+    rdf_file_path: ../data/oracle/Splitter_Powered_Amp.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Splitter_Powered_Amp.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Splitter_Powered_Amp
+  State_Group:
+    name: Geoscience Australia Vocabulary - State Group
+    rdf_file_path: ../data/oracle/State_Group.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\State_Group.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/State_Group
+  States:
+    name: Geoscience Australia Vocabulary - States
+    rdf_file_path: ../data/oracle/States.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\States.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/States
+  Station_Account_Type:
+    name: Geoscience Australia Vocabulary - Station Account Type
+    rdf_file_path: ../data/oracle/Station_Account_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Station_Account_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Station_Account_Type
+  Station_Type:
+    name: Geoscience Australia Vocabulary - Station Type
+    rdf_file_path: ../data/oracle/Station_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Station_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Station_Type
+  Stats_Table:
+    name: Geoscience Australia Vocabulary - Stats Table
+    rdf_file_path: ../data/oracle/Stats_Table.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Stats_Table.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Stats_Table
+  Stratigraphic_Timescale:
+    name: Geoscience Australia Vocabulary - Stratigraphic Timescale
+    rdf_file_path: ../data/oracle/Stratigraphic_Timescale.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Stratigraphic_Timescale.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Stratigraphic_Timescale
+  Stratigraphic_Timescale_Class:
+    name: Geoscience Australia Vocabulary - Stratigraphic Timescale Class
+    rdf_file_path: ../data/oracle/Stratigraphic_Timescale_Class.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Stratigraphic_Timescale_Class.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Stratigraphic_Timescale_Class
+  Stratreltypes:
+    name: Geoscience Australia Vocabulary - Stratreltypes
+    rdf_file_path: ../data/oracle/Stratreltypes.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Stratreltypes.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Stratreltypes
+  Subpreparation:
+    name: Geoscience Australia Vocabulary - Subpreparation
+    rdf_file_path: ../data/oracle/Subpreparation.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Subpreparation.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Subpreparation
+  Subsample_Type:
+    name: Geoscience Australia Vocabulary - Subsample Type
+    rdf_file_path: ../data/oracle/Subsample_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Subsample_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Subsample_Type
+  Subsampling:
+    name: Geoscience Australia Vocabulary - Subsampling
+    rdf_file_path: ../data/oracle/Subsampling.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Subsampling.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Subsampling
+  Survey_Method:
+    name: Geoscience Australia Vocabulary - Survey Method
+    rdf_file_path: ../data/oracle/Survey_Method.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Survey_Method.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Survey_Method
+  Survey_Platform:
+    name: Geoscience Australia Vocabulary - Survey Platform
+    rdf_file_path: ../data/oracle/Survey_Platform.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Survey_Platform.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Survey_Platform
+  Survey_Platform_Type:
+    name: Geoscience Australia Vocabulary - Survey Platform Type
+    rdf_file_path: ../data/oracle/Survey_Platform_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Survey_Platform_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Survey_Platform_Type
+  Survey_Type:
+    name: Geoscience Australia Vocabulary - Survey Type
+    rdf_file_path: ../data/oracle/Survey_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Survey_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Survey_Type
+  Tectonic_Plate:
+    name: Geoscience Australia Vocabulary - Tectonic Plate
+    rdf_file_path: ../data/oracle/Tectonic_Plate.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Tectonic_Plate.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Tectonic_Plate
+  Title_Status:
+    name: Geoscience Australia Vocabulary - Title Status
+    rdf_file_path: ../data/oracle/Title_Status.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Title_Status.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Title_Status
+  Transaction_Type:
+    name: Geoscience Australia Vocabulary - Transaction Type
+    rdf_file_path: ../data/oracle/Transaction_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Transaction_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Transaction_Type
   UNFCValue: {name: UNFC Code - All Concepts, rdf_file_path: ../data/earthresourceml/UNFCValue.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/UNFCValue.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/unfc'}
+  UoM:
+    name: Geoscience Australia Vocabulary - UoM
+    rdf_file_path: ../data/oracle/UoM.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\UoM.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/UoM
+  Vane_Type:
+    name: Geoscience Australia Vocabulary - Vane Type
+    rdf_file_path: ../data/oracle/Vane_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Vane_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Vane_Type
+  Variation_Type:
+    name: Geoscience Australia Vocabulary - Variation Type
+    rdf_file_path: ../data/oracle/Variation_Type.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Variation_Type.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Variation_Type
+  Vertical_Class:
+    name: Geoscience Australia Vocabulary - Vertical Class
+    rdf_file_path: ../data/oracle/Vertical_Class.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Vertical_Class.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Vertical_Class
+  Vertical_Method:
+    name: Geoscience Australia Vocabulary - Vertical Method
+    rdf_file_path: ../data/oracle/Vertical_Method.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Vertical_Method.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Vertical_Method
+  Vertical_Order:
+    name: Geoscience Australia Vocabulary - Vertical Order
+    rdf_file_path: ../data/oracle/Vertical_Order.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Vertical_Order.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Vertical_Order
+  Vertical_Reference:
+    name: Geoscience Australia Vocabulary - Vertical Reference
+    rdf_file_path: ../data/oracle/Vertical_Reference.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Vertical_Reference.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Vertical_Reference
+  Voltage_Output:
+    name: Geoscience Australia Vocabulary - Voltage Output
+    rdf_file_path: ../data/oracle/Voltage_Output.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Voltage_Output.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Voltage_Output
   WasteStorage: {name: Waste Storage - All Concepts, rdf_file_path: ../data/earthresourceml/WasteStorage.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/WasteStorage.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/waste-storage'}
+  Well_Drill_Classification:
+    name: Geoscience Australia Vocabulary - Well Drill Classification
+    rdf_file_path: ../data/oracle/Well_Drill_Classification.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Well_Drill_Classification.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Well_Drill_Classification
+  Worktype:
+    name: Geoscience Australia Vocabulary - Worktype
+    rdf_file_path: ../data/oracle/Worktype.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Worktype.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/Worktype
   alterationtype: {name: Alteration Type - All Concepts, rdf_file_path: ../data/cgi/alterationtype.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/alterationtype.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/alterationtype'}
@@ -142,6 +1422,13 @@ rdf_configs:
   geologicunittype: {name: Geologic Unit Type - All Concepts, rdf_file_path: ../data/cgi/geologicunittype.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/geologicunittype.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/geologicunittype'}
+  hjtest2:
+    name: Geoscience Australia Vocabulary - hjtest2
+    rdf_file_path: ../data/oracle/hjtest2.rdf
+    rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\hjtest2.rdf
+    regex_replacements: *id001
+    source_type: file
+    uri: http://pid.geoscience.gov.au/def/hjtest2
   isc2004: {name: Geologic Timescale Elements, rdf_file_path: ../data/timescale/isc2004.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2004.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/ics/ischart/'}
@@ -220,11 +1507,12 @@ rdf_configs:
   vocabularyrelation: {name: Vocabulary Relation - All Concepts, rdf_file_path: ../data/cgi/vocabularyrelation.rdf,
     rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/vocabularyrelation.rdf',
     source_type: http_get, uri: 'http://resource.geosciml.org/classifier/cgi/vocabularyrelation'}
-summary_output_path: '../data/summary_output.txt'
-timeout: 10
-triple_store:
-  #triple_store_url: http://ec2-54-252-216-15.ap-southeast-2.compute.amazonaws.com/fuseki/vocabs
-  url: http://52.65.31.119/fuseki/vocabs
-  username: "vocabmanager"
-  password: "vocab1234%^&*"
+regex_replacements:
+- ['^(\<\?xml version="1.0")\s*(\?\>.*)', \1 encoding="UTF-8"\2]
+- ["\r\n", '
 
+    ']
+summary_output_path: ../data/summary_output.txt
+timeout: 10
+triple_store: {password: vocab1234%^&*, url: 'http://52.65.31.119/fuseki/vocabs',
+  username: vocabmanager}

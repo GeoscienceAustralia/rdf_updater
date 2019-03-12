@@ -20,6 +20,8 @@ def main():
     parser.add_argument("-s", "--settings", help="Settings file", type=str)
     parser.add_argument('-n', '--no_skosify', action='store_const', const=True, default=False,
                         help='Do not perform SKOS validation and inferencing. Default is SKOS enabled')
+    parser.add_argument('-d', '--update_directories', action='store_const', const=True, default=False,
+                        help='Update vocab settings from directories. Default is no update')
     parser.add_argument('-g', '--update_github', action='store_const', const=True, default=False,
                         help='Update vocab settings from GitHub. Default is no update')
     parser.add_argument('--debug', action='store_const', const=True, default=False,
@@ -31,6 +33,7 @@ def main():
 
     rdf_updater = RDFUpdater(settings_path=args.settings, 
                              update_github=args.update_github, 
+                             update_directories=args.update_directories,
                              debug=args.debug
                              ) 
     

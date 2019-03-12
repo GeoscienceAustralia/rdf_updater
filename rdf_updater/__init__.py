@@ -18,6 +18,7 @@ import skosify  # contains skosify, config, and infer
 from rdflib import Graph
 from unidecode import unidecode
 from _collections import OrderedDict
+from glob import glob
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO) # Initial logging level for this module
@@ -29,6 +30,7 @@ class RDFUpdater(object):
     def __init__(self, 
                  settings_path=None, 
                  update_github=False,
+                 update_directories=False,
                  debug=False):
         
         # Initialise and set debug property
@@ -43,11 +45,16 @@ class RDFUpdater(object):
             logger.info('Reading vocab configs from GitHub')
             self.settings['rdf_configs'].update(self.get_github_settings())
             
+        if update_directories:
+            logger.info('Reading vocab configs from directories')
+            self.settings['rdf_configs'].update(self.get_directory_settings())
+            
+        if update_github or update_directories:
             logger.info('Writing updated vocab configs to settings file {}'.format(settings_path))
             with open(settings_path, 'w') as settings_file:
                 yaml.safe_dump(self.settings, settings_file)
         
-        #logger.debug('Settings: {}'.format(pformat(self.settings)))
+        logger.debug('Settings: {}'.format(pformat(self.settings)))
         
         
     def get_rdfs(self):
@@ -80,6 +87,12 @@ WHERE {?s ?p ?o .}'''
                     else: # Special case for ODM2
                         params = {'format': 'skos'}
                 data = None
+            elif rdf_config['source_type'] == 'file':
+                rdf_path = rdf_config['rdf_url'].replace('file://', '')
+                logger.info('Reading RDF from file {} '.format(rdf_path))
+                with open(rdf_path, 'r') as rdf_file:
+                    rdf = rdf_file.read()
+                return rdf    
             else:
                 raise Exception('Bad source type for RDF')
             #logger.debug('http_method = {}, url = {}, headers = {}, params = {}, data = {}'.format(http_method, url, headers, params, data))
@@ -88,6 +101,7 @@ WHERE {?s ?p ?o .}'''
             #logger.debug('Response content: {}'.format(str(response.content)))
             assert response.status_code == 200, 'Response status code != 200'
             return(response.content).decode('utf-8') # Convert binary to UTF-8 string
+        
                 
         logger.info('Reading RDFs from sources to files')    
         
@@ -95,8 +109,10 @@ WHERE {?s ?p ?o .}'''
             logger.info('Obtaining data for {}'.format(rdf_config['name']))
             try:
                 rdf = get_rdf(rdf_config)
-                rdf = re.sub('^(\<\?xml version="1.0")\s*(\?\>.*)', '\\1 encoding="UTF-8"\\2', rdf) # Add encoding if missing
-                rdf = re.sub('\r\n', '\n', rdf) # Fix bad EOLs
+                
+                # Perform global and specific replacements
+                for regex_replacement in (self.settings.get('regex_replacements') or []) + (rdf_config.get('regex_replacements') or []):
+                    rdf = re.sub(regex_replacement[0], regex_replacement[1], rdf) # Add encoding if missing
                 
                 #logger.debug('rdf = {}'.format(rdf))
                 logger.info('Writing RDF to file {}'.format(rdf_config['rdf_file_path']))
@@ -158,6 +174,79 @@ WHERE {?s ?p ?o .}'''
         logger.info('Finished writing to triple-store')
         
      
+    def get_collection_values_from_rdf(self, rdf_xml):
+        vocab_tree = etree.fromstring(rdf_xml)
+        
+        # Find all collection elements
+        collection_elements = vocab_tree.findall(path='skos:Collection', namespaces=vocab_tree.nsmap)
+        if not collection_elements: #No skos:collections defined - look for resource element parents instead                      
+            logger.warning('WARNING: RDF has no explicit skos:Collection elements')
+            collection_elements = vocab_tree.findall(path='skos:ConceptScheme', namespaces=vocab_tree.nsmap)
+        if not collection_elements: #No skos:collections defined - look for resource element parents instead                      
+            logger.warning('WARNING: RDF has no explicit skos:ConceptScheme elements')
+            resource_elements = vocab_tree.findall(path='.//rdf:Description/rdf:type[@rdf:resource="http://www.w3.org/2004/02/skos/core#Collection"]', namespaces=vocab_tree.nsmap)
+            collection_elements = [resource_element.getparent() for resource_element in resource_elements]
+        
+        #logger.debug('collection_elements = {}'.format(pformat(collection_elements)))
+        
+        if len(collection_elements) == 1:
+            collection_element = collection_elements[0]
+            collection_uri = collection_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
+        else:
+            logger.warning('WARNING: RDF has multiple Collection elements')
+            #TODO: Make this work better when there are multiple collections in one RDF
+            # Find shortest URI for collection and use that for named graphs
+            # This is a bit nasty, but it works for poorly-defined subcollection schemes
+            collection_element = None
+            collection_uri = None
+            for search_collection_element in collection_elements:
+                search_collection_uri = search_collection_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
+                if (not collection_uri) or len(search_collection_uri) < len(collection_uri):
+                    collection_uri = search_collection_uri
+                    collection_element = search_collection_element
+            
+        label_element = collection_element.find(path = 'rdfs:label', namespaces=vocab_tree.nsmap)
+        if label_element is None:
+            label_element = collection_element.find(path = 'skos:prefLabel[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
+        if label_element is None:
+            label_element = collection_element.find(path = 'dcterms:title[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
+        collection_label = label_element.text
+                    
+        return collection_uri, collection_label
+    
+    
+                        
+    def get_directory_settings(self):   
+        result_dict = {}
+        for dir_name, dir_config in self.settings['directory_configs'].items():
+            logger.debug('Reading configurations for {}'.format(dir_name))
+            for rdf_path in glob(os.path.join(dir_config['source_dir'], '*.rdf'), recursive=False):
+                try:
+                    with open(rdf_path, 'rb') as rdf_file:
+                        rdf_xml = rdf_file.read()
+                        
+                    collection_uri, collection_label = self.get_collection_values_from_rdf(rdf_xml)                        
+
+                except Exception as e:       
+                    logger.warning('Unable to find collection information in file {}: {}'.format(rdf_path, e))
+                    continue
+                
+                collection_dict = {'name': collection_label,
+                               'uri': collection_uri,
+                               'source_type': 'file',
+                               'rdf_file_path': dir_config['rdf_dir'] + '/' + os.path.basename(rdf_path),
+                               'rdf_url': 'file://' + rdf_path
+                               }
+                
+                if dir_config.get('regex_replacements'):
+                    collection_dict['regex_replacements'] = dir_config['regex_replacements']
+                    
+                logger.debug('collection_dict = {}'.format(pformat(collection_dict)))
+                result_dict[os.path.splitext(os.path.basename(rdf_path))[0]] = collection_dict      
+                          
+        return result_dict        
+                    
+     
     def get_github_settings(self):   
         result_dict = {}
         for github_name, github_config in self.settings['git_configs'].items():
@@ -184,38 +273,7 @@ WHERE {?s ?p ?o .}'''
                     #logger.debug('Response content: {}'.format(str(response.content)))
                     assert response.status_code == 200, 'Response status code != 200'
     
-                    vocab_tree = etree.fromstring(response.content)
-                    
-                    # Find all collection elements
-                    collection_elements = vocab_tree.findall(path='skos:Collection', namespaces=vocab_tree.nsmap)
-                    if not collection_elements: #No skos:collections defined - look for resource element parents instead                      
-                        logger.warning('WARNING: {} has no explicit skos:Collection elements'.format(rdf_name))
-                        resource_elements = vocab_tree.findall(path='.//rdf:Description/rdf:type[@rdf:resource="http://www.w3.org/2004/02/skos/core#Collection"]', namespaces=vocab_tree.nsmap)
-                        collection_elements = [resource_element.getparent() for resource_element in resource_elements]
-                    
-                    #logger.debug('collection_elements = {}'.format(pformat(collection_elements)))
-                    
-                    if len(collection_elements) == 1:
-                        collection_element = collection_elements[0]
-                        collection_uri = collection_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
-                    else:
-                        logger.warning('WARNING: {} has multiple Collection elements'.format(rdf_name))
-                        #TODO: Make this work better when there are multiple collections in one RDF
-                        # Find shortest URI for collection and use that for named graphs
-                        # This is a bit nasty, but it works for poorly-defined subcollection schemes
-                        collection_element = None
-                        collection_uri = None
-                        for search_collection_element in collection_elements:
-                            search_collection_uri = search_collection_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
-                            if (not collection_uri) or len(search_collection_uri) < len(collection_uri):
-                                collection_uri = search_collection_uri
-                                collection_element = search_collection_element
-                        
-                    label_element = collection_element.find(path = 'rdfs:label', namespaces=vocab_tree.nsmap)
-                    if label_element is None:
-                        label_element = collection_element.find(path = 'dcterms:title[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
-                    collection_label = label_element.text
-                                            
+                    collection_uri, collection_label = self.get_collection_values_from_rdf(response.content)                        
                 except Exception as e:
                     logger.warning('Unable to find collection information in {}: {}'.format(rdf_url, e))
                     continue
@@ -226,6 +284,10 @@ WHERE {?s ?p ?o .}'''
                                'rdf_file_path': github_config['rdf_dir'] + '/' + rdf_name,
                                'rdf_url': rdf_url
                                }
+                
+                if github_config.get('regex_replacements'):
+                    collection_dict['regex_replacements'] = github_config['regex_replacements']
+                    
                 logger.debug('collection_dict = {}'.format(pformat(collection_dict)))
                 result_dict[os.path.splitext(rdf_name)[0]] = collection_dict
         return result_dict  
@@ -415,12 +477,14 @@ WHERE {
                 
         sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct: <http://purl.org/dc/terms/>
 
 SELECT distinct ?graph ?collection ?collection_label ?concept ?concept_preflabel ?concept_description ?broader_concept
 WHERE {
     GRAPH ?graph {
         OPTIONAL {?collection a skos:Collection .}
         OPTIONAL {?collection a skos:ConceptScheme .}
+        OPTIONAL {?collection dct:title ?collection_label .}
         OPTIONAL {?collection rdfs:label ?collection_label .}
         
         OPTIONAL {?collection skos:member ?concept .}
