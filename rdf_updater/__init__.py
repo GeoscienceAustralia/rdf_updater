@@ -110,7 +110,7 @@ WHERE {?s ?p ?o .}'''
             try:
                 rdf = get_rdf(rdf_config)
                 
-                # Perform global and specific replacements
+                # Perform global and specific regular expression string replacements
                 for regex_replacement in (self.settings.get('regex_replacements') or []) + (rdf_config.get('regex_replacements') or []):
                     rdf = re.sub(regex_replacement[0], regex_replacement[1], rdf) # Add encoding if missing
                 
@@ -175,6 +175,10 @@ WHERE {?s ?p ?o .}'''
         
      
     def get_collection_values_from_rdf(self, rdf_xml):
+        '''
+        Function to return collection_uri & collection_label from rdf_xml
+        '''
+        #TODO: Re-implement this with rdflib if possible
         vocab_tree = etree.fromstring(rdf_xml)
         
         # Find all collection elements
@@ -222,10 +226,14 @@ WHERE {?s ?p ?o .}'''
             logger.debug('Reading configurations for {}'.format(dir_name))
             for rdf_path in glob(os.path.join(dir_config['source_dir'], '*.rdf'), recursive=False):
                 try:
-                    with open(rdf_path, 'rb') as rdf_file:
+                    with open(rdf_path, 'r') as rdf_file:
                         rdf_xml = rdf_file.read()
                         
-                    collection_uri, collection_label = self.get_collection_values_from_rdf(rdf_xml)                        
+                    # Perform global and specific regular expression string replacements
+                    for regex_replacement in (self.settings.get('regex_replacements') or []) + (dir_config.get('regex_replacements') or []):
+                        rdf_xml = re.sub(regex_replacement[0], regex_replacement[1], rdf_xml) # Add encoding if missing
+                    
+                    collection_uri, collection_label = self.get_collection_values_from_rdf(rdf_xml.encode('utf-8'))                        
 
                 except Exception as e:       
                     logger.warning('Unable to find collection information in file {}: {}'.format(rdf_path, e))
