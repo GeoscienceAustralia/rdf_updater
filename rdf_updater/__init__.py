@@ -54,7 +54,7 @@ class RDFUpdater(object):
             with open(settings_path, 'w') as settings_file:
                 yaml.safe_dump(self.settings, settings_file)
         
-        logger.debug('Settings: {}'.format(pformat(self.settings)))
+        #logger.debug('Settings: {}'.format(pformat(self.settings)))
         
         
     def get_rdfs(self):
@@ -140,7 +140,7 @@ WHERE {?s ?p ?o .}'''
             password = self.settings['triple_store'].get('password')
             
             if (username and password):
-                logger.debug('Authenticating with username {} and password {}'.format(username, password))
+                #logger.debug('Authenticating with username {} and password {}'.format(username, password))
                 headers['Authorization'] = 'Basic ' + base64.encodebytes('{}:{}'.format(username, password).encode('utf-8')).strip().decode('utf-8')
             
             params = {'graph': rdf_config['uri']}
@@ -249,7 +249,7 @@ WHERE {?s ?p ?o .}'''
                 if dir_config.get('regex_replacements'):
                     collection_dict['regex_replacements'] = dir_config['regex_replacements']
                     
-                logger.debug('collection_dict = {}'.format(pformat(collection_dict)))
+                #logger.debug('collection_dict = {}'.format(pformat(collection_dict)))
                 result_dict[os.path.splitext(os.path.basename(rdf_path))[0]] = collection_dict      
                           
         return result_dict        
@@ -379,6 +379,7 @@ WHERE {?s ?p ?o .}'''
         '''
         Function to submit a sparql query and return the textual response
         '''
+        #logger.debug('sparql_query = {}'.format(sparql_query))
         accept_format = {'json': 'application/json',
                          'xml': 'application/xml'}.get(accept_format) or 'application/json'
         headers = {'Accept': accept_format,
@@ -389,7 +390,7 @@ WHERE {?s ?p ?o .}'''
         password = self.settings['triple_store'].get('password')
             
         if (username and password):
-            logger.debug('Authenticating with username {} and password {}'.format(username, password))
+            #logger.debug('Authenticating with username {} and password {}'.format(username, password))
             headers['Authorization'] = 'Basic ' + base64.encodebytes('{}:{}'.format(username, password).encode('utf-8')).strip().decode('utf-8')
             
         params = None
@@ -419,39 +420,35 @@ WHERE {
             
         
         
-    def get_collection_data(self, graph=None, collection=None):
+    def get_collection_data(self, filter_graph=None, filter_collection=None):
         '''
         Function to generate a tree of collections and concepts
         '''
         
-        def get_concept_tree(bindings_list, graph, collection, broader_concept=None):
+        def get_concept_tree(bindings_list, collection, broader_concept=None):
             '''
             Recursive helper function to generate tree of broader/narrower concepts in graph
             '''
-            def get_narrower_concepts(bindings_list, graph, collection, broader_concept):
+            def get_narrower_concepts(bindings_list, collection, broader_concept):
                 '''
                 Helper function to generate sublist of narrower concepts for a given broader concept
                 N.B: when broader_concept is None, the list will contain top concepts and also 
                 concepts with broader concepts in other collections
                 '''
-                collection_concepts = set([bindings_dict['concept']['value'] 
-                                       for bindings_dict in bindings_list
-                                       if (bindings_dict['graph']['value'] == graph)
-                                       and (bindings_dict['collection']['value'] == collection)
-                                       ])
-                
                 bindings_sublist = [bindings_dict 
                                     for bindings_dict in bindings_list
                                     if (
-                                        # Narrower concepts must be in same graph and collection
-                                        (bindings_dict['graph']['value'] == graph) 
-                                        and (bindings_dict['collection']['value'] == collection)
+                                        # Narrower concepts must be in same collection
+                                        (bindings_dict['collection']['value'] == collection)
                                         and (
                                                 (
                                                 (broader_concept is None) # Get top concepts
                                                 and (
                                                     (bindings_dict.get('broader_concept') is None) # Top concept?
-                                                    or (bindings_dict['broader_concept']['value'] not in collection_concepts) # Broader concept not in same collection
+                                                    or (bindings_dict['broader_concept']['value'] not in set([bindings_dict['concept']['value'] 
+                                                                                                              for bindings_dict in bindings_list
+                                                                                                              if (bindings_dict['collection']['value'] == collection)
+                                                                                                              ])) # Broader concept not in same collection
                                                     )
                                                 )
                                                 or (
@@ -462,12 +459,11 @@ WHERE {
                                             )
                                         )
                                     ]
-                
                 return bindings_sublist
             
-            concept_tree_dict = {}
+            concept_tree_dict = OrderedDict()
             
-            for bindings_dict in get_narrower_concepts(bindings_list, graph, collection, broader_concept):
+            for bindings_dict in get_narrower_concepts(bindings_list, collection, broader_concept):
                 concept = bindings_dict["concept"]["value"]
                 
                 concept_dict = {'preflabel': bindings_dict["concept_preflabel"]["value"]}
@@ -475,74 +471,71 @@ WHERE {
                 if bindings_dict.get('concept_description'):
                     concept_dict['description'] = bindings_dict["concept_description"]["value"]
                     
-                narrower_concept_tree_dict = get_concept_tree(bindings_list, graph, collection, broader_concept=concept)
+                narrower_concept_tree_dict = get_concept_tree(bindings_list, collection, broader_concept=concept)
                 if narrower_concept_tree_dict:
                     concept_dict['narrower_concepts'] = narrower_concept_tree_dict
                 
                 concept_tree_dict[concept] = concept_dict
                 
             return concept_tree_dict
-                
-        sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        
+        
+        graphs = [filter_graph] if filter_graph else sorted(self.get_graph_names())
+        
+        result_dict = OrderedDict()
+
+        for graph in graphs:
+            logger.debug('Querying graph {}'.format(graph))     
+            sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dct: <http://purl.org/dc/terms/>
 
-SELECT distinct ?graph ?collection ?collection_label ?concept ?concept_preflabel ?concept_description ?broader_concept
+SELECT distinct ?collection ?collection_label ?concept ?concept_preflabel ?concept_description ?broader_concept
+FROM <{graph_name}>
 WHERE {
-    GRAPH ?graph {
-        OPTIONAL {?collection a skos:Collection .}
-        OPTIONAL {?collection a skos:ConceptScheme .}
-        OPTIONAL {?collection dct:title ?collection_label .}
-        OPTIONAL {?collection rdfs:label ?collection_label .}
+    OPTIONAL {?collection a skos:Collection .}
+    OPTIONAL {?collection a skos:ConceptScheme .}
+    OPTIONAL {?collection dct:title ?collection_label .}
+    OPTIONAL {?collection rdfs:label ?collection_label .}
+    
+    OPTIONAL {?collection skos:member ?concept .}
+    OPTIONAL {?concept skos:inScheme ?collection .}
+    ?concept skos:prefLabel ?concept_preflabel .
+    OPTIONAL {?concept skos:definition ?concept_description .}
+    OPTIONAL {?concept skos:broader ?broader_concept .}
+    FILTER(lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "")'''.replace('{graph_name}', graph)
         
-        OPTIONAL {?collection skos:member ?concept .}
-        OPTIONAL {?concept skos:inScheme ?collection .}
-        ?concept skos:prefLabel ?concept_preflabel .
-        OPTIONAL {?concept skos:definition ?concept_description .}
-        OPTIONAL {?concept skos:broader ?broader_concept .}
-        FILTER(lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "")'''
-       
-        if graph:
+            if filter_collection:
+                sparql_query += '''
+    FILTER(?collection = <{}>)'''.format(filter_collection)
+            
             sparql_query += '''
-        FILTER(?graph = <{}>)'''.format(graph)
-        
-        if collection:
-            sparql_query += '''
-        FILTER(?collection = <{}>)'''.format(collection)
-        
-        sparql_query += '''
-       }
+
 }
 '''
         
 
-        response_dict = json.loads(self.submit_sparql_query(sparql_query)
-                                 )  
-        bindings_list = response_dict["results"]["bindings"]
-              
-        result_dict = OrderedDict()
-        graph_list = sorted(list(set([bindings_dict['graph']['value'] 
-                                      for bindings_dict in bindings_list])))
-        for graph in graph_list:
+            response_dict = json.loads(self.submit_sparql_query(sparql_query))
+            bindings_list = response_dict["results"]["bindings"]
+            logger.debug('{} concepts found in graph {}'.format(len(bindings_list), graph))
+                  
             graph_dict = OrderedDict()
             result_dict[graph] = graph_dict
+            
             collection_list = sorted(list(set([bindings_dict['collection']['value'] 
-                                               for bindings_dict in bindings_list
-                                               if bindings_dict['graph']['value'] == graph])))
+                                               for bindings_dict in bindings_list])))
+            
             for collection in collection_list:
                 collection_label = [bindings_dict['collection_label']['value'] if bindings_dict.get('collection_label')
                                     else os.path.basename(collection) # Use basename if label not defined
                                     for bindings_dict in bindings_list
-                                    if bindings_dict['graph']['value'] == graph
-                                    and bindings_dict['collection']['value'] == collection
+                                    if bindings_dict['collection']['value'] == collection
                                     ][0] # Use first item - they should all be the same
             
-                result_dict[graph][collection] = {'label': collection_label}
-        
-        for graph, graph_dict in result_dict.items():
-            for collection in sorted(graph_dict.keys()):
-                collection_dict = graph_dict[collection]
-                collection_dict['concepts'] = get_concept_tree(bindings_list, graph, collection, broader_concept=None) 
+                collection_dict = {'label': collection_label}        
+                graph_dict[collection] = collection_dict
+                
+                collection_dict['concepts'] = get_concept_tree(bindings_list, collection, broader_concept=None) 
             
         return result_dict
     
