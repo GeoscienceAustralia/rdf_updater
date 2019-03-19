@@ -38,18 +38,18 @@ def main():
                              ) 
     
     rdf_updater.get_rdfs() # Read RDFs from sources into files
-     
+
     print()
-    
+
     if skosify:
         #rdf_updater.skosify_rdfs()
         print()
-    
+
     rdf_updater.write_rdfs_to_triple_stores(skosified=skosify) # Write RDFs to triple-stores from files
-    
+
     rdf_updater.output_summary_text() # Output text summary to file
 
-    
+
 if __name__ == '__main__':
     # Setup logging handler if required
     if not logger.handlers:

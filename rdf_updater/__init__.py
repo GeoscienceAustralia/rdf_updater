@@ -388,6 +388,7 @@ WHERE {?s ?p ?o .}'''
                 continue
                         
         logger.info('SKOSification of RDF files completed')
+        
     
     def submit_sparql_query(self, sparql_query, triple_store_name=None, accept_format='json'):
         '''
@@ -417,8 +418,9 @@ WHERE {?s ?p ?o .}'''
                                data=sparql_query, 
                                timeout=self.settings['timeout'])
         #logger.debug('Response content: {}'.format(str(response.content)))
-        assert response.status_code == 200, 'Response status code != 200'
+        assert response.status_code == 200, 'Response status code {} != 200'.format(response.status_code)
         return(response.content).decode('utf-8') # Convert binary to UTF-8 string
+    
     
     def get_graph_names(self, triple_store_name=None):
         '''
@@ -439,8 +441,114 @@ WHERE {
                 ]
             
         
+    def get_vocabs(self, triple_store_name=None):
+        '''
+        Function to generate a list of dicts for all concepts
+        '''
+        sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct: <http://purl.org/dc/terms/>
+
+SELECT DISTINCT ?graph ?vocab ?vocab_label
+WHERE {
+    GRAPH ?graph {
+    {
+        {?vocab a skos:Collection .}
+        UNION {?vocab a skos:ConceptScheme .}
+        }
+    OPTIONAL {
+        {?vocab dct:title ?vocab_label .} 
+        UNION {?vocab rdfs:label ?vocab_label .}
+        }
+    }
+}
+ORDER BY ?graph ?vocab
+'''
+        return [{'graph': bindings_dict['graph']['value'],
+                 'vocab': bindings_dict['vocab']['value'],
+                 'vocab_label': bindings_dict['vocab_label']['value'] 
+                    if bindings_dict.get('vocab_label') 
+                    else os.path.basename(bindings_dict['vocab']['value'])
+                 }
+                for bindings_dict in json.loads(self.submit_sparql_query(sparql_query,
+                                                                         triple_store_name
+                                                                         )
+                                                )["results"]["bindings"]
+                ]
+            
         
-    def get_vocab_data(self, triple_store_name, filter_graph=None, filter_vocab=None):
+        
+    def get_concept_bindings(self, filter_graph=None, filter_vocab=None, triple_store_name=None):
+        '''
+        Function to generate a list of bindings for all concepts
+        '''
+        returned_item_count = -1 # Anything but zero
+        query_offset = 0
+        bindings_list = []
+    
+        while returned_item_count != 0:
+        
+            sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct: <http://purl.org/dc/terms/>
+
+SELECT distinct ?vocab ?vocab_label ?concept ?concept_preflabel ?concept_description ?broader_concept
+WHERE {
+    GRAPH ?graph {
+        {
+            {?vocab a skos:Collection .}
+            UNION {?vocab a skos:ConceptScheme .}
+            }
+        OPTIONAL {
+            {?vocab dct:title ?vocab_label .} 
+            UNION {?vocab rdfs:label ?vocab_label .}
+            }
+        {
+            {?vocab skos:member ?concept .}
+            UNION {?concept skos:inScheme ?vocab .}
+            }
+        ?concept skos:prefLabel ?concept_preflabel .
+        OPTIONAL {?concept skos:definition ?concept_description .}
+        OPTIONAL {?concept skos:broader ?broader_concept .}
+        FILTER(lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "")
+'''        
+            if filter_vocab:
+                sparql_query += '''
+        FILTER(?vocab = <{}>)'''.format(filter_vocab)
+            
+            sparql_query += '''
+        }
+'''
+            if filter_graph:
+                sparql_query += '''
+    FILTER(?graph = <{}>)'''.format(filter_graph)
+    
+            sparql_query += '''
+    }
+'''
+            sparql_query += '''ORDER BY ?graph ?vocab ?concept
+LIMIT {}
+OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
+        
+            #logger.debug('sparql_query = {}'.format(sparql_query))
+            response_dict = json.loads(self.submit_sparql_query(sparql_query, triple_store_name)
+                                     )  
+            returned_item_count = len(response_dict["results"]["bindings"])
+            if returned_item_count:
+                if query_offset or (returned_item_count == SPARQL_QUERY_LIMIT):
+                    logger.debug('{} items returned in paginated query'.format(returned_item_count))
+                    
+                bindings_list += response_dict["results"]["bindings"]
+                query_offset += returned_item_count   
+                
+            # Don't go around again if we have fewer items than the limit
+            if returned_item_count < SPARQL_QUERY_LIMIT:
+                break
+        
+        return bindings_list
+    
+        
+    def get_vocab_tree(self, triple_store_name, filter_graph=None, filter_vocab=None):
         '''
         Function to generate a tree of vocabs and concepts
         '''
@@ -500,7 +608,16 @@ WHERE {
             return concept_tree_dict
         
         logger.info('Reading vocab data from triple-store {}'.format(triple_store_name))
-        graph_list = [filter_graph] if filter_graph else sorted(self.get_graph_names())
+        vocab_list = self.get_vocabs(triple_store_name)
+        if filter_graph:
+            vocab_list = [vocab_dict for vocab_dict in vocab_list if vocab_dict['graph'] == filter_graph]
+        
+        if filter_vocab:
+            vocab_list = [vocab_dict for vocab_dict in vocab_list if vocab_dict['vocab'] == filter_vocab]
+            
+        print(vocab_list)
+        
+        graph_list = sorted(list(set([vocab_dict['graph'] for vocab_dict in vocab_list])))
         graph_count = len(graph_list)
         
         result_dict = OrderedDict()
@@ -509,59 +626,8 @@ WHERE {
         concept_count = 0
         item_count = 0
         for graph in graph_list:
-            returned_item_count = -1 # Anything but zero
-            query_offset = 0
-            bindings_list = []
-        
-            logger.debug('Querying graph {}'.format(graph))     
-            while returned_item_count != 0:
-        
-                sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-PREFIX dct: <http://purl.org/dc/terms/>
-
-SELECT distinct ?vocab ?vocab_label ?concept ?concept_preflabel ?concept_description ?broader_concept
-FROM <{graph_name}>
-WHERE {
-    {
-        {?vocab a skos:Collection .}
-        UNION {?vocab a skos:ConceptScheme .}
-        }
-    OPTIONAL {
-        {?vocab dct:title ?vocab_label .} 
-        UNION {?vocab rdfs:label ?vocab_label .}
-        }
-    {
-        {?vocab skos:member ?concept .}
-        UNION {?concept skos:inScheme ?vocab .}
-        }
-    ?concept skos:prefLabel ?concept_preflabel .
-    OPTIONAL {?concept skos:definition ?concept_description .}
-    OPTIONAL {?concept skos:broader ?broader_concept .}
-    FILTER(lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "")'''.replace('{graph_name}', graph)
-        
-                if filter_vocab:
-                    sparql_query += '''
-    FILTER(?vocab = <{}>)'''.format(filter_vocab)
-            
-                sparql_query += '''
-}
-'''
-                sparql_query += '''
-ORDER BY ?vocab ?concept
-LIMIT {}
-OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
-        
-
-                response_dict = json.loads(self.submit_sparql_query(sparql_query, triple_store_name)
-                                         )  
-                returned_item_count = len(response_dict["results"]["bindings"])
-                if returned_item_count:
-                    if query_offset or (returned_item_count == SPARQL_QUERY_LIMIT):
-                        logger.debug('{} items returned in paginated query against graph {}'.format(returned_item_count, graph))
-                        
-                    bindings_list += response_dict["results"]["bindings"]
-                    query_offset += returned_item_count
+            logger.debug('Querying graph {}'.format(graph))
+            bindings_list = self.get_concept_bindings(filter_graph=graph, filter_vocab=filter_vocab)
 
             logger.debug('{} items found in graph {}'.format(len(bindings_list), graph))
             item_count += len(bindings_list)
@@ -630,9 +696,9 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         else:
             output_stream = sys.stdout
                     
-        vocab_data = self.get_vocab_data(triple_store_name, graph, vocab)
+        vocab_tree = self.get_vocab_tree(triple_store_name, graph, vocab)
         
-        self.output_vocab_data(vocab_data, output_stream)
+        self.output_vocab_data(vocab_tree, output_stream)
                 
     @property
     def debug(self):
