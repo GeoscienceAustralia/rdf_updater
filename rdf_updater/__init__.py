@@ -45,11 +45,11 @@ class RDFUpdater(object):
         
         if update_github:
             logger.info('Reading vocab configs from GitHub')
-            self.settings['rdf_configs'].update(self.get_github_settings())
+            self.settings['rdf_configs'].update(self.update_github_settings())
             
         if update_directories:
             logger.info('Reading vocab configs from directories')
-            self.settings['rdf_configs'].update(self.get_directory_settings())
+            self.settings['rdf_configs'].update(self.update_directory_settings())
             
         if update_github or update_directories:
             logger.info('Writing updated vocab configs to settings file {}'.format(settings_path))
@@ -72,7 +72,7 @@ class RDFUpdater(object):
                 data = '''CONSTRUCT {?s ?p ?o}
 WHERE {?s ?p ?o .}'''
             elif rdf_config['source_type'] == 'http_get':
-                url = rdf_config['uri']
+                url = rdf_config['graph_name']
                 http_method = requests.get
                 if rdf_config.get('format') == 'ttl':
                     url += '/' # SISSVoc needs to have a trailing slash
@@ -108,7 +108,7 @@ WHERE {?s ?p ?o .}'''
         logger.info('Reading RDFs from sources to files')    
         
         for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
-            logger.info('Obtaining data for {}'.format(rdf_config['name']))
+            logger.info('Obtaining data for {}'.format(rdf_config['graph_label'] ))
             try:
                 rdf = get_rdf(rdf_config)
                 
@@ -145,7 +145,7 @@ WHERE {?s ?p ?o .}'''
                 #logger.debug('Authenticating with username {} and password {}'.format(username, password))
                 headers['Authorization'] = 'Basic ' + base64.encodebytes('{}:{}'.format(username, password).encode('utf-8')).strip().decode('utf-8')
             
-            params = {'graph': rdf_config['uri']}
+            params = {'graph': rdf_config['graph_name']}
             
             logger.info('Writing RDF to {}'.format(url))
             #logger.debug('url = {}, headers = {}, params = {}'.format(url, headers, params))
@@ -156,7 +156,7 @@ WHERE {?s ?p ?o .}'''
                 
         logger.info('Writing RDFs to triple-store {} from files'.format(self.settings['triple_store']['url']))           
         for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
-            logger.info('Writing data for {} to triple-store'.format(rdf_config['name']))
+            logger.info('Writing data for {} to triple-store'.format(rdf_config['graph_label'] ))
             if skosified:
                 rdf_file_path = os.path.splitext(rdf_config['rdf_file_path'])[0] + '_skos.rdf'
             else:
@@ -176,53 +176,52 @@ WHERE {?s ?p ?o .}'''
         logger.info('Finished writing to triple-store')
         
      
-    def get_collection_values_from_rdf(self, rdf_xml):
+    def get_graph_values_from_rdf(self, rdf_xml):
         '''
-        Function to return collection_uri & collection_label from rdf_xml
+        Function to return graph_name & graph_label from rdf_xml
         '''
         #TODO: Re-implement this with rdflib if possible
         vocab_tree = etree.fromstring(rdf_xml)
         
-        # Find all collection elements
-        collection_elements = vocab_tree.findall(path='skos:Collection', namespaces=vocab_tree.nsmap)
-        if not collection_elements: #No skos:collections defined - look for resource element parents instead                      
-            logger.warning('WARNING: RDF has no explicit skos:Collection elements')
-            collection_elements = vocab_tree.findall(path='skos:ConceptScheme', namespaces=vocab_tree.nsmap)
-        if not collection_elements: #No skos:collections defined - look for resource element parents instead                      
-            logger.warning('WARNING: RDF has no explicit skos:ConceptScheme elements')
+        # Find all vocab elements
+        vocab_elements = vocab_tree.findall(path='skos:Collection', namespaces=vocab_tree.nsmap)
+        if not vocab_elements: #No skos:collections defined - look for resource element parents instead                      
+            vocab_elements = vocab_tree.findall(path='skos:ConceptScheme', namespaces=vocab_tree.nsmap)
+        if not vocab_elements: #No skos:collections or skos:ConceptSchemes defined - look for resource element parents instead                      
+            logger.warning('WARNING: RDF has no explicit skos:Collection or skos:ConceptScheme elements')
             resource_elements = vocab_tree.findall(path='.//rdf:Description/rdf:type[@rdf:resource="http://www.w3.org/2004/02/skos/core#Collection"]', namespaces=vocab_tree.nsmap)
-            collection_elements = [resource_element.getparent() for resource_element in resource_elements]
+            vocab_elements = [resource_element.getparent() for resource_element in resource_elements]
         
-        #logger.debug('collection_elements = {}'.format(pformat(collection_elements)))
+        #logger.debug('vocab_elements = {}'.format(pformat(vocab_elements)))
         
-        if len(collection_elements) == 1:
-            collection_element = collection_elements[0]
-            collection_uri = collection_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
+        if len(vocab_elements) == 1:
+            vocab_element = vocab_elements[0]
+            graph_name = vocab_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
         else:
-            logger.warning('WARNING: RDF has multiple Collection elements')
-            #TODO: Make this work better when there are multiple collections in one RDF
-            # Find shortest URI for collection and use that for named graphs
+            logger.warning('WARNING: RDF has multiple vocab elements')
+            #TODO: Make this work better when there are multiple vocabs in one RDF
+            # Find shortest URI for vocab and use that for named graphs
             # This is a bit nasty, but it works for poorly-defined subcollection schemes
-            collection_element = None
-            collection_uri = None
-            for search_collection_element in collection_elements:
-                search_collection_uri = search_collection_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
-                if (not collection_uri) or len(search_collection_uri) < len(collection_uri):
-                    collection_uri = search_collection_uri
-                    collection_element = search_collection_element
+            vocab_element = None
+            graph_name = None
+            for search_vocab_element in vocab_elements:
+                search_vocab_uri = search_vocab_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
+                if (not graph_name) or len(search_vocab_uri) < len(graph_name):
+                    graph_name = search_vocab_uri
+                    vocab_element = search_vocab_element
             
-        label_element = collection_element.find(path = 'rdfs:label', namespaces=vocab_tree.nsmap)
+        label_element = vocab_element.find(path = 'rdfs:label', namespaces=vocab_tree.nsmap)
         if label_element is None:
-            label_element = collection_element.find(path = 'skos:prefLabel[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
+            label_element = vocab_element.find(path = 'skos:prefLabel[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
         if label_element is None:
-            label_element = collection_element.find(path = 'dcterms:title[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
-        collection_label = label_element.text
+            label_element = vocab_element.find(path = 'dcterms:title[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
+        graph_label = label_element.text
                     
-        return collection_uri, collection_label
+        return graph_name, graph_label
     
     
                         
-    def get_directory_settings(self):   
+    def update_directory_settings(self):   
         result_dict = {}
         for dir_name, dir_config in self.settings['directory_configs'].items():
             logger.debug('Reading configurations for {}'.format(dir_name))
@@ -235,29 +234,29 @@ WHERE {?s ?p ?o .}'''
                     for regex_replacement in (self.settings.get('regex_replacements') or []) + (dir_config.get('regex_replacements') or []):
                         rdf_xml = re.sub(regex_replacement[0], regex_replacement[1], rdf_xml) # Add encoding if missing
                     
-                    collection_uri, collection_label = self.get_collection_values_from_rdf(rdf_xml.encode('utf-8'))                        
+                    graph_name, graph_label = self.get_graph_values_from_rdf(rdf_xml.encode('utf-8'))                        
 
                 except Exception as e:       
-                    logger.warning('Unable to find collection information in file {}: {}'.format(rdf_path, e))
+                    logger.warning('Unable to find vocab information in file {}: {}'.format(rdf_path, e))
                     continue
                 
-                collection_dict = {'name': collection_label,
-                               'uri': collection_uri,
+                vocab_dict = {'graph_label': graph_label,
+                               'graph_name': graph_name,
                                'source_type': 'file',
                                'rdf_file_path': dir_config['rdf_dir'] + '/' + os.path.basename(rdf_path),
                                'rdf_url': 'file://' + rdf_path
                                }
                 
                 if dir_config.get('regex_replacements'):
-                    collection_dict['regex_replacements'] = dir_config['regex_replacements']
+                    vocab_dict['regex_replacements'] = dir_config['regex_replacements']
                     
-                #logger.debug('collection_dict = {}'.format(pformat(collection_dict)))
-                result_dict[os.path.splitext(os.path.basename(rdf_path))[0]] = collection_dict      
+                #logger.debug('vocab_dict = {}'.format(pformat(vocab_dict)))
+                result_dict[os.path.splitext(os.path.basename(rdf_path))[0]] = vocab_dict      
                           
         return result_dict        
                     
      
-    def get_github_settings(self):   
+    def update_github_settings(self):   
         result_dict = {}
         for github_name, github_config in self.settings['git_configs'].items():
             logger.debug('Reading configurations for {}'.format(github_name))
@@ -283,23 +282,23 @@ WHERE {?s ?p ?o .}'''
                     #logger.debug('Response content: {}'.format(str(response.content)))
                     assert response.status_code == 200, 'Response status code != 200'
     
-                    collection_uri, collection_label = self.get_collection_values_from_rdf(response.content)                        
+                    graph_name, graph_label = self.get_graph_values_from_rdf(response.content)                        
                 except Exception as e:
-                    logger.warning('Unable to find collection information in {}: {}'.format(rdf_url, e))
+                    logger.warning('Unable to find vocab information in {}: {}'.format(rdf_url, e))
                     continue
                 
-                collection_dict = {'name': collection_label,
-                               'uri': collection_uri,
+                vocab_dict = {'graph_label': graph_label,
+                               'graph_name': graph_name,
                                'source_type': 'http_get',
                                'rdf_file_path': github_config['rdf_dir'] + '/' + rdf_name,
                                'rdf_url': rdf_url
                                }
                 
                 if github_config.get('regex_replacements'):
-                    collection_dict['regex_replacements'] = github_config['regex_replacements']
+                    vocab_dict['regex_replacements'] = github_config['regex_replacements']
                     
-                logger.debug('collection_dict = {}'.format(pformat(collection_dict)))
-                result_dict[os.path.splitext(rdf_name)[0]] = collection_dict
+                logger.debug('vocab_dict = {}'.format(pformat(vocab_dict)))
+                result_dict[os.path.splitext(rdf_name)[0]] = vocab_dict
         return result_dict  
     
     def skosify_rdfs(self):
@@ -329,7 +328,7 @@ WHERE {?s ?p ?o .}'''
             root_logger.addHandler(log_file_handler)
             
             skos_rdf = skosify.skosify(rdf, 
-                                  label=rdf_config['name'],
+                                  label=rdf_config['graph_label'] ,
                                   eliminate_redundancy=True,
                                   preflabel_policy='all' #TODO: This is necessary to avoid a unicode bug in skosify - fix it
                                   )
@@ -367,7 +366,7 @@ WHERE {?s ?p ?o .}'''
         root_logger = logging.getLogger() # Capture output from Skosify to log file   
              
         for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
-            #logger.info('Validating data for {}'.format(rdf_config['name']))
+            #logger.info('Validating data for {}'.format(rdf_config['graph_label'] ))
             
             try:
                 skosify_rdf(rdf_config, root_logger)
@@ -422,26 +421,26 @@ WHERE {
             
         
         
-    def get_collection_data(self, filter_graph=None, filter_collection=None):
+    def get_vocab_data(self, filter_graph=None, filter_vocab=None):
         '''
-        Function to generate a tree of collections and concepts
+        Function to generate a tree of vocabs and concepts
         '''
         
-        def get_concept_tree(bindings_list, collection, broader_concept=None):
+        def get_concept_tree(bindings_list, vocab, broader_concept=None):
             '''
             Recursive helper function to generate tree of broader/narrower concepts in graph
             '''
-            def get_narrower_concepts(bindings_list, collection, broader_concept):
+            def get_narrower_concepts(bindings_list, vocab, broader_concept):
                 '''
                 Helper function to generate sublist of narrower concepts for a given broader concept
                 N.B: when broader_concept is None, the list will contain top concepts and also 
-                concepts with broader concepts in other collections
+                concepts with broader concepts in other vocabs
                 '''
                 bindings_sublist = [bindings_dict 
                                     for bindings_dict in bindings_list
                                     if (
-                                        # Narrower concepts must be in same collection
-                                        (bindings_dict['collection']['value'] == collection)
+                                        # Narrower concepts must be in same vocab
+                                        (bindings_dict['vocab']['value'] == vocab)
                                         and (
                                                 (
                                                 (broader_concept is None) # Get top concepts
@@ -449,8 +448,8 @@ WHERE {
                                                     (bindings_dict.get('broader_concept') is None) # Top concept?
                                                     or (bindings_dict['broader_concept']['value'] not in set([bindings_dict['concept']['value'] 
                                                                                                               for bindings_dict in bindings_list
-                                                                                                              if (bindings_dict['collection']['value'] == collection)
-                                                                                                              ])) # Broader concept not in same collection
+                                                                                                              if (bindings_dict['vocab']['value'] == vocab)
+                                                                                                              ])) # Broader concept not in same vocab
                                                     )
                                                 )
                                                 or (
@@ -465,7 +464,7 @@ WHERE {
             
             concept_tree_dict = OrderedDict()
             
-            for bindings_dict in get_narrower_concepts(bindings_list, collection, broader_concept):
+            for bindings_dict in get_narrower_concepts(bindings_list, vocab, broader_concept):
                 concept = bindings_dict["concept"]["value"]
                 
                 concept_dict = {'preflabel': bindings_dict["concept_preflabel"]["value"]}
@@ -473,7 +472,7 @@ WHERE {
                 if bindings_dict.get('concept_description'):
                     concept_dict['description'] = bindings_dict["concept_description"]["value"]
                     
-                narrower_concept_tree_dict = get_concept_tree(bindings_list, collection, broader_concept=concept)
+                narrower_concept_tree_dict = get_concept_tree(bindings_list, vocab, broader_concept=concept)
                 if narrower_concept_tree_dict:
                     concept_dict['narrower_concepts'] = narrower_concept_tree_dict
                 
@@ -482,12 +481,13 @@ WHERE {
             return concept_tree_dict
         
         
+        logger.info('Reading vocab data from triple-store')
         graph_list = [filter_graph] if filter_graph else sorted(self.get_graph_names())
         graph_count = len(graph_list)
         
         result_dict = OrderedDict()
 
-        collection_count = 0
+        vocab_count = 0
         concept_count = 0
         item_count = 0
         for graph in graph_list:
@@ -502,35 +502,35 @@ WHERE {
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dct: <http://purl.org/dc/terms/>
 
-SELECT distinct ?collection ?collection_label ?concept ?concept_preflabel ?concept_description ?broader_concept
+SELECT distinct ?vocab ?vocab_label ?concept ?concept_preflabel ?concept_description ?broader_concept
 FROM <{graph_name}>
 WHERE {
     {
-        {?collection a skos:Collection .}
-        UNION {?collection a skos:ConceptScheme .}
+        {?vocab a skos:Collection .}
+        UNION {?vocab a skos:ConceptScheme .}
         }
     OPTIONAL {
-        {?collection dct:title ?collection_label .} 
-        UNION {?collection rdfs:label ?collection_label .}
+        {?vocab dct:title ?vocab_label .} 
+        UNION {?vocab rdfs:label ?vocab_label .}
         }
     {
-        {?collection skos:member ?concept .}
-        UNION {?concept skos:inScheme ?collection .}
+        {?vocab skos:member ?concept .}
+        UNION {?concept skos:inScheme ?vocab .}
         }
     ?concept skos:prefLabel ?concept_preflabel .
     OPTIONAL {?concept skos:definition ?concept_description .}
     OPTIONAL {?concept skos:broader ?broader_concept .}
     FILTER(lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "")'''.replace('{graph_name}', graph)
         
-                if filter_collection:
+                if filter_vocab:
                     sparql_query += '''
-    FILTER(?collection = <{}>)'''.format(filter_collection)
+    FILTER(?vocab = <{}>)'''.format(filter_vocab)
             
                 sparql_query += '''
 }
 '''
                 sparql_query += '''
-ORDER BY ?collection ?concept
+ORDER BY ?vocab ?concept
 LIMIT {}
 OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         
@@ -553,42 +553,42 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
             graph_dict = OrderedDict()
             result_dict[graph] = graph_dict
             
-            collection_list = sorted(list(set([bindings_dict['collection']['value'] 
+            vocab_list = sorted(list(set([bindings_dict['vocab']['value'] 
                                                for bindings_dict in bindings_list])))
-            collection_count += len(collection_list)
+            vocab_count += len(vocab_list)
             
-            for collection in collection_list:
-                collection_label = [bindings_dict['collection_label']['value'] if bindings_dict.get('collection_label')
-                                    else os.path.basename(collection) # Use basename if label not defined
+            for vocab in vocab_list:
+                vocab_label = [bindings_dict['vocab_label']['value'] if bindings_dict.get('vocab_label')
+                                    else os.path.basename(vocab) # Use basename if label not defined
                                     for bindings_dict in bindings_list
-                                    if bindings_dict['collection']['value'] == collection
+                                    if bindings_dict['vocab']['value'] == vocab
                                     ][0] # Use first item - they should all be the same
             
-                collection_dict = {'label': collection_label}        
-                graph_dict[collection] = collection_dict
+                vocab_dict = {'label': vocab_label}        
+                graph_dict[vocab] = vocab_dict
                 
-                collection_dict['concepts'] = get_concept_tree(bindings_list, collection, broader_concept=None) 
+                vocab_dict['concepts'] = get_concept_tree(bindings_list, vocab, broader_concept=None) 
             
-        logger.info('{} concepts found in {} collections in {} graphs (total of {} items returned)'.format(concept_count, 
-                                                                                                           collection_count, 
+        logger.info('{} concepts found in {} vocabs in {} graphs (total of {} items returned)'.format(concept_count, 
+                                                                                                           vocab_count, 
                                                                                                            graph_count, 
                                                                                                            item_count))
         return result_dict
     
     
-    def output_collection_data(self, concept_tree_dict, output_stream=sys.stdout, level=0, indent='\t'):
+    def output_vocab_data(self, concept_tree_dict, output_stream=sys.stdout, level=0, indent='\t'):
         '''
         Recursive function to output concept_tree_dict to specified stream
         '''
         if level == 0: # Graph
             for graph, graph_dict in concept_tree_dict.items():
                 output_stream.write(unidecode('Graph "{}"\n'.format(graph))) 
-                self.output_collection_data(graph_dict, output_stream, level=level+1)
+                self.output_vocab_data(graph_dict, output_stream, level=level+1)
                 output_stream.write('\n')
-        elif level == 1: # Collection
-            for collection, collection_dict in concept_tree_dict.items():
-                output_stream.write(unidecode('{}Collection "{}": {}\n'.format(indent, collection_dict['label'], collection))) 
-                self.output_collection_data(collection_dict['concepts'], output_stream, level=level+1)
+        elif level == 1: # vocab
+            for vocab, vocab_dict in concept_tree_dict.items():
+                output_stream.write(unidecode('{}Vocab "{}": {}\n'.format(indent, vocab_dict['label'], vocab))) 
+                self.output_vocab_data(vocab_dict['concepts'], output_stream, level=level+1)
         else: # Concept
             for concept, concept_dict in concept_tree_dict.items():
                 output_stream.write(unidecode('{}Concept "{}": {} ({})\n'.format((indent * level),
@@ -598,10 +598,10 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
                     ) 
                 narrower_concepts_dict = concept_dict.get('narrower_concepts')
                 if narrower_concepts_dict:
-                    self.output_collection_data(narrower_concepts_dict, output_stream, level=level+1)
+                    self.output_vocab_data(narrower_concepts_dict, output_stream, level=level+1)
 
 
-    def output_summary_text(self, graph=None, collection=None):               
+    def output_summary_text(self, graph=None, vocab=None):               
         '''
         Function to output summary text file
         '''
@@ -612,9 +612,9 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         else:
             output_stream = sys.stdout
                     
-        collection_data = self.get_collection_data(graph, collection)
+        vocab_data = self.get_vocab_data(graph, vocab)
         
-        self.output_collection_data(collection_data, output_stream)
+        self.output_vocab_data(vocab_data, output_stream)
                 
     @property
     def debug(self):
