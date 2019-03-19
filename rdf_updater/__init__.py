@@ -24,6 +24,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO) # Initial logging level for this module
 logger.debug('__name__ = {}'.format(__name__))
 
+SPARQL_QUERY_LIMIT = 200 # Maximum number of results to return per SPARQL query
+
 class RDFUpdater(object):
     settings = None
     
@@ -54,7 +56,7 @@ class RDFUpdater(object):
             with open(settings_path, 'w') as settings_file:
                 yaml.safe_dump(self.settings, settings_file)
         
-        logger.debug('Settings: {}'.format(pformat(self.settings)))
+        #logger.debug('Settings: {}'.format(pformat(self.settings)))
         
         
     def get_rdfs(self):
@@ -419,7 +421,7 @@ WHERE {
             
         
         
-    def get_collection_data(self, graph=None, collection=None):
+    def get_collection_data(self, filter_graph=None, filter_collection=None):
         '''
         Function to generate a tree of collections and concepts
         '''
@@ -483,7 +485,13 @@ WHERE {
                 
             return concept_tree_dict
                 
-        sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        bindings_list = []
+        query_result_list = None
+        query_offset = 0
+        
+        while query_offset == 0 or query_result_list != []:
+        
+            sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dct: <http://purl.org/dc/terms/>
 
@@ -502,27 +510,41 @@ WHERE {
         OPTIONAL {?concept skos:broader ?broader_concept .}
         FILTER(lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "")'''
        
-        if graph:
-            sparql_query += '''
-        FILTER(?graph = <{}>)'''.format(graph)
+            if filter_graph:
+                sparql_query += '''
+        FILTER(?graph = <{}>)'''.format(filter_graph)
         
-        if collection:
-            sparql_query += '''
-        FILTER(?collection = <{}>)'''.format(collection)
+            if filter_collection:
+                sparql_query += '''
+        FILTER(?collection = <{}>)'''.format(filter_collection)
         
-        sparql_query += '''
+            sparql_query += '''
        }
 }
 '''
+            sparql_query += '''
+ORDER BY ?graph ?collection ?concept
+LIMIT {}
+OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         
 
-        response_dict = json.loads(self.submit_sparql_query(sparql_query)
-                                 )  
-        bindings_list = response_dict["results"]["bindings"]
+            response_dict = json.loads(self.submit_sparql_query(sparql_query)
+                                     )  
+            query_result_list = response_dict["results"]["bindings"]
+            bindings_list += query_result_list
+            query_offset += len(query_result_list)
+            logger.debug('{} items returned in paginated query'.format(len(query_result_list)))
               
         result_dict = OrderedDict()
         graph_list = sorted(list(set([bindings_dict['graph']['value'] 
                                       for bindings_dict in bindings_list])))
+        
+        collection_list = sorted(list(set([bindings_dict['collection_label']['value'] if bindings_dict.get('collection_label')
+                                           else os.path.basename(bindings_dict['collection']) # Use basename if label not defined
+                                           for bindings_dict in bindings_list])))
+        
+        logger.debug('{} concepts found in {} collections in {} graphs'.format(len(bindings_list), len(collection_list), len(graph_list)))
+        
         for graph in graph_list:
             graph_dict = OrderedDict()
             result_dict[graph] = graph_dict
