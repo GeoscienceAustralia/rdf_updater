@@ -495,9 +495,9 @@ WHERE {
             query_offset = 0
             bindings_list = []
         
+            logger.debug('Querying graph {}'.format(graph))     
             while returned_item_count != 0:
         
-                logger.debug('Querying graph {}'.format(graph))     
                 sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dct: <http://purl.org/dc/terms/>
@@ -539,9 +539,11 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
                                          )  
                 returned_item_count = len(response_dict["results"]["bindings"])
                 if returned_item_count:
+                    if query_offset or (returned_item_count == SPARQL_QUERY_LIMIT):
+                        logger.debug('{} items returned in paginated query against graph {}'.format(returned_item_count, graph))
+                        
                     bindings_list += response_dict["results"]["bindings"]
                     query_offset += returned_item_count
-                    logger.debug('{} items returned in paginated query'.format(returned_item_count))
 
             logger.debug('{} items found in graph {}'.format(len(bindings_list), graph))
             item_count += len(bindings_list)
