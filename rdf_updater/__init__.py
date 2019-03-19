@@ -131,7 +131,9 @@ WHERE {?s ?p ?o .}'''
         
         
     def write_rdfs_to_triple_stores(self, skosified=True):
-        
+        '''
+        Function to write all RDFs to all triple-stores
+        '''
         def put_rdf(rdf_config, rdf, triple_store_settings):
             url = triple_store_settings['url'] + '/data'
             if rdf_config.get('format') == 'ttl': 
@@ -179,7 +181,7 @@ WHERE {?s ?p ?o .}'''
      
     def get_graph_values_from_rdf(self, rdf_xml):
         '''
-        Function to return graph_name & graph_label from rdf_xml
+        Function to derive and return graph_name & graph_label from rdf_xml text
         '''
         #TODO: Re-implement this with rdflib if possible
         vocab_tree = etree.fromstring(rdf_xml)
@@ -223,6 +225,9 @@ WHERE {?s ?p ?o .}'''
     
                         
     def update_directory_settings(self):   
+        '''
+        Function to update rdf_configs section of settings file from specified directories using directory_configs settings
+        '''
         result_dict = {}
         for dir_name, dir_config in self.settings['directory_configs'].items():
             logger.debug('Reading configurations for {}'.format(dir_name))
@@ -257,7 +262,10 @@ WHERE {?s ?p ?o .}'''
         return result_dict        
                     
      
-    def update_github_settings(self):   
+    def update_github_settings(self):
+        '''
+        Function to update rdf_configs section of settings file from GitHub using git_configs settings
+        '''
         result_dict = {}
         for github_name, github_config in self.settings['git_configs'].items():
             logger.debug('Reading configurations for {}'.format(github_name))
@@ -298,11 +306,15 @@ WHERE {?s ?p ?o .}'''
                 if github_config.get('regex_replacements'):
                     vocab_dict['regex_replacements'] = github_config['regex_replacements']
                     
-                logger.debug('vocab_dict = {}'.format(pformat(vocab_dict)))
+                #logger.debug('vocab_dict = {}'.format(pformat(vocab_dict)))
                 result_dict[os.path.splitext(rdf_name)[0]] = vocab_dict
         return result_dict  
     
     def skosify_rdfs(self):
+        '''
+        Function to SKOSify original RDF files and write them to disk with the suffix "_skos.rdf"
+        Also writes a hashable sorted n-triple file with the suffix "_skos.nt"
+        '''
         def skosify_rdf(rdf_config, root_logger):
             rdf_file_path = rdf_config['rdf_file_path']
             skos_rdf_file_path = os.path.splitext(rdf_file_path)[0] + '_skos.rdf'
@@ -377,10 +389,13 @@ WHERE {?s ?p ?o .}'''
                         
         logger.info('SKOSification of RDF files completed')
     
-    def submit_sparql_query(self, sparql_query, accept_format='json'):
+    def submit_sparql_query(self, sparql_query, triple_store_name=None, accept_format='json'):
         '''
         Function to submit a sparql query and return the textual response
         '''
+        # Default to any triple store if none specified
+        triple_store_settings = self.settings['triple_stores'].get(triple_store_name) or list(self.settings['triple_stores'].values())[0]
+
         #logger.debug('sparql_query = {}'.format(sparql_query))
         accept_format = {'json': 'application/json',
                          'xml': 'application/xml'}.get(accept_format) or 'application/json'
@@ -388,15 +403,15 @@ WHERE {?s ?p ?o .}'''
                    'Content-Type': 'application/sparql-query',
                    'Accept-Encoding': 'UTF-8'
                    }
-        username = self.settings['triple_store'].get('username')
-        password = self.settings['triple_store'].get('password')
+        username = triple_store_settings.get('username')
+        password = triple_store_settings.get('password')
             
         if (username and password):
             #logger.debug('Authenticating with username {} and password {}'.format(username, password))
             headers['Authorization'] = 'Basic ' + base64.encodebytes('{}:{}'.format(username, password).encode('utf-8')).strip().decode('utf-8')
             
         params = None
-        response = requests.post(self.settings['triple_store']['url'], 
+        response = requests.post(triple_store_settings['url'], 
                                headers=headers, 
                                params=params, 
                                data=sparql_query, 
@@ -405,7 +420,7 @@ WHERE {?s ?p ?o .}'''
         assert response.status_code == 200, 'Response status code != 200'
         return(response.content).decode('utf-8') # Convert binary to UTF-8 string
     
-    def get_graph_names(self):
+    def get_graph_names(self, triple_store_name=None):
         '''
         Function to generate a list of all graph names
         '''
@@ -417,12 +432,15 @@ WHERE {
 }
 '''
         return [bindings_dict['graph']['value']
-                for bindings_dict in json.loads(self.submit_sparql_query(sparql_query))["results"]["bindings"]
+                for bindings_dict in json.loads(self.submit_sparql_query(sparql_query,
+                                                                         triple_store_name
+                                                                         )
+                                                )["results"]["bindings"]
                 ]
             
         
         
-    def get_vocab_data(self, filter_graph=None, filter_vocab=None):
+    def get_vocab_data(self, triple_store_name, filter_graph=None, filter_vocab=None):
         '''
         Function to generate a tree of vocabs and concepts
         '''
@@ -481,8 +499,7 @@ WHERE {
                 
             return concept_tree_dict
         
-        
-        logger.info('Reading vocab data from triple-store')
+        logger.info('Reading vocab data from triple-store {}'.format(triple_store_name))
         graph_list = [filter_graph] if filter_graph else sorted(self.get_graph_names())
         graph_count = len(graph_list)
         
@@ -536,7 +553,7 @@ LIMIT {}
 OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         
 
-                response_dict = json.loads(self.submit_sparql_query(sparql_query)
+                response_dict = json.loads(self.submit_sparql_query(sparql_query, triple_store_name)
                                          )  
                 returned_item_count = len(response_dict["results"]["bindings"])
                 if returned_item_count:
@@ -602,9 +619,9 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
                     self.output_vocab_data(narrower_concepts_dict, output_stream, level=level+1)
 
 
-    def output_summary_text(self, graph=None, vocab=None):               
+    def output_summary_text(self, triple_store_name=None, graph=None, vocab=None):               
         '''
-        Function to output summary text file
+        Function to output summary text file containing indented tree of all broader/narrower concepts in all vocabs in all graphs
         '''
         summary_output_path = self.settings.get('summary_output_path')
         if summary_output_path:
@@ -613,7 +630,7 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         else:
             output_stream = sys.stdout
                     
-        vocab_data = self.get_vocab_data(graph, vocab)
+        vocab_data = self.get_vocab_data(triple_store_name, graph, vocab)
         
         self.output_vocab_data(vocab_data, output_stream)
                 
