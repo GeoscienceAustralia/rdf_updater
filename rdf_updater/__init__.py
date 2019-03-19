@@ -480,11 +480,15 @@ WHERE {
             return concept_tree_dict
         
         
-        graphs = [filter_graph] if filter_graph else sorted(self.get_graph_names())
+        graph_list = [filter_graph] if filter_graph else sorted(self.get_graph_names())
+        graph_count = len(graph_list)
         
         result_dict = OrderedDict()
 
-        for graph in graphs:
+        collection_count = 0
+        concept_count = 0
+        item_count = 0
+        for graph in graph_list:
             logger.debug('Querying graph {}'.format(graph))     
             sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -512,18 +516,22 @@ WHERE {
             sparql_query += '''
 
 }
-'''
+ORDER BY ?collection ?concept'''
         
 
             response_dict = json.loads(self.submit_sparql_query(sparql_query))
             bindings_list = response_dict["results"]["bindings"]
-            logger.debug('{} concepts found in graph {}'.format(len(bindings_list), graph))
+            logger.debug('{} items found in graph {}'.format(len(bindings_list), graph))
+            item_count += len(bindings_list)
+            concept_count += len(set([bindings_dict['concept']['value'] 
+                                               for bindings_dict in bindings_list]))
                   
             graph_dict = OrderedDict()
             result_dict[graph] = graph_dict
             
             collection_list = sorted(list(set([bindings_dict['collection']['value'] 
                                                for bindings_dict in bindings_list])))
+            collection_count += len(collection_list)
             
             for collection in collection_list:
                 collection_label = [bindings_dict['collection_label']['value'] if bindings_dict.get('collection_label')
@@ -537,6 +545,7 @@ WHERE {
                 
                 collection_dict['concepts'] = get_concept_tree(bindings_list, collection, broader_concept=None) 
             
+        logger.info('{} concepts found in {} collections in {} graphs (total of {} items returned)'.format(concept_count, collection_count, graph_count, item_count))
         return result_dict
     
     
