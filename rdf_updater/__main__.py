@@ -45,7 +45,7 @@ def main():
         #rdf_updater.skosify_rdfs()
         print()
     
-    rdf_updater.put_rdfs(skosified=skosify) # Write RDFs to triple-store from files
+    rdf_updater.write_rdfs_to_triple_stores(skosified=skosify) # Write RDFs to triple-stores from files
     
     rdf_updater.output_summary_text() # Output text summary to file
 

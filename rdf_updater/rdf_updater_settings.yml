@@ -1526,5 +1526,6 @@ regex_replacements:
     ']
 summary_output_path: ../data/summary_output.txt
 timeout: 10
-triple_store: {password: vocab1234%^&*, url: 'http://52.65.31.119/fuseki/vocabs',
-  username: vocabmanager}
+triple_stores:
+  jena-fuseki test: {password: vocab1234%^&*, type: jena-fuseki, url: 'http://52.65.31.119/fuseki/vocabs',
+    username: vocabmanager}

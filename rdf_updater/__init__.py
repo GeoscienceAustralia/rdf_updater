@@ -130,16 +130,17 @@ WHERE {?s ?p ?o .}'''
         logger.info('Finished reading to files')
         
         
-    def put_rdfs(self, skosified=True):
-        def put_rdf(rdf_config, rdf):
-            url = self.settings['triple_store']['url'] + '/data'
+    def write_rdfs_to_triple_stores(self, skosified=True):
+        
+        def put_rdf(rdf_config, rdf, triple_store_settings):
+            url = triple_store_settings['url'] + '/data'
             if rdf_config.get('format') == 'ttl': 
                 headers = {'Content-Type': 'text/turtle'}
             else:
                 headers = {'Content-Type': 'application/rdf+xml'}
                 
-            username = self.settings['triple_store'].get('username')
-            password = self.settings['triple_store'].get('password')
+            username = triple_store_settings.get('username')
+            password = triple_store_settings.get('password')
             
             if (username and password):
                 #logger.debug('Authenticating with username {} and password {}'.format(username, password))
@@ -147,33 +148,33 @@ WHERE {?s ?p ?o .}'''
             
             params = {'graph': rdf_config['graph_name']}
             
-            logger.info('Writing RDF to {}'.format(url))
             #logger.debug('url = {}, headers = {}, params = {}'.format(url, headers, params))
             response = requests.put(url, headers=headers, params=params, data=rdf.encode('utf-8'), timeout=self.settings['timeout'])
             #logger.debug('Response content: {}'.format(response.content))
             assert response.status_code == 200 or response.status_code == 201, 'Response status code {}  != 200 or 201: {}'.format(response.status_code, response.content)
             return(response.content)
                 
-        logger.info('Writing RDFs to triple-store {} from files'.format(self.settings['triple_store']['url']))           
-        for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
-            logger.info('Writing data for {} to triple-store'.format(rdf_config['graph_label'] ))
-            if skosified:
-                rdf_file_path = os.path.splitext(rdf_config['rdf_file_path'])[0] + '_skos.rdf'
-            else:
-                rdf_file_path = rdf_config['rdf_file_path'] # Original RDF
-                
-            try:
-                logger.info('Reading RDF from {}'.format(rdf_file_path))
-                with open(rdf_file_path, 'r', encoding='utf-8') as rdf_file:
-                    rdf = rdf_file.read()
-                #logger.debug('rdf = {}'.format(rdf))
-                result = json.loads(put_rdf(rdf_config, rdf))
-                #logger.debug('result = {}'.format(result))
-                logger.info('{} triples (re)written'.format(result['tripleCount']))
-            except Exception as e:
-                logger.error('ERROR: RDF put from file to triple-store failed: {}'.format(e))
-                
-        logger.info('Finished writing to triple-store')
+        for triple_store_name, triple_store_settings in self.settings['triple_stores'].items():
+            logger.info('Writing RDFs to triple-store {} from files'.format(triple_store_name))           
+            for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
+                if skosified:
+                    rdf_file_path = os.path.splitext(rdf_config['rdf_file_path'])[0] + '_skos.rdf' # SKOSified RDF
+                else:
+                    rdf_file_path = rdf_config['rdf_file_path'] # Original RDF
+                    
+                logger.info('Writing RDF from file {} to triple-store {}'.format(rdf_file_path, triple_store_settings['url']))
+                try:
+                    with open(rdf_file_path, 'r', encoding='utf-8') as rdf_file:
+                        rdf = rdf_file.read()
+                    #logger.debug('rdf = {}'.format(rdf))
+                    result = json.loads(put_rdf(rdf_config, rdf, triple_store_settings))
+                    #logger.debug('result = {}'.format(result))
+                    logger.info('{} triples (re)written to graph {}'.format(result['tripleCount'],
+                                                                            rdf_config['graph_name']))
+                except Exception as e:
+                    logger.error('ERROR: RDF put from file to triple-store failed: {}'.format(e))
+                    
+        logger.info('Finished writing to triple-stores')
         
      
     def get_graph_values_from_rdf(self, rdf_xml):
