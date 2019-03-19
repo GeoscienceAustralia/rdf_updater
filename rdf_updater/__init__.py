@@ -24,6 +24,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO) # Initial logging level for this module
 logger.debug('__name__ = {}'.format(__name__))
 
+SPARQL_QUERY_LIMIT = 2000 # Maximum number of results to return per SPARQL query
+
 class RDFUpdater(object):
     settings = None
     
@@ -489,38 +491,58 @@ WHERE {
         concept_count = 0
         item_count = 0
         for graph in graph_list:
-            logger.debug('Querying graph {}'.format(graph))     
-            sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            returned_item_count = -1 # Anything but zero
+            query_offset = 0
+            bindings_list = []
+        
+            while returned_item_count != 0:
+        
+                logger.debug('Querying graph {}'.format(graph))     
+                sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dct: <http://purl.org/dc/terms/>
 
 SELECT distinct ?collection ?collection_label ?concept ?concept_preflabel ?concept_description ?broader_concept
 FROM <{graph_name}>
 WHERE {
-    OPTIONAL {?collection a skos:Collection .}
-    OPTIONAL {?collection a skos:ConceptScheme .}
-    OPTIONAL {?collection dct:title ?collection_label .}
-    OPTIONAL {?collection rdfs:label ?collection_label .}
-    
-    OPTIONAL {?collection skos:member ?concept .}
-    OPTIONAL {?concept skos:inScheme ?collection .}
+    {
+        {?collection a skos:Collection .}
+        UNION {?collection a skos:ConceptScheme .}
+        }
+    OPTIONAL {
+        {?collection dct:title ?collection_label .} 
+        UNION {?collection rdfs:label ?collection_label .}
+        }
+    {
+        {?collection skos:member ?concept .}
+        UNION {?concept skos:inScheme ?collection .}
+        }
     ?concept skos:prefLabel ?concept_preflabel .
     OPTIONAL {?concept skos:definition ?concept_description .}
     OPTIONAL {?concept skos:broader ?broader_concept .}
     FILTER(lang(?concept_preflabel) = "en" || lang(?concept_preflabel) = "")'''.replace('{graph_name}', graph)
         
-            if filter_collection:
-                sparql_query += '''
+                if filter_collection:
+                    sparql_query += '''
     FILTER(?collection = <{}>)'''.format(filter_collection)
             
-            sparql_query += '''
-
+                sparql_query += '''
 }
-ORDER BY ?collection ?concept'''
+'''
+                sparql_query += '''
+ORDER BY ?collection ?concept
+LIMIT {}
+OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         
 
-            response_dict = json.loads(self.submit_sparql_query(sparql_query))
-            bindings_list = response_dict["results"]["bindings"]
+                response_dict = json.loads(self.submit_sparql_query(sparql_query)
+                                         )  
+                returned_item_count = len(response_dict["results"]["bindings"])
+                if returned_item_count:
+                    bindings_list += response_dict["results"]["bindings"]
+                    query_offset += returned_item_count
+                    logger.debug('{} items returned in paginated query'.format(returned_item_count))
+
             logger.debug('{} items found in graph {}'.format(len(bindings_list), graph))
             item_count += len(bindings_list)
             concept_count += len(set([bindings_dict['concept']['value'] 
@@ -545,7 +567,10 @@ ORDER BY ?collection ?concept'''
                 
                 collection_dict['concepts'] = get_concept_tree(bindings_list, collection, broader_concept=None) 
             
-        logger.info('{} concepts found in {} collections in {} graphs (total of {} items returned)'.format(concept_count, collection_count, graph_count, item_count))
+        logger.info('{} concepts found in {} collections in {} graphs (total of {} items returned)'.format(concept_count, 
+                                                                                                           collection_count, 
+                                                                                                           graph_count, 
+                                                                                                           item_count))
         return result_dict
     
     
