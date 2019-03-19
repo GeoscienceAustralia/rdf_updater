@@ -42,7 +42,7 @@ def main():
     print()
 
     if skosify:
-        #rdf_updater.skosify_rdfs()
+        rdf_updater.skosify_rdfs()
         print()
 
     rdf_updater.write_rdfs_to_triple_stores(skosified=skosify) # Write RDFs to triple-stores from files

@@ -480,7 +480,7 @@ ORDER BY ?graph ?vocab
         
     def get_concept_bindings(self, filter_graph=None, filter_vocab=None, triple_store_name=None):
         '''
-        Function to generate a list of bindings for all concepts
+        Function to generate a list of bindings for all concepts optionally filtered by graph and/or vocab
         '''
         returned_item_count = -1 # Anything but zero
         query_offset = 0
@@ -550,7 +550,8 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         
     def get_vocab_tree(self, triple_store_name, filter_graph=None, filter_vocab=None):
         '''
-        Function to generate a tree of vocabs and concepts
+        Function to generate a dict containing a tree of vocabs and concepts
+        Returned dict is keyed by graph, vocab, broader_concept, narrower_concept...
         '''
         
         def get_concept_tree(bindings_list, vocab, broader_concept=None):
@@ -615,8 +616,6 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         if filter_vocab:
             vocab_list = [vocab_dict for vocab_dict in vocab_list if vocab_dict['vocab'] == filter_vocab]
             
-        print(vocab_list)
-        
         graph_list = sorted(list(set([vocab_dict['graph'] for vocab_dict in vocab_list])))
         graph_count = len(graph_list)
         
