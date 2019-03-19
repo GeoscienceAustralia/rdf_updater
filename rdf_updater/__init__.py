@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO) # Initial logging level for this module
 logger.debug('__name__ = {}'.format(__name__))
 
-SPARQL_QUERY_LIMIT = 200 # Maximum number of results to return per SPARQL query
+SPARQL_QUERY_LIMIT = 2000 # Maximum number of results to return per SPARQL query
 
 class RDFUpdater(object):
     settings = None
@@ -498,13 +498,14 @@ PREFIX dct: <http://purl.org/dc/terms/>
 SELECT distinct ?graph ?collection ?collection_label ?concept ?concept_preflabel ?concept_description ?broader_concept
 WHERE {
     GRAPH ?graph {
-        OPTIONAL {?collection a skos:Collection .}
-        OPTIONAL {?collection a skos:ConceptScheme .}
-        OPTIONAL {?collection dct:title ?collection_label .}
-        OPTIONAL {?collection rdfs:label ?collection_label .}
-        
-        OPTIONAL {?collection skos:member ?concept .}
-        OPTIONAL {?concept skos:inScheme ?collection .}
+        {?collection a skos:Collection .}
+        UNION {?collection a skos:ConceptScheme .}
+        OPTIONAL {
+            {?collection dct:title ?collection_label .} 
+            UNION {?collection rdfs:label ?collection_label .}
+            }
+        {?collection skos:member ?concept .}
+            UNION {?concept skos:inScheme ?collection .}
         ?concept skos:prefLabel ?concept_preflabel .
         OPTIONAL {?concept skos:definition ?concept_description .}
         OPTIONAL {?concept skos:broader ?broader_concept .}
@@ -539,11 +540,16 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         graph_list = sorted(list(set([bindings_dict['graph']['value'] 
                                       for bindings_dict in bindings_list])))
         
-        collection_list = sorted(list(set([bindings_dict['collection_label']['value'] if bindings_dict.get('collection_label')
-                                           else os.path.basename(bindings_dict['collection']) # Use basename if label not defined
-                                           for bindings_dict in bindings_list])))
+        collection_set = set([bindings_dict['collection']['value'] 
+                              for bindings_dict in bindings_list])
         
-        logger.debug('{} concepts found in {} collections in {} graphs'.format(len(bindings_list), len(collection_list), len(graph_list)))
+        concept_set = set([bindings_dict['concept']['value'] 
+                              for bindings_dict in bindings_list])
+        
+        logger.info('{} concepts found in {} collections in {} graphs ({} items returned)'.format(len(concept_set), 
+                                                                                                   len(collection_set), 
+                                                                                                   len(graph_list), 
+                                                                                                   len(bindings_list)))
         
         for graph in graph_list:
             graph_dict = OrderedDict()
