@@ -36,7 +36,7 @@ def main():
                              update_directories=args.update_directories,
                              debug=args.debug
                              ) 
-    
+
     rdf_updater.get_rdfs() # Read RDFs from sources into files
 
     print()
@@ -46,6 +46,8 @@ def main():
         print()
 
     rdf_updater.write_rdfs_to_triple_stores(skosified=skosify) # Write RDFs to triple-stores from files
+
+    print()
 
     rdf_updater.output_summary_text() # Output text summary to file
 

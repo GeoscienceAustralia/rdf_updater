@@ -114,6 +114,7 @@ WHERE {?s ?p ?o .}'''
                 
                 # Perform global and specific regular expression string replacements
                 for regex_replacement in (self.settings.get('regex_replacements') or []) + (rdf_config.get('regex_replacements') or []):
+                    #logger.debug('Performing re.sub({}, {}, <rdf_text>)'.format(*[repr(regex) for regex in regex_replacement]))
                     rdf = re.sub(regex_replacement[0], regex_replacement[1], rdf) # Add encoding if missing
                 
                 #logger.debug('rdf = {}'.format(rdf))
