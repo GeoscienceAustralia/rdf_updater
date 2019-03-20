@@ -478,13 +478,13 @@ ORDER BY ?graph ?vocab
             
         
         
-    def get_concept_bindings(self, filter_graph=None, filter_vocab=None, triple_store_name=None):
+    def get_concepts(self, filter_graph=None, filter_vocab=None, triple_store_name=None):
         '''
         Function to generate a list of bindings for all concepts optionally filtered by graph and/or vocab
         '''
         returned_item_count = -1 # Anything but zero
         query_offset = 0
-        bindings_list = []
+        concept_list = []
     
         while returned_item_count != 0:
         
@@ -492,7 +492,7 @@ ORDER BY ?graph ?vocab
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dct: <http://purl.org/dc/terms/>
 
-SELECT distinct ?vocab ?vocab_label ?concept ?concept_preflabel ?concept_description ?broader_concept
+SELECT distinct ?graph ?vocab ?vocab_label ?concept ?concept_preflabel ?concept_description ?broader_concept
 WHERE {
     GRAPH ?graph {
         {
@@ -537,15 +537,30 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
             if returned_item_count:
                 if query_offset or (returned_item_count == SPARQL_QUERY_LIMIT):
                     logger.debug('{} items returned in paginated query'.format(returned_item_count))
-                    
-                bindings_list += response_dict["results"]["bindings"]
+   
+                concept_list += [{'graph': bindings_dict['graph']['value'],
+                                   'vocab': bindings_dict['vocab']['value'],
+                                   'vocab_label': bindings_dict['vocab_label']['value']
+                                        if bindings_dict.get('vocab_label') 
+                                        else os.path.basename(bindings_dict['vocab']['value']),
+                                   'concept': bindings_dict['concept']['value'],
+                                   'concept_preflabel': bindings_dict['concept_preflabel']['value'],
+                                   'concept_description': bindings_dict['concept_description']['value'] 
+                                        if bindings_dict.get('concept_description') 
+                                        else 'None',
+                                   'broader_concept': bindings_dict['broader_concept']['value'] 
+                                        if bindings_dict.get('broader_concept') 
+                                        else None
+                                   } 
+                                  for bindings_dict in response_dict["results"]["bindings"]
+                                  ]
                 query_offset += returned_item_count   
                 
             # Don't go around again if we have fewer items than the limit
             if returned_item_count < SPARQL_QUERY_LIMIT:
                 break
         
-        return bindings_list
+        return concept_list
     
         
     def get_vocab_tree(self, triple_store_name, filter_graph=None, filter_vocab=None):
@@ -554,53 +569,52 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         Returned dict is keyed by graph, vocab, broader_concept, narrower_concept...
         '''
         
-        def get_concept_tree(bindings_list, vocab, broader_concept=None):
+        def get_concept_tree(concept_list, vocab, broader_concept=None):
             '''
             Recursive helper function to generate tree of broader/narrower concepts in graph
             '''
-            def get_narrower_concepts(bindings_list, vocab, broader_concept):
+            def get_narrower_concepts(concept_list, vocab, broader_concept):
                 '''
                 Helper function to generate sublist of narrower concepts for a given broader concept
                 N.B: when broader_concept is None, the list will contain top concepts and also 
                 concepts with broader concepts in other vocabs
                 '''
-                bindings_sublist = [bindings_dict 
-                                    for bindings_dict in bindings_list
+                concept_sublist = [concept_dict 
+                                    for concept_dict in concept_list
                                     if (
                                         # Narrower concepts must be in same vocab
-                                        (bindings_dict['vocab']['value'] == vocab)
+                                        (concept_dict['vocab'] == vocab)
                                         and (
                                                 (
                                                 (broader_concept is None) # Get top concepts
                                                 and (
-                                                    (bindings_dict.get('broader_concept') is None) # Top concept?
-                                                    or (bindings_dict['broader_concept']['value'] not in set([bindings_dict['concept']['value'] 
-                                                                                                              for bindings_dict in bindings_list
-                                                                                                              if (bindings_dict['vocab']['value'] == vocab)
+                                                    (concept_dict.get('broader_concept') is None) # Top concept?
+                                                    or (concept_dict['broader_concept'] not in set([concept_dict['concept'] 
+                                                                                                              for concept_dict in concept_list
+                                                                                                              if (concept_dict['vocab'] == vocab)
                                                                                                               ])) # Broader concept not in same vocab
                                                     )
                                                 )
                                                 or (
                                                     (broader_concept is not None) 
-                                                    and (bindings_dict.get('broader_concept') is not None) 
-                                                    and (bindings_dict['broader_concept']['value'] == broader_concept)
+                                                    and (concept_dict.get('broader_concept') is not None) 
+                                                    and (concept_dict['broader_concept'] == broader_concept)
                                                 )
                                             )
                                         )
                                     ]
-                return bindings_sublist
+                return concept_sublist
             
             concept_tree_dict = OrderedDict()
             
-            for bindings_dict in get_narrower_concepts(bindings_list, vocab, broader_concept):
-                concept = bindings_dict["concept"]["value"]
+            for narrower_concept_dict in get_narrower_concepts(concept_list, vocab, broader_concept):
+                concept = narrower_concept_dict["concept"]
                 
-                concept_dict = {'preflabel': bindings_dict["concept_preflabel"]["value"]}
+                concept_dict = {'preflabel': narrower_concept_dict["concept_preflabel"]}
                 
-                if bindings_dict.get('concept_description'):
-                    concept_dict['description'] = bindings_dict["concept_description"]["value"]
+                concept_dict['description'] = narrower_concept_dict["concept_description"]
                     
-                narrower_concept_tree_dict = get_concept_tree(bindings_list, vocab, broader_concept=concept)
+                narrower_concept_tree_dict = get_concept_tree(concept_list, vocab, broader_concept=concept)
                 if narrower_concept_tree_dict:
                     concept_dict['narrower_concepts'] = narrower_concept_tree_dict
                 
@@ -610,6 +624,14 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         
         logger.info('Reading vocab data from triple-store {}'.format(triple_store_name))
         vocab_list = self.get_vocabs(triple_store_name)
+        
+        logger.debug('Checking for multiple vocab definitions in different graphs')
+        for vocab, graphs in [(vocab, sorted(list(set([vocab_dict['graph'] for vocab_dict in vocab_list if vocab_dict['vocab'] == vocab]))))
+                              for vocab in sorted(list(set([vocab_dict['vocab'] for vocab_dict in vocab_list])))
+                              ]:
+            if len(graphs) != 1:
+                logger.warning('WARNING: Vocabulary {} is defined in {} graphs: {}'.format(vocab, len(graphs), graphs))
+        
         if filter_graph:
             vocab_list = [vocab_dict for vocab_dict in vocab_list if vocab_dict['graph'] == filter_graph]
         
@@ -626,31 +648,26 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         item_count = 0
         for graph in graph_list:
             logger.debug('Querying graph {}'.format(graph))
-            bindings_list = self.get_concept_bindings(filter_graph=graph, filter_vocab=filter_vocab)
+            concept_list = self.get_concepts(filter_graph=graph, filter_vocab=filter_vocab)
 
-            logger.debug('{} items found in graph {}'.format(len(bindings_list), graph))
-            item_count += len(bindings_list)
-            concept_count += len(set([bindings_dict['concept']['value'] 
-                                               for bindings_dict in bindings_list]))
+            logger.debug('{} items found in graph {}'.format(len(concept_list), graph))
+            item_count += len(concept_list)
+            concept_count += len(set([concept_dict['concept'] 
+                                      for concept_dict in concept_list]))
                   
             graph_dict = OrderedDict()
             result_dict[graph] = graph_dict
             
-            vocab_list = sorted(list(set([bindings_dict['vocab']['value'] 
-                                               for bindings_dict in bindings_list])))
-            vocab_count += len(vocab_list)
+            # Create list of unique (vocab, vocab_label) tuples for graph
+            graph_vocab_list = sorted(list(set([(concept_dict['vocab'], concept_dict['vocab_label'])
+                                          for concept_dict in concept_list])))
+            vocab_count += len(graph_vocab_list)
             
-            for vocab in vocab_list:
-                vocab_label = [bindings_dict['vocab_label']['value'] if bindings_dict.get('vocab_label')
-                                    else os.path.basename(vocab) # Use basename if label not defined
-                                    for bindings_dict in bindings_list
-                                    if bindings_dict['vocab']['value'] == vocab
-                                    ][0] # Use first item - they should all be the same
-            
+            for vocab, vocab_label in graph_vocab_list:           
                 vocab_dict = {'label': vocab_label}        
                 graph_dict[vocab] = vocab_dict
                 
-                vocab_dict['concepts'] = get_concept_tree(bindings_list, vocab, broader_concept=None) 
+                vocab_dict['concepts'] = get_concept_tree(concept_list, vocab, broader_concept=None) 
             
         logger.info('{} concepts found in {} vocabs in {} graphs (total of {} items returned)'.format(concept_count, 
                                                                                                            vocab_count, 
