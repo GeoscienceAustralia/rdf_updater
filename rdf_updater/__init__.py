@@ -397,7 +397,8 @@ WHERE {?s ?p ?o .}'''
         '''
         # Default to any triple store if none specified
         triple_store_settings = self.settings['triple_stores'].get(triple_store_name) or list(self.settings['triple_stores'].values())[0]
-
+        logger.debug('Querying triple-store at {}'.format(triple_store_settings['url']))
+        
         #logger.debug('sparql_query = {}'.format(sparql_query))
         accept_format = {'json': 'application/json',
                          'xml': 'application/xml'}.get(accept_format) or 'application/json'
@@ -623,7 +624,6 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
                 
             return concept_tree_dict
         
-        logger.info('Reading vocab data from triple-store {}'.format(triple_store_name))
         vocab_list = self.get_vocabs(triple_store_name)
         
         logger.debug('Checking for multiple vocab definitions in different graphs')
