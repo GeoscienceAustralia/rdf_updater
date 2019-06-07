@@ -2,21 +2,25 @@ directory_configs:
   oracle_vocabs:
     rdf_dir: ../data/oracle
     regex_replacements: &id001
-    - ['http://pid.geoscience.gov.au/def/', 'http://pid.geoscience.gov.au/def/voc/ga/'] # Fix bad URIs in Oracle RDFs
-    - ['("http(s?)://[^"\s]*)(\s+)+([^"\s]*")', '\1\2\4'] # Fix URIs with spaces
+    - - http://pid.geoscience.gov.au/def/
+      - http://pid.geoscience.gov.au/def/voc/ga/
+    - - ("http(s?)://[^"\s]*)(\s+)+([^"\s]*")
+      - \1\2\4
     source_dir: \\prod.lan\active\data\oracle\oracle_apps\workdir
 git_configs:
-  cgi_vocabs: {github_url: 'https://github.com/GeoscienceAustralia/geosciml.org',
-    rdf_dir: ../data/cgi, source_tree: resource/static/vocabulary/cgi/2016}
-  earthresourceml_vocabs: {github_url: 'https://github.com/GeoscienceAustralia/geosciml.org',
-    rdf_dir: ../data/earthresourceml, source_tree: resource/static/vocabulary/earthresourceml/2016}
-  timescale_vocabs: {github_url: 'https://github.com/GeoscienceAustralia/geosciml.org',
-    rdf_dir: ../data/timescale, source_tree: resource/static/vocabulary/timescale}
+  cgi_vocabs:
+    github_url: https://github.com/GeoscienceAustralia/geosciml.org
+    rdf_dir: ../data/cgi
+    source_tree: resource/static/vocabulary/cgi/current
+  earthresourceml_vocabs:
+    github_url: https://github.com/GeoscienceAustralia/geosciml.org
+    rdf_dir: ../data/earthresourceml
+    source_tree: resource/static/vocabulary/earthresourceml/current
+  timescale_vocabs:
+    github_url: https://github.com/GeoscienceAustralia/geosciml.org
+    rdf_dir: ../data/timescale
+    source_tree: resource/static/vocabulary/timescale/current
 rdf_configs:
-  1GE_PCExtension: {graph_label: oneGeology Europe precambrian timescale elements,
-    graph_name: 'http://resource.geosciml.org/classifier/cgi/stratchart/', rdf_file_path: ../data/timescale/1GE_PCExtension.rdf,
-    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/1GE_PCExtension.rdf',
-    source_type: http_get}
   Access_Codes:
     graph_label: Geoscience Australia Vocabulary - Access Codes
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Access_Codes
@@ -185,10 +189,12 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Calibration_Authority.rdf
     regex_replacements: *id001
     source_type: file
-  ClassificationMethodUsed: {graph_label: Mineral Resource Reporting Classification
-      Method - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/classification-method-used',
-    rdf_file_path: ../data/earthresourceml/ClassificationMethodUsed.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ClassificationMethodUsed.rdf',
-    source_type: http_get}
+  ClassificationMethodUsed:
+    graph_label: Mineral Resource Reporting Classification Method - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/classification-method-used
+    rdf_file_path: ../data/earthresourceml/ClassificationMethodUsed.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/ClassificationMethodUsed.rdf
+    source_type: http_get
   Commitment:
     graph_label: Geoscience Australia Vocabulary - Commitment
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Commitment
@@ -196,9 +202,12 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Commitment.rdf
     regex_replacements: *id001
     source_type: file
-  CommodityCode: {graph_label: Commodity Code - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/commodity-code',
-    rdf_file_path: ../data/earthresourceml/CommodityCode.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/CommodityCode.rdf',
-    source_type: http_get}
+  CommodityCode:
+    graph_label: Commodity Code - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/commodity-code
+    rdf_file_path: ../data/earthresourceml/CommodityCode.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/CommodityCode.rdf
+    source_type: http_get
   Computer_Manufactid:
     graph_label: Geoscience Australia Vocabulary - Computer Manufactid
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Computer_Manufactid
@@ -325,20 +334,30 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Distributed_Computing_Platform.rdf
     regex_replacements: *id001
     source_type: file
-  EarthResourceExpression: {graph_label: Earth Resource Expression - All Concepts,
-    graph_name: 'http://resource.geosciml.org/classifier/cgi/earth-resource-expression',
-    rdf_file_path: ../data/earthresourceml/EarthResourceExpression.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EarthResourceExpression.rdf',
-    source_type: http_get}
-  EarthResourceForm: {graph_label: Earth Resource Form - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/earth-resource-form',
-    rdf_file_path: ../data/earthresourceml/EarthResourceForm.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EarthResourceForm.rdf',
-    source_type: http_get}
-  EarthResourceMaterialRole: {graph_label: Earth Resource Material Role - All Concepts,
-    graph_name: 'http://resource.geosciml.org/classifier/cgi/earth-resource-material-role',
-    rdf_file_path: ../data/earthresourceml/EarthResourceMaterialRole.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EarthResourceMaterialRole.rdf',
-    source_type: http_get}
-  EarthResourceShape: {graph_label: Earth Resource Shape - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/earth-resource-shape',
-    rdf_file_path: ../data/earthresourceml/EarthResourceShape.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EarthResourceShape.rdf',
-    source_type: http_get}
+  EarthResourceExpression:
+    graph_label: Earth Resource Expression - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/earth-resource-expression
+    rdf_file_path: ../data/earthresourceml/EarthResourceExpression.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/EarthResourceExpression.rdf
+    source_type: http_get
+  EarthResourceForm:
+    graph_label: Earth Resource Form - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/earth-resource-form
+    rdf_file_path: ../data/earthresourceml/EarthResourceForm.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/EarthResourceForm.rdf
+    source_type: http_get
+  EarthResourceMaterialRole:
+    graph_label: Earth Resource Material Role - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/earth-resource-material-role
+    rdf_file_path: ../data/earthresourceml/EarthResourceMaterialRole.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/EarthResourceMaterialRole.rdf
+    source_type: http_get
+  EarthResourceShape:
+    graph_label: Earth Resource Shape - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/earth-resource-shape
+    rdf_file_path: ../data/earthresourceml/EarthResourceShape.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/EarthResourceShape.rdf
+    source_type: http_get
   Ellipsoid_Height_Source:
     graph_label: Geoscience Australia Vocabulary - Ellipsoid Height Source
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Ellipsoid_Height_Source
@@ -346,9 +365,12 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Ellipsoid_Height_Source.rdf
     regex_replacements: *id001
     source_type: file
-  EndUsePotential: {graph_label: End Use Potential - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/end-use-potential',
-    rdf_file_path: ../data/earthresourceml/EndUsePotential.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EndUsePotential.rdf',
-    source_type: http_get}
+  EndUsePotential:
+    graph_label: End Use Potential - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/end-use-potential
+    rdf_file_path: ../data/earthresourceml/EndUsePotential.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/EndUsePotential.rdf
+    source_type: http_get
   Environment_Type:
     graph_label: Geoscience Australia Vocabulary - Environment Type
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Environment_Type
@@ -356,9 +378,12 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Environment_Type.rdf
     regex_replacements: *id001
     source_type: file
-  EnvironmentalImpact: {graph_label: Environmental Impact - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/environmental-impact',
-    rdf_file_path: ../data/earthresourceml/EnvironmentalImpact.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/EnvironmentalImpact.rdf',
-    source_type: http_get}
+  EnvironmentalImpact:
+    graph_label: Environmental Impact - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/environmental-impact
+    rdf_file_path: ../data/earthresourceml/EnvironmentalImpact.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/EnvironmentalImpact.rdf
+    source_type: http_get
   Equipment_Manufactid:
     graph_label: Geoscience Australia Vocabulary - Equipment Manufactid
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Equipment_Manufactid
@@ -415,13 +440,18 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Eventtypes.rdf
     regex_replacements: *id001
     source_type: file
-  ExplorationActivityType: {graph_label: Exploration Activity Type - All Concepts,
-    graph_name: 'http://resource.geosciml.org/classifier/cgi/exploration-activity-type',
-    rdf_file_path: ../data/earthresourceml/ExplorationActivityType.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ExplorationActivityType.rdf',
-    source_type: http_get}
-  ExplorationResult: {graph_label: Exploration Result - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/exploration-result',
-    rdf_file_path: ../data/earthresourceml/ExplorationResult.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ExplorationResult.rdf',
-    source_type: http_get}
+  ExplorationActivityType:
+    graph_label: Exploration Activity Type - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/exploration-activity-type
+    rdf_file_path: ../data/earthresourceml/ExplorationActivityType.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/ExplorationActivityType.rdf
+    source_type: http_get
+  ExplorationResult:
+    graph_label: Exploration Result - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/exploration-result
+    rdf_file_path: ../data/earthresourceml/ExplorationResult.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/ExplorationResult.rdf
+    source_type: http_get
   Ext_Clock_Frequency:
     graph_label: Geoscience Australia Vocabulary - Ext Clock Frequency
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Ext_Clock_Frequency
@@ -611,15 +641,12 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Hydrocarbon_Show_Swc.rdf
     regex_replacements: *id001
     source_type: file
-  IUGS_CGI_register__for_INSPIRE_geologic_timescale_with_content: {graph_label: Geologic
-      Timescale Elements, graph_name: 'http://resource.geosciml.org/classifier/ics/ischart/',
-    rdf_file_path: ../data/timescale/IUGS_CGI_register__for_INSPIRE_geologic_timescale_with_content.rdf,
-    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/IUGS_CGI_register__for_INSPIRE_geologic_timescale_with_content.rdf',
-    source_type: http_get}
-  IUGS_CGI_register__for_INSPIRE_lithology_with_content: {graph_label: lithology concepts,
-    graph_name: 'http://resource.geosciml.org/classifier/cgi/lithology/', rdf_file_path: ../data/cgi/IUGS_CGI_register__for_INSPIRE_lithology_with_content.rdf,
-    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/IUGS_CGI_register__for_INSPIRE_lithology_with_content.rdf',
-    source_type: http_get}
+  IUGS_CGI_register__for_INSPIRE_lithology_with_content:
+    graph_label: lithology concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/lithology/
+    rdf_file_path: ../data/cgi/IUGS_CGI_register__for_INSPIRE_lithology_with_content.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/IUGS_CGI_register__for_INSPIRE_lithology_with_content.rdf
+    source_type: http_get
   Information_Source:
     graph_label: Geoscience Australia Vocabulary - Information Source
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Information_Source
@@ -830,9 +857,12 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Mime_Type.rdf
     regex_replacements: *id001
     source_type: file
-  MineStatus: {graph_label: Mine Status - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/mine-status',
-    rdf_file_path: ../data/earthresourceml/MineStatus.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/MineStatus.rdf',
-    source_type: http_get}
+  MineStatus:
+    graph_label: Mine Status - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/mine-status
+    rdf_file_path: ../data/earthresourceml/MineStatus.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/MineStatus.rdf
+    source_type: http_get
   Mineral:
     graph_label: Geoscience Australia Vocabulary - Mineral
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Mineral
@@ -840,12 +870,18 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Mineral.rdf
     regex_replacements: *id001
     source_type: file
-  MineralOccurrenceType: {graph_label: Mineral Occurrence Type - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/mineral-occurrence-type',
-    rdf_file_path: ../data/earthresourceml/MineralOccurrenceType.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/MineralOccurrenceType.rdf',
-    source_type: http_get}
-  MiningActivity: {graph_label: Mining Activity - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/mining-activity',
-    rdf_file_path: ../data/earthresourceml/MiningActivity.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/MiningActivity.rdf',
-    source_type: http_get}
+  MineralOccurrenceType:
+    graph_label: Mineral Occurrence Type - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/mineral-occurrence-type
+    rdf_file_path: ../data/earthresourceml/MineralOccurrenceType.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/MineralOccurrenceType.rdf
+    source_type: http_get
+  MiningActivity:
+    graph_label: Mining Activity - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/mining-activity
+    rdf_file_path: ../data/earthresourceml/MiningActivity.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/MiningActivity.rdf
+    source_type: http_get
   Monitor_Type:
     graph_label: Geoscience Australia Vocabulary - Monitor Type
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Monitor_Type
@@ -979,9 +1015,12 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Preparation.rdf
     regex_replacements: *id001
     source_type: file
-  ProcessingActivity: {graph_label: Processing Activity - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/mining-processing-activity',
-    rdf_file_path: ../data/earthresourceml/ProcessingActivity.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ProcessingActivity.rdf',
-    source_type: http_get}
+  ProcessingActivity:
+    graph_label: Processing Activity - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/mining-processing-activity
+    rdf_file_path: ../data/earthresourceml/ProcessingActivity.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/ProcessingActivity.rdf
+    source_type: http_get
   Processing_Plant_Attribute:
     graph_label: Geoscience Australia Vocabulary - Processing Plant Attribute
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Processing_Plant_Attribute
@@ -1059,9 +1098,12 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\RESERVOIRS.rdf
     regex_replacements: *id001
     source_type: file
-  RawMaterialRole: {graph_label: Raw Material Role - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/raw-material-role',
-    rdf_file_path: ../data/earthresourceml/RawMaterialRole.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/RawMaterialRole.rdf',
-    source_type: http_get}
+  RawMaterialRole:
+    graph_label: Raw Material Role - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/raw-material-role
+    rdf_file_path: ../data/earthresourceml/RawMaterialRole.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/RawMaterialRole.rdf
+    source_type: http_get
   Reference_Ellipsoid:
     graph_label: Geoscience Australia Vocabulary - Reference Ellipsoid
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Reference_Ellipsoid
@@ -1069,12 +1111,18 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Reference_Ellipsoid.rdf
     regex_replacements: *id001
     source_type: file
-  ReserveCategory: {graph_label: Reserve Assessment Category - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/reserve-assessment-category',
-    rdf_file_path: ../data/earthresourceml/ReserveCategory.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ReserveCategory.rdf',
-    source_type: http_get}
-  ResourceCategory: {graph_label: Resource Assessment Category - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/resource-assessment-category',
-    rdf_file_path: ../data/earthresourceml/ResourceCategory.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/ResourceCategory.rdf',
-    source_type: http_get}
+  ReserveCategory:
+    graph_label: Reserve Assessment Category - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/reserve-assessment-category
+    rdf_file_path: ../data/earthresourceml/ReserveCategory.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/ReserveCategory.rdf
+    source_type: http_get
+  ResourceCategory:
+    graph_label: Resource Assessment Category - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/resource-assessment-category
+    rdf_file_path: ../data/earthresourceml/ResourceCategory.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/ResourceCategory.rdf
+    source_type: http_get
   Resource_Project_Attribute:
     graph_label: Geoscience Australia Vocabulary - Resource Project Attribute
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Resource_Project_Attribute
@@ -1285,9 +1333,12 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Transaction_Type.rdf
     regex_replacements: *id001
     source_type: file
-  UNFCValue: {graph_label: UNFC Code - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/unfc',
-    rdf_file_path: ../data/earthresourceml/UNFCValue.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/UNFCValue.rdf',
-    source_type: http_get}
+  UNFCValue:
+    graph_label: UNFC Code - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/unfc
+    rdf_file_path: ../data/earthresourceml/UNFCValue.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/UNFCValue.rdf
+    source_type: http_get
   UoM:
     graph_label: Geoscience Australia Vocabulary - UoM
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/UoM
@@ -1344,9 +1395,12 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Voltage_Output.rdf
     regex_replacements: *id001
     source_type: file
-  WasteStorage: {graph_label: Waste Storage - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/waste-storage',
-    rdf_file_path: ../data/earthresourceml/WasteStorage.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/2016/WasteStorage.rdf',
-    source_type: http_get}
+  WasteStorage:
+    graph_label: Waste Storage - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/waste-storage
+    rdf_file_path: ../data/earthresourceml/WasteStorage.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/earthresourceml/current/WasteStorage.rdf
+    source_type: http_get
   Well_Drill_Classification:
     graph_label: Geoscience Australia Vocabulary - Well Drill Classification
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/Well_Drill_Classification
@@ -1361,75 +1415,145 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\Worktype.rdf
     regex_replacements: *id001
     source_type: file
-  alterationtype: {graph_label: Alteration Type - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/alterationtype',
-    rdf_file_path: ../data/cgi/alterationtype.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/alterationtype.rdf',
-    source_type: http_get}
-  boreholedrillingmethod: {graph_label: Borehole Drilling Method - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/boreholedrillingmethod',
-    rdf_file_path: ../data/cgi/boreholedrillingmethod.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/boreholedrillingmethod.rdf',
-    source_type: http_get}
-  compositioncategory: {graph_label: Composition Category - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/compositioncategory',
-    rdf_file_path: ../data/cgi/compositioncategory.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/compositioncategory.rdf',
-    source_type: http_get}
-  compoundmaterialconstituentpartrole: {graph_label: Compound Material Constituent
-      Part - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/compoundmaterialconstituentpartrole',
-    rdf_file_path: ../data/cgi/compoundmaterialconstituentpartrole.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/compoundmaterialconstituentpartrole.rdf',
-    source_type: http_get}
-  consolidationdegree: {graph_label: Consolidation Degree - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/consolidationdegree',
-    rdf_file_path: ../data/cgi/consolidationdegree.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/consolidationdegree.rdf',
-    source_type: http_get}
-  contacttype: {graph_label: Contact Type - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/contacttype',
-    rdf_file_path: ../data/cgi/contacttype.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/contacttype.rdf',
-    source_type: http_get}
-  conventioncode: {graph_label: Convention Code for Strike and Dip Measurements -
-      All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/conventioncode',
-    rdf_file_path: ../data/cgi/conventioncode.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/conventioncode.rdf',
-    source_type: http_get}
-  deformationstyle: {graph_label: Deformation Style - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/deformationstyle',
-    rdf_file_path: ../data/cgi/deformationstyle.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/deformationstyle.rdf',
-    source_type: http_get}
-  descriptionpurpose: {graph_label: Description Purpose - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/descriptionpurpose',
-    rdf_file_path: ../data/cgi/descriptionpurpose.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/descriptionpurpose.rdf',
-    source_type: http_get}
-  determinationmethodorientation: {graph_label: Orientation Determination Method -
-      All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/determinationmethodorientation',
-    rdf_file_path: ../data/cgi/determinationmethodorientation.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/determinationmethodorientation.rdf',
-    source_type: http_get}
-  eventenvironment: {graph_label: Event Environment - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/eventenvironment',
-    rdf_file_path: ../data/cgi/eventenvironment.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/eventenvironment.rdf',
-    source_type: http_get}
-  eventprocess: {graph_label: Event Process - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/eventprocess',
-    rdf_file_path: ../data/cgi/eventprocess.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/eventprocess.rdf',
-    source_type: http_get}
-  faultmovementsense: {graph_label: Fault Movement Sense - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/faultmovementsense',
-    rdf_file_path: ../data/cgi/faultmovementsense.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/faultmovementsense.rdf',
-    source_type: http_get}
-  faultmovementtype: {graph_label: Fault Movement Type - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/faultmovementtype',
-    rdf_file_path: ../data/cgi/faultmovementtype.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/faultmovementtype.rdf',
-    source_type: http_get}
-  faulttype: {graph_label: Fault Type - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/faulttype',
-    rdf_file_path: ../data/cgi/faulttype.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/faulttype.rdf',
-    source_type: http_get}
-  featureobservationmethod: {graph_label: Observation Method (Geologic Feature) -
-      All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/featureobservationmethod',
-    rdf_file_path: ../data/cgi/featureobservationmethod.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/featureobservationmethod.rdf',
-    source_type: http_get}
-  foliationtype: {graph_label: Foliation Type - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/foliationtype',
-    rdf_file_path: ../data/cgi/foliationtype.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/foliationtype.rdf',
-    source_type: http_get}
-  ga_igsn_codelists: {graph_label: GA IGSN Vocabularies, graph_name: 'http://pid.geoscience.gov.au/def/voc/ga/igsncode',
-    rdf_file_path: ../data/ga_igsn_codelists.rdf, source_type: sparql, sparql_endpoint: 'http://vocabs.ands.org.au/repository/api/sparql/ga_igsn-codelist_v0-9-2'}
-  geneticcategory: {graph_label: Genetic Category - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/geneticcategory',
-    rdf_file_path: ../data/cgi/geneticcategory.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/geneticcategory.rdf',
-    source_type: http_get}
-  geologicunitmorphology: {graph_label: Geologic Unit Morphology - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/geologicunitmorphology',
-    rdf_file_path: ../data/cgi/geologicunitmorphology.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/geologicunitmorphology.rdf',
-    source_type: http_get}
-  geologicunitpartrole: {graph_label: Geologic Unit Part Role - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/geologicunitpartrole',
-    rdf_file_path: ../data/cgi/geologicunitpartrole.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/geologicunitpartrole.rdf',
-    source_type: http_get}
-  geologicunittype: {graph_label: Geologic Unit Type - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/geologicunittype',
-    rdf_file_path: ../data/cgi/geologicunittype.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/geologicunittype.rdf',
-    source_type: http_get}
+  alterationtype:
+    graph_label: Alteration Type - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/alterationtype
+    rdf_file_path: ../data/cgi/alterationtype.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/alterationtype.rdf
+    source_type: http_get
+  boreholedrillingmethod:
+    graph_label: Borehole Drilling Method - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/boreholedrillingmethod
+    rdf_file_path: ../data/cgi/boreholedrillingmethod.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/boreholedrillingmethod.rdf
+    source_type: http_get
+  compositioncategory:
+    graph_label: Composition Category - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/compositioncategory
+    rdf_file_path: ../data/cgi/compositioncategory.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/compositioncategory.rdf
+    source_type: http_get
+  compoundmaterialconstituentpartrole:
+    graph_label: Compound Material Constituent Part - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/compoundmaterialconstituentpartrole
+    rdf_file_path: ../data/cgi/compoundmaterialconstituentpartrole.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/compoundmaterialconstituentpartrole.rdf
+    source_type: http_get
+  consolidationdegree:
+    graph_label: Consolidation Degree - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/consolidationdegree
+    rdf_file_path: ../data/cgi/consolidationdegree.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/consolidationdegree.rdf
+    source_type: http_get
+  contacttype:
+    graph_label: Contact Type - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/contacttype
+    rdf_file_path: ../data/cgi/contacttype.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/contacttype.rdf
+    source_type: http_get
+  conventioncode:
+    graph_label: Convention Code for Strike and Dip Measurements - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/conventioncode
+    rdf_file_path: ../data/cgi/conventioncode.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/conventioncode.rdf
+    source_type: http_get
+  csiro_international-chronostratigraphic-chart_2018:
+    graph_label: Geologic Timescale Elements in the International Chronostratigraphic
+      Chart
+    graph_name: http://resource.geosciml.org/classifier/ics/ischart/
+    rdf_file_path: ../data/timescale/csiro_international-chronostratigraphic-chart_2018.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/current/csiro_international-chronostratigraphic-chart_2018.rdf
+    source_type: http_get
+  deformationstyle:
+    graph_label: Deformation Style - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/deformationstyle
+    rdf_file_path: ../data/cgi/deformationstyle.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/deformationstyle.rdf
+    source_type: http_get
+  descriptionpurpose:
+    graph_label: Description Purpose - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/descriptionpurpose
+    rdf_file_path: ../data/cgi/descriptionpurpose.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/descriptionpurpose.rdf
+    source_type: http_get
+  determinationmethodorientation:
+    graph_label: Orientation Determination Method - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/determinationmethodorientation
+    rdf_file_path: ../data/cgi/determinationmethodorientation.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/determinationmethodorientation.rdf
+    source_type: http_get
+  eventenvironment:
+    graph_label: Event Environment - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/eventenvironment
+    rdf_file_path: ../data/cgi/eventenvironment.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/eventenvironment.rdf
+    source_type: http_get
+  eventprocess:
+    graph_label: Event Process - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/eventprocess
+    rdf_file_path: ../data/cgi/eventprocess.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/eventprocess.rdf
+    source_type: http_get
+  faultmovementsense:
+    graph_label: Fault Movement Sense - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/faultmovementsense
+    rdf_file_path: ../data/cgi/faultmovementsense.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/faultmovementsense.rdf
+    source_type: http_get
+  faultmovementtype:
+    graph_label: Fault Movement Type - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/faultmovementtype
+    rdf_file_path: ../data/cgi/faultmovementtype.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/faultmovementtype.rdf
+    source_type: http_get
+  faulttype:
+    graph_label: Fault Type - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/faulttype
+    rdf_file_path: ../data/cgi/faulttype.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/faulttype.rdf
+    source_type: http_get
+  featureobservationmethod:
+    graph_label: Observation Method (Geologic Feature) - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/featureobservationmethod
+    rdf_file_path: ../data/cgi/featureobservationmethod.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/featureobservationmethod.rdf
+    source_type: http_get
+  foliationtype:
+    graph_label: Foliation Type - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/foliationtype
+    rdf_file_path: ../data/cgi/foliationtype.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/foliationtype.rdf
+    source_type: http_get
+  gcmd_sciencekeywords:
+    graph_label: Global Change Management Directory - Science Keywords
+    graph_name: https://gcmdservices.gsfc.nasa.gov/kms/concepts/concept_scheme/sciencekeywords
+    rdf_file_path: ../data/gcmd/sciencekeywords.rdf
+    rdf_url: https://gcmdservices.gsfc.nasa.gov/kms/concepts/concept_scheme/sciencekeywords
+    source_type: http_get
+  geneticcategory:
+    graph_label: Genetic Category - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/geneticcategory
+    rdf_file_path: ../data/cgi/geneticcategory.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/geneticcategory.rdf
+    source_type: http_get
+  geologicunitmorphology:
+    graph_label: Geologic Unit Morphology - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/geologicunitmorphology
+    rdf_file_path: ../data/cgi/geologicunitmorphology.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/geologicunitmorphology.rdf
+    source_type: http_get
+  geologicunitpartrole:
+    graph_label: Geologic Unit Part Role - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/geologicunitpartrole
+    rdf_file_path: ../data/cgi/geologicunitpartrole.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/geologicunitpartrole.rdf
+    source_type: http_get
+  geologicunittype:
+    graph_label: Geologic Unit Type - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/geologicunittype
+    rdf_file_path: ../data/cgi/geologicunittype.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/geologicunittype.rdf
+    source_type: http_get
   hjtest2:
     graph_label: Geoscience Australia Vocabulary - hjtest2
     graph_name: http://pid.geoscience.gov.au/def/voc/ga/hjtest2
@@ -1437,94 +1561,102 @@ rdf_configs:
     rdf_url: file://\\prod.lan\active\data\oracle\oracle_apps\workdir\hjtest2.rdf
     regex_replacements: *id001
     source_type: file
-  isc2004: {graph_label: Geologic Timescale Elements, graph_name: 'http://resource.geosciml.org/classifier/ics/ischart/',
-    rdf_file_path: ../data/timescale/isc2004.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2004.rdf',
-    source_type: http_get}
-  isc2005: {graph_label: Geologic Timescale Elements, graph_name: 'http://resource.geosciml.org/classifier/ics/ischart/',
-    rdf_file_path: ../data/timescale/isc2005.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2005.rdf',
-    source_type: http_get}
-  isc2006: {graph_label: Geologic Timescale Elements, graph_name: 'http://resource.geosciml.org/classifier/ics/ischart/',
-    rdf_file_path: ../data/timescale/isc2006.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2006.rdf',
-    source_type: http_get}
-  isc2008: {graph_label: Geologic Timescale Elements, graph_name: 'http://resource.geosciml.org/classifier/ics/ischart/',
-    rdf_file_path: ../data/timescale/isc2008.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2008.rdf',
-    source_type: http_get}
-  isc2009: {graph_label: Geologic Timescale Elements, graph_name: 'http://resource.geosciml.org/classifier/ics/ischart/',
-    rdf_file_path: ../data/timescale/isc2009.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2009.rdf',
-    source_type: http_get}
-  isc2010: {graph_label: Geologic Timescale Elements, graph_name: 'http://resource.geosciml.org/classifier/ics/ischart/',
-    rdf_file_path: ../data/timescale/isc2010.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2010.rdf',
-    source_type: http_get}
-  isc2012: {graph_label: Geologic Timescale Elements, graph_name: 'http://resource.geosciml.org/classifier/ics/ischart/',
-    rdf_file_path: ../data/timescale/isc2012.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2012.rdf',
-    source_type: http_get}
-  isc2013: {graph_label: Geologic Timescale Elements in the International Chronostratigraphic
-      Chart, graph_name: 'http://resource.geosciml.org/classifier/ics/ischart/', rdf_file_path: ../data/timescale/isc2013.rdf,
-    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2013.rdf',
-    source_type: http_get}
-  isc2014: {graph_label: Geologic Timescale Elements in the International Chronostratigraphic
-      Chart, graph_name: 'http://resource.geosciml.org/classifier/ics/ischart/', rdf_file_path: ../data/timescale/isc2014.rdf,
-    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2014.rdf',
-    source_type: http_get}
-  isc2017: {graph_label: Geologic Timescale Elements in the International Chronostratigraphic
-      Chart, graph_name: 'http://resource.geosciml.org/classifier/ics/ischart/', rdf_file_path: ../data/timescale/isc2017.rdf,
-    rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/timescale/isc2017.rdf',
-    source_type: http_get}
-  lineationtype: {graph_label: Lineation Type - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/lineationtype',
-    rdf_file_path: ../data/cgi/lineationtype.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/lineationtype.rdf',
-    source_type: http_get}
-  mappedfeatureobservationmethod: {graph_label: Observation Method (Mapped Feature)
-      - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/mappedfeatureobservationmethod',
-    rdf_file_path: ../data/cgi/mappedfeatureobservationmethod.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/mappedfeatureobservationmethod.rdf',
-    source_type: http_get}
-  mappingframe: {graph_label: Mapping Frame - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/mappingframe',
-    rdf_file_path: ../data/cgi/mappingframe.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/mappingframe.rdf',
-    source_type: http_get}
-  metamorphicfacies: {graph_label: Metamorphic Facies - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/metamorphicfacies',
-    rdf_file_path: ../data/cgi/metamorphicfacies.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/metamorphicfacies.rdf',
-    source_type: http_get}
-  metamorphicgrade: {graph_label: Metamorphic Grade - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/metamorphicgrade',
-    rdf_file_path: ../data/cgi/metamorphicgrade.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/metamorphicgrade.rdf',
-    source_type: http_get}
-  odm2_medium: {graph_label: ODM2 Medium Vocabulary, graph_name: 'http://vocabulary.odm2.org/api/v1/medium',
-    rdf_file_path: ../data/odm2_medium.rdf, source_type: http_get}
-  odm2_sampling_feature_type: {graph_label: ODM2 Sampling Feature Type Vocabulary,
-    graph_name: 'http://vocabulary.odm2.org/api/v1/samplingfeaturetype', rdf_file_path: ../data/odm2_samplingfeaturetype.rdf,
-    source_type: http_get}
-  odm2_specimentype: {graph_label: ODM2 Specimen Type Vocabulary, graph_name: 'http://vocabulary.odm2.org/api/v1/specimentype',
-    rdf_file_path: ../data/odm2_specimentype.rdf, source_type: http_get}
-  particleaspectratio: {graph_label: Particle Aspect Ratio - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/particleaspectratio',
-    rdf_file_path: ../data/cgi/particleaspectratio.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/particleaspectratio.rdf',
-    source_type: http_get}
-  particleshape: {graph_label: Particle Shape - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/particleshape',
-    rdf_file_path: ../data/cgi/particleshape.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/particleshape.rdf',
-    source_type: http_get}
-  particletype: {graph_label: Particle Type - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/particletype',
-    rdf_file_path: ../data/cgi/particletype.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/particletype.rdf',
-    source_type: http_get}
-  planarpolaritycode: {graph_label: Planar Polarity Code - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/planarpolaritycode',
-    rdf_file_path: ../data/cgi/planarpolaritycode.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/planarpolaritycode.rdf',
-    source_type: http_get}
-  proportionterm: {graph_label: Proportion Term - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/proportionterm',
-    rdf_file_path: ../data/cgi/proportionterm.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/proportionterm.rdf',
-    source_type: http_get}
-  simplelithology: {graph_label: Simple Lithology - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/lithology',
-    rdf_file_path: ../data/cgi/simplelithology.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/simplelithology.rdf',
-    source_type: http_get}
-  stratigraphicrank: {graph_label: Stratigraphic Rank - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/stratigraphicrank',
-    rdf_file_path: ../data/cgi/stratigraphicrank.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/stratigraphicrank.rdf',
-    source_type: http_get}
-  valuequalifier: {graph_label: Value Qualifier - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/valuequalifier',
-    rdf_file_path: ../data/cgi/valuequalifier.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/valuequalifier.rdf',
-    source_type: http_get}
-  vocabularyrelation: {graph_label: Vocabulary Relation - All Concepts, graph_name: 'http://resource.geosciml.org/classifier/cgi/vocabularyrelation',
-    rdf_file_path: ../data/cgi/vocabularyrelation.rdf, rdf_url: 'https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/2016/vocabularyrelation.rdf',
-    source_type: http_get}
+  lineationtype:
+    graph_label: Lineation Type - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/lineationtype
+    rdf_file_path: ../data/cgi/lineationtype.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/lineationtype.rdf
+    source_type: http_get
+  mappedfeatureobservationmethod:
+    graph_label: Observation Method (Mapped Feature) - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/mappedfeatureobservationmethod
+    rdf_file_path: ../data/cgi/mappedfeatureobservationmethod.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/mappedfeatureobservationmethod.rdf
+    source_type: http_get
+  mappingframe:
+    graph_label: Mapping Frame - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/mappingframe
+    rdf_file_path: ../data/cgi/mappingframe.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/mappingframe.rdf
+    source_type: http_get
+  metamorphicfacies:
+    graph_label: Metamorphic Facies - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/metamorphicfacies
+    rdf_file_path: ../data/cgi/metamorphicfacies.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/metamorphicfacies.rdf
+    source_type: http_get
+  metamorphicgrade:
+    graph_label: Metamorphic Grade - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/metamorphicgrade
+    rdf_file_path: ../data/cgi/metamorphicgrade.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/metamorphicgrade.rdf
+    source_type: http_get
+  particleaspectratio:
+    graph_label: Particle Aspect Ratio - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/particleaspectratio
+    rdf_file_path: ../data/cgi/particleaspectratio.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/particleaspectratio.rdf
+    source_type: http_get
+  particleshape:
+    graph_label: Particle Shape - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/particleshape
+    rdf_file_path: ../data/cgi/particleshape.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/particleshape.rdf
+    source_type: http_get
+  particletype:
+    graph_label: Particle Type - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/particletype
+    rdf_file_path: ../data/cgi/particletype.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/particletype.rdf
+    source_type: http_get
+  planarpolaritycode:
+    graph_label: Planar Polarity Code - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/planarpolaritycode
+    rdf_file_path: ../data/cgi/planarpolaritycode.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/planarpolaritycode.rdf
+    source_type: http_get
+  proportionterm:
+    graph_label: Proportion Term - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/proportionterm
+    rdf_file_path: ../data/cgi/proportionterm.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/proportionterm.rdf
+    source_type: http_get
+  simplelithology:
+    graph_label: Simple Lithology - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/lithology
+    rdf_file_path: ../data/cgi/simplelithology.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/simplelithology.rdf
+    source_type: http_get
+  stratigraphicrank:
+    graph_label: Stratigraphic Rank - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/stratigraphicrank
+    rdf_file_path: ../data/cgi/stratigraphicrank.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/stratigraphicrank.rdf
+    source_type: http_get
+  valuequalifier:
+    graph_label: Value Qualifier - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/valuequalifier
+    rdf_file_path: ../data/cgi/valuequalifier.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/valuequalifier.rdf
+    source_type: http_get
+  vocabularyrelation:
+    graph_label: Vocabulary Relation - All Concepts
+    graph_name: http://resource.geosciml.org/classifier/cgi/vocabularyrelation
+    rdf_file_path: ../data/cgi/vocabularyrelation.rdf
+    rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/vocabularyrelation.rdf
+    source_type: http_get
 regex_replacements:
-- ['^(\<\?xml version="1.0")\s*(\?\>.*)', '\1 encoding="UTF-8"\2'] # Fix encoding declaration
-- ["\r\n", "\n"] # Fix bad EOLs
+- - ^(\<\?xml version="1.0")\s*(\?\>.*)
+  - \1 encoding="UTF-8"\2
+- - "\r\n"
+  - '
+
+    '
 summary_output_path: ../data/summary_output.txt
 timeout: 10
 triple_stores:
-  jena-fuseki test: {password: vocab1234%^&*, type: jena-fuseki, url: 'http://52.65.31.119/fuseki/vocabs',
-    username: vocabmanager}
+  jena-fuseki test:
+    password: vocab1234%^&*
+    type: jena-fuseki
+    url: http://ec2-52-65-31-119.ap-southeast-2.compute.amazonaws.com/fuseki/vocabs
+    username: vocabmanager

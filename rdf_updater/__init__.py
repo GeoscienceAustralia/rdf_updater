@@ -102,7 +102,7 @@ WHERE {?s ?p ?o .}'''
             response = http_method(url, headers=headers, params=params, data=data, timeout=self.settings['timeout'])
             #logger.debug('Response content: {}'.format(str(response.content)))
             assert response.status_code == 200, 'Response status code != 200'
-            return(response.content).decode('utf-8') # Convert binary to UTF-8 string
+            return response.text # Convert binary to UTF-8 string
         
                 
         logger.info('Reading RDFs from sources to files')    
@@ -324,27 +324,34 @@ WHERE {?s ?p ?o .}'''
             
             logger.info('SKOSifying RDF from {}'.format(rdf_file_path))
 
-            # The following is a work-around for a unicode issue in rdflib
-            rdf_file = open(rdf_file_path, 'rb') # Note binary reading
-            rdf = Graph()
-            rdf.parse(rdf_file, format='xml')
-            rdf_file.close()
+            #===================================================================
+            # # The following is a work-around for a unicode issue in rdflib
+            # rdf_file = open(rdf_file_path, 'rb') # Note binary reading
+            # rdf = Graph()
+            # rdf.parse(rdf_file, format='xml')
+            # rdf_file.close()
+            #===================================================================
+            
+            with open(rdf_file_path, 'r', encoding='utf-8') as rdf_file:
+                rdf_text = rdf_file.read()
+                rdf = Graph()
+                rdf.parse(data=rdf_text, format='xml')
             
             # Capture SKOSify WARNING level output to log file    
             try:
                 os.remove(log_file_name)
             except:
                 pass
-            log_file_handler = logging.FileHandler(log_file_name)
+            log_file_handler = logging.FileHandler(log_file_name, encoding='utf-8')
             log_file_handler.setLevel(logging.WARNING)
-            log_file_formatter = logging.Formatter('%(message)s')
+            log_file_formatter = logging.Formatter(u'%(message)s')
             log_file_handler.setFormatter(log_file_formatter)
             root_logger.addHandler(log_file_handler)
             
             skos_rdf = skosify.skosify(rdf, 
                                   label=rdf_config['graph_label'] ,
                                   eliminate_redundancy=True,
-                                  preflabel_policy='all' #TODO: This is necessary to avoid a unicode bug in skosify - fix it
+                                  #preflabel_policy='all' #TODO: This is necessary to avoid a unicode bug in skosify - fix it
                                   )
             
             logger.debug('Adding SKOS inferences to {}'.format(skos_rdf_file_path)) 
