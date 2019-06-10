@@ -16,15 +16,19 @@ from pprint import pprint, pformat
 from lxml import etree
 import skosify  # contains skosify, config, and infer
 from rdflib import Graph
-from unidecode import unidecode
 from _collections import OrderedDict
 from glob import glob
+from time import sleep
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO) # Initial logging level for this module
 logger.debug('__name__ = {}'.format(__name__))
 
 SPARQL_QUERY_LIMIT = 2000 # Maximum number of results to return per SPARQL query
+
+MAX_RETRIES = 2
+
+RETRY_SLEEP_SECONDS = 5
 
 class RDFUpdater(object):
     settings = None
@@ -421,14 +425,22 @@ WHERE {?s ?p ?o .}'''
             headers['Authorization'] = 'Basic ' + base64.encodebytes('{}:{}'.format(username, password).encode('utf-8')).strip().decode('utf-8')
             
         params = None
-        response = requests.post(triple_store_settings['url'], 
-                               headers=headers, 
-                               params=params, 
-                               data=sparql_query, 
-                               timeout=self.settings['timeout'])
-        #logger.debug('Response content: {}'.format(str(response.content)))
-        assert response.status_code == 200, 'Response status code {} != 200'.format(response.status_code)
-        return(response.content).decode('utf-8') # Convert binary to UTF-8 string
+        
+        retries = 0
+        while retries <= MAX_RETRIES:
+            try:
+                response = requests.post(triple_store_settings['url'], 
+                                       headers=headers, 
+                                       params=params, 
+                                       data=sparql_query, 
+                                       timeout=self.settings['timeout'])
+                #logger.debug('Response content: {}'.format(str(response.content)))
+                assert response.status_code == 200, 'Response status code {} != 200'.format(response.status_code)
+                return response.text
+            except Exception as e:
+                logger.warning('SPARQL query failed: {}'.format(e))
+                retries += 1
+                sleep(RETRY_SLEEP_SECONDS)
     
     
     def get_graph_names(self, triple_store_name=None):
@@ -690,19 +702,19 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         '''
         if level == 0: # Graph
             for graph, graph_dict in concept_tree_dict.items():
-                output_stream.write(unidecode('Graph "{}"\n'.format(graph))) 
+                output_stream.write('Graph "{}"\n'.format(graph))
                 self.output_vocab_data(graph_dict, output_stream, level=level+1)
                 output_stream.write('\n')
         elif level == 1: # vocab
             for vocab, vocab_dict in concept_tree_dict.items():
-                output_stream.write(unidecode('{}Vocab "{}": {}\n'.format(indent, vocab_dict['label'], vocab))) 
+                output_stream.write('{}Vocab "{}": {}\n'.format(indent, vocab_dict['label'], vocab))
                 self.output_vocab_data(vocab_dict['concepts'], output_stream, level=level+1)
         else: # Concept
             for concept, concept_dict in concept_tree_dict.items():
-                output_stream.write(unidecode('{}Concept "{}": {} ({})\n'.format((indent * level),
+                output_stream.write('{}Concept "{}": {} ({})\n'.format((indent * level),
                     concept_dict['preflabel'], 
                     concept,
-                    concept_dict.get('description') or ''))
+                    re.sub('\s+', ' ', concept_dict.get('description') or ''))
                     ) 
                 narrower_concepts_dict = concept_dict.get('narrower_concepts')
                 if narrower_concepts_dict:
@@ -716,7 +728,7 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         summary_output_path = self.settings.get('summary_output_path')
         if summary_output_path:
             logger.debug('Outputting summary text to {}'.format(summary_output_path))
-            output_stream = open(summary_output_path, 'w')
+            output_stream = open(summary_output_path, 'w', encoding='utf-8')
         else:
             output_stream = sys.stdout
                     
