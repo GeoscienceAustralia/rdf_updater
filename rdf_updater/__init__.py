@@ -714,7 +714,7 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
                 output_stream.write('{}Concept "{}": {} ({})\n'.format((indent * level),
                     concept_dict['preflabel'], 
                     concept,
-                    re.sub('\s+', ' ', concept_dict.get('description') or ''))
+                    re.sub('[\s\r\n]+', ' ', concept_dict.get('description') or ''))
                     ) 
                 narrower_concepts_dict = concept_dict.get('narrower_concepts')
                 if narrower_concepts_dict:
