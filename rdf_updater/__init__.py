@@ -28,7 +28,7 @@ SPARQL_QUERY_LIMIT = 2000 # Maximum number of results to return per SPARQL query
 
 MAX_RETRIES = 2
 
-RETRY_SLEEP_SECONDS = 5
+RETRY_SLEEP_SECONDS = 10
 
 class RDFUpdater(object):
     settings = None
@@ -192,13 +192,10 @@ WHERE {?s ?p ?o .}'''
         vocab_tree = etree.fromstring(rdf_xml)
         
         # Find all vocab elements
-        vocab_elements = vocab_tree.findall(path='skos:Collection', namespaces=vocab_tree.nsmap)
-        if not vocab_elements: #No skos:collections defined - look for resource element parents instead                      
-            vocab_elements = vocab_tree.findall(path='skos:ConceptScheme', namespaces=vocab_tree.nsmap)
-        if not vocab_elements: #No skos:collections or skos:ConceptSchemes defined - look for resource element parents instead                      
-            logger.warning('WARNING: RDF has no explicit skos:Collection or skos:ConceptScheme elements')
-            resource_elements = vocab_tree.findall(path='.//rdf:Description/rdf:type[@rdf:resource="http://www.w3.org/2004/02/skos/core#Collection"]', namespaces=vocab_tree.nsmap)
-            vocab_elements = [resource_element.getparent() for resource_element in resource_elements]
+        vocab_elements = vocab_tree.findall(path='skos:ConceptScheme', namespaces=vocab_tree.nsmap)
+        if not vocab_elements: #No skos:ConceptSchemes defined - look for resource element parents instead                      
+            logger.error('ERROR: RDF has no explicit skos:ConceptScheme elements')
+            return
         
         #logger.debug('vocab_elements = {}'.format(pformat(vocab_elements)))
         
@@ -473,10 +470,7 @@ PREFIX dct: <http://purl.org/dc/terms/>
 SELECT DISTINCT ?graph ?vocab ?vocab_label
 WHERE {
     GRAPH ?graph {
-    {
-        {?vocab a skos:Collection .}
-        UNION {?vocab a skos:ConceptScheme .}
-        }
+        {?vocab a skos:ConceptScheme .}
     OPTIONAL {
         {?vocab dct:title ?vocab_label .} 
         UNION {?vocab rdfs:label ?vocab_label .}
@@ -516,18 +510,12 @@ PREFIX dct: <http://purl.org/dc/terms/>
 SELECT distinct ?graph ?vocab ?vocab_label ?concept ?concept_preflabel ?concept_description ?broader_concept
 WHERE {
     GRAPH ?graph {
-        {
-            {?vocab a skos:Collection .}
-            UNION {?vocab a skos:ConceptScheme .}
-            }
+            {?vocab a skos:ConceptScheme .}
         OPTIONAL {
             {?vocab dct:title ?vocab_label .} 
             UNION {?vocab rdfs:label ?vocab_label .}
             }
-        {
-            {?vocab skos:member ?concept .}
-            UNION {?concept skos:inScheme ?vocab .}
-            }
+            {?concept skos:inScheme ?vocab .}
         ?concept skos:prefLabel ?concept_preflabel .
         OPTIONAL {?concept skos:definition ?concept_description .}
         OPTIONAL {?concept skos:broader ?broader_concept .}

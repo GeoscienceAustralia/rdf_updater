@@ -1653,10 +1653,15 @@ regex_replacements:
 
     '
 summary_output_path: ../data/summary_output.txt
-timeout: 10
+timeout: 60
 triple_stores:
-  jena-fuseki test:
-    password: vocab1234%^&*
+#   jena-fuseki test:
+#     password: vocab1234%^&*
+#     type: jena-fuseki
+#     url: http://ec2-52-65-31-119.ap-southeast-2.compute.amazonaws.com/fuseki/vocabs
+#     username: vocabmanager
+  jena-fuseki vocabs: 
+    password: vuser1234%^&*
     type: jena-fuseki
-    url: http://ec2-52-65-31-119.ap-southeast-2.compute.amazonaws.com/fuseki/vocabs
-    username: vocabmanager
+    url: http://dev2.nextgen.vocabs.ga.gov.au/fuseki/vocabs
+    username: vocabuser
