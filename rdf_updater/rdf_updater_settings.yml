@@ -1645,6 +1645,12 @@ rdf_configs:
     rdf_file_path: ../data/cgi/vocabularyrelation.rdf
     rdf_url: https://raw.githubusercontent.com/GeoscienceAustralia/geosciml.org/master/resource/static/vocabulary/cgi/current/vocabularyrelation.rdf
     source_type: http_get
+  w3c_time:
+    graph_label: W3C time
+    graph_name: http://www.w3.org/2006/time
+    rdf_file_path: ../data/www.w3.org/2006/time.rdf
+    rdf_url: http://www.w3.org/2006/time
+    source_type: http_get
 regex_replacements:
 - - ^(\<\?xml version="1.0")\s*(\?\>.*)
   - \1 encoding="UTF-8"\2
