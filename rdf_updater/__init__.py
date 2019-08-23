@@ -351,8 +351,8 @@ WHERE {?s ?p ?o .}'''
             
             skos_rdf = skosify.skosify(rdf, 
                                   label=rdf_config['graph_label'] ,
+                                  break_cycles=True,
                                   eliminate_redundancy=True,
-                                  #preflabel_policy='all' #TODO: This is necessary to avoid a unicode bug in skosify - fix it
                                   )
             
             logger.debug('Adding SKOS inferences to {}'.format(skos_rdf_file_path)) 

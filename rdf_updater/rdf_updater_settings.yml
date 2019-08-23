@@ -1681,6 +1681,12 @@ rdf_configs:
     rdf_file_path: ../data/rva/geology.rdf
     rdf_url: https://vocabs.ands.org.au/registry/api/resource/downloads/473/ga_geology_v1-0.rdf
     source_type: http_get
+  PlaceType:
+    graph_label: GA Place Type
+    graph_name: http://pid.geoscience.gov.au/def/voc/ga/PlaceType
+    rdf_file_path: ../data/rva/PlaceType.rdf
+    rdf_url: https://vocabs.ands.org.au/registry/api/resource/downloads/937/ga_place-type_v1-0.rdf
+    source_type: http_get
 
 regex_replacements:
 - - ^(\<\?xml version="1.0")\s*(\?\>.*)
