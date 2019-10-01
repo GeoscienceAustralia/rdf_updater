@@ -15,6 +15,7 @@ import base64
 from pprint import pprint, pformat
 from lxml import etree
 import skosify  # contains skosify, config, and infer
+import rdflib
 from rdflib import Graph
 from _collections import OrderedDict
 from glob import glob
@@ -35,8 +36,7 @@ class RDFUpdater(object):
     
     def __init__(self, 
                  settings_path=None, 
-                 update_github=False,
-                 update_directories=False,
+                 update_config=[],
                  debug=False):
         
         # Initialise and set debug property
@@ -47,16 +47,22 @@ class RDFUpdater(object):
         settings_path = settings_path or os.path.join(package_dir, 'rdf_updater_settings.yml')
         self.settings = yaml.safe_load(open(settings_path))
         
-        if update_github:
+        new_rdf_configs = {}
+        if 'github' in update_config:
             logger.info('Reading vocab configs from GitHub')
-            self.settings['rdf_configs'].update(self.update_github_settings())
+            new_rdf_configs.update(self.update_github_settings())
             
-        if update_directories:
+        if 'directories' in update_config:
             logger.info('Reading vocab configs from directories')
-            self.settings['rdf_configs'].update(self.update_directory_settings())
+            new_rdf_configs.update(self.update_directory_settings())
             
-        if update_github or update_directories:
+        if 'csiro' in update_config:
+            logger.info('Reading vocab configs from CSIRO')
+            new_rdf_configs.update(self.update_csiro_settings())
+            
+        if update_config and new_rdf_configs:
             logger.info('Writing updated vocab configs to settings file {}'.format(settings_path))
+            self.settings['rdf_configs'].update(new_rdf_configs)
             with open(settings_path, 'w') as settings_file:
                 yaml.safe_dump(self.settings, settings_file)
         
@@ -82,8 +88,13 @@ WHERE {?s ?p ?o .}'''
                     url += '/' # SISSVoc needs to have a trailing slash
                     headers = None
                     params = {'_format': 'text/turtle'}
+                elif rdf_config.get('format') == 'nq':
+                    if rdf_config.get('rdf_url'):
+                        url = rdf_config.get('rdf_url')
+                    headers = None
+                    params = None
                 else:
-                    headers = {'Accept': 'application/rdf+xml',
+                    headers = {'Accept': 'application/text',
                                'Accept-Encoding': 'UTF-8'
                                }
                     params = None
@@ -264,6 +275,60 @@ WHERE {?s ?p ?o .}'''
         return result_dict        
                     
      
+    def update_csiro_settings(self):   
+        '''
+        Function to update rdf_configs section of settings file from specified CSIRO vocabs using csiro_configs settings
+        '''
+        result_dict = {}
+        for source_name, source_config in self.settings['csiro_configs'].items():
+            logger.debug('Reading configurations for {}'.format(source_name))
+            source_url  = source_config['source_url']
+            source_format  = source_config['source_format']
+            try:
+                response = requests.get(source_url) #, timeout=self.settings['timeout'])
+                assert response.status_code == 200, 'Response status code != 200'
+                
+                rdf = Graph()
+                rdf.parse(data=response.text, format=source_format)
+                
+                sparql_query = '''
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+                PREFIX dct: <http://purl.org/dc/terms/>
+                
+                SELECT DISTINCT ?vocab
+                WHERE
+                    {?vocab a skos:ConceptScheme .}
+                ORDER BY ?vocab
+                '''
+                
+                result = rdf.query(sparql_query)
+                
+                vocabs = [str(binding[rdflib.term.Variable('vocab')]) for binding in result.bindings]
+                assert vocabs, 'No skos:ConceptScheme URIs found in {}'.format(source_url)
+                
+            except Exception as e:       
+                logger.warning('Unable to find vocab information from URL {}: {}'.format(source_url, e))
+                continue
+            
+            for vocab in vocabs:
+                vocab_dict = {'graph_label': 'CSIRO ' + os.path.basename(vocab),
+                               'graph_name': vocab,
+                               'source_type': 'http_get',
+                               'rdf_file_path': source_config['rdf_dir'] + '/' + os.path.basename(vocab) + '.rdf',
+                               'rdf_url': vocab + '?_format=rdf&_view=with_metadata'
+                               }
+                
+                if source_config.get('regex_replacements'):
+                    vocab_dict['regex_replacements'] = source_config['regex_replacements']
+                    
+                #logger.debug('vocab_dict = {}'.format(pformat(vocab_dict)))
+                result_dict[os.path.basename(vocab)] = vocab_dict      
+                          
+        #logger.debug('result_dict = {}'.format(pformat(result_dict)))
+        return result_dict       
+                    
+     
     def update_github_settings(self):
         '''
         Function to update rdf_configs section of settings file from GitHub using git_configs settings
@@ -333,10 +398,15 @@ WHERE {?s ?p ?o .}'''
             # rdf_file.close()
             #===================================================================
             
+            if os.path.splitext(rdf_file_path)[-1] == '.nq':
+                rdf_format='nquads'
+            else:
+                rdf_format='xml'
+            
             with open(rdf_file_path, 'r', encoding='utf-8') as rdf_file:
                 rdf_text = rdf_file.read()
                 rdf = Graph()
-                rdf.parse(data=rdf_text, format='xml')
+                rdf.parse(data=rdf_text, format=rdf_format)
             
             # Capture SKOSify WARNING level output to log file    
             try:
@@ -405,7 +475,13 @@ WHERE {?s ?p ?o .}'''
         '''
         # Default to any triple store if none specified
         triple_store_settings = self.settings['triple_stores'].get(triple_store_name) or list(self.settings['triple_stores'].values())[0]
-        logger.debug('Querying triple-store at {}'.format(triple_store_settings['url']))
+        
+        url = triple_store_settings['url']
+        if 'insert {' in sparql_query.lower() or 'update {' in sparql_query.lower():
+            logger.debug('Updating URL for insert or update query')
+            url += '/update'
+        
+        logger.debug('Querying triple-store at {}'.format(url))
         
         #logger.debug('sparql_query = {}'.format(sparql_query))
         accept_format = {'json': 'application/json',
@@ -426,7 +502,7 @@ WHERE {?s ?p ?o .}'''
         retries = 0
         while retries <= MAX_RETRIES:
             try:
-                response = requests.post(triple_store_settings['url'], 
+                response = requests.post(url, 
                                        headers=headers, 
                                        params=params, 
                                        data=sparql_query, 
@@ -723,6 +799,51 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         vocab_tree = self.get_vocab_tree(triple_store_name, graph, vocab)
         
         self.output_vocab_data(vocab_tree, output_stream)
+        
+        
+    def resolve_ConceptScheme_indirection(self, triple_store_name=None):
+        '''
+        Function to resolve ConceptScheme indirection by copying predicates and objects from ldv:currentVersion and/or owl:sameAs ConceptSchemes
+        '''
+        for graph_name in self.get_graph_names(triple_store_name=triple_store_name):
+            sparql_query = '''REFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX ldv: <http://purl.org/linked-data/version#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+#SELECT DISTINCT ?predicate ?object
+INSERT {{ 
+    GRAPH {vocab_url} {{ {vocab_url} ?predicate ?object }} 
+}}
+WHERE {{
+    {{ GRAPH ?graph {{
+        {{
+            {vocab_url} a skos:ConceptScheme .
+            {vocab_url} (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?equivalentConceptScheme a skos:ConceptScheme .
+            ?equivalentConceptScheme ?predicate ?object
+            FILTER NOT EXISTS {{ {vocab_url} ?predicate ?object }}
+        }}
+    }} }}
+    UNION
+    {{
+        {{
+            {vocab_url} a skos:ConceptScheme .
+            {vocab_url} (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?equivalentConceptScheme a skos:ConceptScheme .
+            ?equivalentConceptScheme ?predicate ?object
+            FILTER NOT EXISTS {{ {vocab_url} ?predicate ?object }}
+        }}
+    }}
+}}
+'''.format(vocab_url=graph_name)
+
+            response = self.submit_sparql_query(sparql_query, triple_store_name)
+            
+            print(json.loads(response))
+            
+            return
+        
                 
     @property
     def debug(self):
