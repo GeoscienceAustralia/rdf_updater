@@ -819,9 +819,9 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX ldv: <http://purl.org/linked-data/version#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
-#SELECT DISTINCT ?predicate ?object
 INSERT {{ 
-    GRAPH <{vocab_url}> {{ <{vocab_url}> ?predicate ?object }} 
+    GRAPH <{vocab_url}> 
+    {{ ?subject ?predicate ?object }}
 }}
 WHERE {{
     {{ GRAPH ?graph {{
@@ -829,8 +829,23 @@ WHERE {{
             <{vocab_url}> a skos:ConceptScheme .
             <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
-            ?equivalentConceptScheme ?predicate ?object
-            FILTER NOT EXISTS {{ <{vocab_url}> ?predicate ?object }}
+            ?equivalentConceptScheme ?fwdpredicate ?object .
+            ?subject (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?subject a skos:ConceptScheme .
+            FILTER NOT EXISTS {{ <{vocab_url}> ?fwdpredicate ?object }}
+            #FILTER STRSTARTS(STR(?fwdpredicate), STR(skos:))
+        }}
+        UNION
+        {{
+            <{vocab_url}> a skos:ConceptScheme .
+            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?equivalentConceptScheme a skos:ConceptScheme .
+            ?subject ?revpredicate ?equivalentConceptScheme .
+            ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?object a skos:ConceptScheme .
+            FILTER (?subject != <http://registry.it.csiro.au/def/isotc211/CI_DateTypeCode>)
+            FILTER NOT EXISTS {{ ?subject ?revpredicate <{vocab_url}> }}
+            #FILTER STRSTARTS(STR(?revpredicate), STR(skos:))
         }}
     }} }}
     UNION
@@ -839,8 +854,23 @@ WHERE {{
             <{vocab_url}> a skos:ConceptScheme .
             <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
-            ?equivalentConceptScheme ?predicate ?object
-            FILTER NOT EXISTS {{ <{vocab_url}> ?predicate ?object }}
+            ?equivalentConceptScheme ?fwdpredicate ?object .
+            ?subject (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?subject a skos:ConceptScheme .
+            FILTER NOT EXISTS {{ <{vocab_url}> ?fwdpredicate ?object }}
+            #FILTER STRSTARTS(STR(?fwdpredicate), STR(skos:))
+        }}
+        UNION
+        {{
+            <{vocab_url}> a skos:ConceptScheme .
+            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?equivalentConceptScheme a skos:ConceptScheme .
+            ?subject ?revpredicate ?equivalentConceptScheme .
+            ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?object a skos:ConceptScheme .
+            FILTER (?subject != <http://registry.it.csiro.au/def/isotc211/CI_DateTypeCode>)
+            FILTER NOT EXISTS {{ ?subject ?revpredicate <{vocab_url}> }}
+            #FILTER STRSTARTS(STR(?revpredicate), STR(skos:))
         }}
     }}
 }}
