@@ -469,27 +469,28 @@ WHERE {?s ?p ?o .}'''
         logger.info('SKOSification of RDF files completed')
         
     
-    def submit_sparql_query(self, sparql_query, triple_store_name=None, accept_format='json'):
+    def submit_sparql_query(self, sparql_query, triple_store_name=None, accept_format='application/json'):
         '''
         Function to submit a sparql query and return the textual response
         '''
         # Default to any triple store if none specified
         triple_store_settings = self.settings['triple_stores'].get(triple_store_name) or list(self.settings['triple_stores'].values())[0]
-        
+                
         url = triple_store_settings['url']
-        if 'insert {' in sparql_query.lower() or 'update {' in sparql_query.lower():
-            logger.debug('Updating URL for insert or update query')
-            url += '/update'
-        
-        logger.debug('Querying triple-store at {}'.format(url))
-        
-        #logger.debug('sparql_query = {}'.format(sparql_query))
-        accept_format = {'json': 'application/json',
-                         'xml': 'application/xml'}.get(accept_format) or 'application/json'
         headers = {'Accept': accept_format,
                    'Content-Type': 'application/sparql-query',
                    'Accept-Encoding': 'UTF-8'
                    }
+
+        is_update = 'insert {' in sparql_query.lower() or 'update {' in sparql_query.lower()
+        if is_update:
+            logger.debug('Updating URL for insert or update query')
+            url += '/update'
+            headers['Content-Type'] = 'application/sparql-update'
+        
+        #logger.debug('sparql_query = {}'.format(sparql_query))
+        accept_format = {'json': 'application/json',
+                         'xml': 'application/xml'}.get(accept_format) or 'application/json'
         username = triple_store_settings.get('username')
         password = triple_store_settings.get('password')
             
@@ -498,6 +499,8 @@ WHERE {?s ?p ?o .}'''
             headers['Authorization'] = 'Basic ' + base64.encodebytes('{}:{}'.format(username, password).encode('utf-8')).strip().decode('utf-8')
             
         params = None
+        
+        logger.debug('Querying triple-store at {}'.format(url))
         
         retries = 0
         while retries <= MAX_RETRIES:
@@ -508,7 +511,7 @@ WHERE {?s ?p ?o .}'''
                                        data=sparql_query, 
                                        timeout=self.settings['timeout'])
                 #logger.debug('Response content: {}'.format(str(response.content)))
-                assert response.status_code == 200, 'Response status code {} != 200'.format(response.status_code)
+                assert response.status_code in [200, 204], 'Response status code {} != 200 or 204'.format(response.status_code)
                 return response.text
             except Exception as e:
                 logger.warning('SPARQL query failed: {}'.format(e))
@@ -527,10 +530,10 @@ WHERE {
     }
 }
 '''
+        response_text = self.submit_sparql_query(sparql_query, triple_store_name)
+        print(response_text)
         return [bindings_dict['graph']['value']
-                for bindings_dict in json.loads(self.submit_sparql_query(sparql_query,
-                                                                         triple_store_name
-                                                                         )
+                for bindings_dict in json.loads(response_text
                                                 )["results"]["bindings"]
                 ]
             
@@ -806,43 +809,46 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
         Function to resolve ConceptScheme indirection by copying predicates and objects from ldv:currentVersion and/or owl:sameAs ConceptSchemes
         '''
         for graph_name in self.get_graph_names(triple_store_name=triple_store_name):
-            sparql_query = '''REFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+            #TODO: REMOVE THIS HACK!
+            if not graph_name.startswith('http://registry.it.csiro.au/def/isotc211/'):
+                continue
+            
+            sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX ldv: <http://purl.org/linked-data/version#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 #SELECT DISTINCT ?predicate ?object
 INSERT {{ 
-    GRAPH {vocab_url} {{ {vocab_url} ?predicate ?object }} 
+    GRAPH <{vocab_url}> {{ <{vocab_url}> ?predicate ?object }} 
 }}
 WHERE {{
     {{ GRAPH ?graph {{
         {{
-            {vocab_url} a skos:ConceptScheme .
-            {vocab_url} (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            <{vocab_url}> a skos:ConceptScheme .
+            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
             ?equivalentConceptScheme ?predicate ?object
-            FILTER NOT EXISTS {{ {vocab_url} ?predicate ?object }}
+            FILTER NOT EXISTS {{ <{vocab_url}> ?predicate ?object }}
         }}
     }} }}
     UNION
     {{
         {{
-            {vocab_url} a skos:ConceptScheme .
-            {vocab_url} (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            <{vocab_url}> a skos:ConceptScheme .
+            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
             ?equivalentConceptScheme ?predicate ?object
-            FILTER NOT EXISTS {{ {vocab_url} ?predicate ?object }}
+            FILTER NOT EXISTS {{ <{vocab_url}> ?predicate ?object }}
         }}
     }}
 }}
 '''.format(vocab_url=graph_name)
 
-            response = self.submit_sparql_query(sparql_query, triple_store_name)
+            print(sparql_query)
+            self.submit_sparql_query(sparql_query, triple_store_name)
             
-            print(json.loads(response))
-            
-            return
+        return
         
                 
     @property
