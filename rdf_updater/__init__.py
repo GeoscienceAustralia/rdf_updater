@@ -487,6 +487,9 @@ WHERE {?s ?p ?o .}'''
             logger.debug('Updating URL for insert or update query')
             url += '/update'
             headers['Content-Type'] = 'application/sparql-update'
+            logger.debug('Updating triple-store at {}'.format(url))
+        else:
+            logger.debug('Querying triple-store at {}'.format(url))
         
         #logger.debug('sparql_query = {}'.format(sparql_query))
         accept_format = {'json': 'application/json',
@@ -499,9 +502,7 @@ WHERE {?s ?p ?o .}'''
             headers['Authorization'] = 'Basic ' + base64.encodebytes('{}:{}'.format(username, password).encode('utf-8')).strip().decode('utf-8')
             
         params = None
-        
-        logger.debug('Querying triple-store at {}'.format(url))
-        
+                
         retries = 0
         while retries <= MAX_RETRIES:
             try:
