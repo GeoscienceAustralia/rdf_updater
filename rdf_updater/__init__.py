@@ -829,23 +829,35 @@ WHERE {{
             <{vocab_url}> a skos:ConceptScheme .
             <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
-            ?equivalentConceptScheme ?fwdpredicate ?object .
+            ?equivalentConceptScheme ?predicate ?object .
             ?subject (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?subject a skos:ConceptScheme .
-            FILTER NOT EXISTS {{ <{vocab_url}> ?fwdpredicate ?object }}
-            #FILTER STRSTARTS(STR(?fwdpredicate), STR(skos:))
+            FILTER NOT EXISTS {{ <{vocab_url}> ?predicate ?object }}
+            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
         }}
         UNION
         {{
             <{vocab_url}> a skos:ConceptScheme .
             <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
-            ?subject ?revpredicate ?equivalentConceptScheme .
+            ?subject ?predicate ?equivalentConceptScheme .
             ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?object a skos:ConceptScheme .
-            FILTER (?subject != <http://registry.it.csiro.au/def/isotc211/CI_DateTypeCode>)
-            FILTER NOT EXISTS {{ ?subject ?revpredicate <{vocab_url}> }}
-            #FILTER STRSTARTS(STR(?revpredicate), STR(skos:))
+            FILTER (?subject != <{vocab_url}>)
+            FILTER NOT EXISTS {{ ?subject ?predicate <{vocab_url}> }}
+            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
+        }}
+        UNION
+        {{ # Concept as subject
+            <{vocab_url}> a skos:ConceptScheme .
+            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?equivalentConceptScheme a skos:ConceptScheme .
+            ?subject skos:inScheme ?equivalentConceptScheme .
+            ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?object a skos:ConceptScheme .
+            ?subject ?predicate ?equivalentConceptScheme .
+            FILTER NOT EXISTS {{ ?subject ?predicate <{vocab_url}> }}
+            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
         }}
     }} }}
     UNION
@@ -854,23 +866,35 @@ WHERE {{
             <{vocab_url}> a skos:ConceptScheme .
             <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
-            ?equivalentConceptScheme ?fwdpredicate ?object .
+            ?equivalentConceptScheme ?predicate ?object .
             ?subject (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?subject a skos:ConceptScheme .
-            FILTER NOT EXISTS {{ <{vocab_url}> ?fwdpredicate ?object }}
-            #FILTER STRSTARTS(STR(?fwdpredicate), STR(skos:))
+            FILTER NOT EXISTS {{ <{vocab_url}> ?predicate ?object }}
+            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
         }}
         UNION
         {{
             <{vocab_url}> a skos:ConceptScheme .
             <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
-            ?subject ?revpredicate ?equivalentConceptScheme .
+            ?subject ?predicate ?equivalentConceptScheme .
             ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?object a skos:ConceptScheme .
-            FILTER (?subject != <http://registry.it.csiro.au/def/isotc211/CI_DateTypeCode>)
-            FILTER NOT EXISTS {{ ?subject ?revpredicate <{vocab_url}> }}
-            #FILTER STRSTARTS(STR(?revpredicate), STR(skos:))
+            FILTER (?subject != <{vocab_url}>)
+            FILTER NOT EXISTS {{ ?subject ?predicate <{vocab_url}> }}
+            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
+        }}
+        UNION
+        {{ # Concept as subject
+            <{vocab_url}> a skos:ConceptScheme .
+            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?equivalentConceptScheme a skos:ConceptScheme .
+            ?subject skos:inScheme ?equivalentConceptScheme .
+            ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?object a skos:ConceptScheme .
+            ?subject ?predicate ?equivalentConceptScheme .
+            FILTER NOT EXISTS {{ ?subject ?predicate <{vocab_url}> }}
+            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
         }}
     }}
 }}
