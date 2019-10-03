@@ -1903,6 +1903,9 @@ regex_replacements:
   - '
 
     '
+    
+fix_indirection_uri_regex: '^http://registry.it.csiro.au/def/isotc211/.+'
+
 summary_output_path: ../data/summary_output.txt
 timeout: 60
 triple_stores:

@@ -484,7 +484,6 @@ WHERE {?s ?p ?o .}'''
 
         is_update = 'insert {' in sparql_query.lower() or 'update {' in sparql_query.lower()
         if is_update:
-            logger.debug('Updating URL for insert or update query')
             url += '/update'
             headers['Content-Type'] = 'application/sparql-update'
             logger.debug('Updating triple-store at {}'.format(url))
@@ -532,7 +531,7 @@ WHERE {
 }
 '''
         response_text = self.submit_sparql_query(sparql_query, triple_store_name)
-        print(response_text)
+        #print(response_text)
         return [bindings_dict['graph']['value']
                 for bindings_dict in json.loads(response_text
                                                 )["results"]["bindings"]
@@ -808,11 +807,18 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
     def resolve_ConceptScheme_indirection(self, triple_store_name=None):
         '''
         Function to resolve ConceptScheme indirection by copying predicates and objects from ldv:currentVersion and/or owl:sameAs ConceptSchemes
+        Fix will only be performed on URIs matching self.settings['fix_indirection_regex']
         '''
+        # Skip this operation if no URI regex defined
+        if not self.settings.get('fix_indirection_uri_regex'):
+            return 
+    
         for graph_name in self.get_graph_names(triple_store_name=triple_store_name):
-            #TODO: REMOVE THIS HACK!
-            if not graph_name.startswith('http://registry.it.csiro.au/def/isotc211/'):
+            # Only perform this operation on specified vocabs
+            if not re.search(self.settings['fix_indirection_uri_regex'], graph_name):
                 continue
+            
+            logger.debug('Resolving ConceptScheme indirection in vocab {}'.format(graph_name))
             
             sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -820,87 +826,57 @@ PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX ldv: <http://purl.org/linked-data/version#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 INSERT {{ 
-    GRAPH <{vocab_url}> 
+    GRAPH <{vocab_uri}> 
     {{ ?subject ?predicate ?object }}
 }}
 WHERE {{
     {{ GRAPH ?graph {{
         {{
-            <{vocab_url}> a skos:ConceptScheme .
-            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?subject a skos:ConceptScheme .
+            ?subject (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
             ?equivalentConceptScheme ?predicate ?object .
-            ?subject (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
-            ?subject a skos:ConceptScheme .
-            FILTER NOT EXISTS {{ <{vocab_url}> ?predicate ?object }}
-            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
+            FILTER(?subject = <{vocab_uri}>)
+            FILTER (?object != <{vocab_uri}>)
         }}
         UNION
         {{
-            <{vocab_url}> a skos:ConceptScheme .
-            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?object a skos:ConceptScheme .
+            ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
             ?subject ?predicate ?equivalentConceptScheme .
-            ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
-            ?object a skos:ConceptScheme .
-            FILTER (?subject != <{vocab_url}>)
-            FILTER NOT EXISTS {{ ?subject ?predicate <{vocab_url}> }}
-            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
+            FILTER(?object = <{vocab_uri}>)
+            FILTER (?subject != <{vocab_uri}>)
         }}
-        UNION
-        {{ # Concept as subject
-            <{vocab_url}> a skos:ConceptScheme .
-            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
-            ?equivalentConceptScheme a skos:ConceptScheme .
-            ?subject skos:inScheme ?equivalentConceptScheme .
-            ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
-            ?object a skos:ConceptScheme .
-            ?subject ?predicate ?equivalentConceptScheme .
-            FILTER NOT EXISTS {{ ?subject ?predicate <{vocab_url}> }}
-            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
-        }}
+        FILTER NOT EXISTS {{ ?subject ?predicate ?object }}
+        #FILTER STRSTARTS(STR(?predicate), STR(skos:))
     }} }}
     UNION
     {{
         {{
-            <{vocab_url}> a skos:ConceptScheme .
-            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?subject a skos:ConceptScheme .
+            ?subject (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
             ?equivalentConceptScheme ?predicate ?object .
-            ?subject (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
-            ?subject a skos:ConceptScheme .
-            FILTER NOT EXISTS {{ <{vocab_url}> ?predicate ?object }}
-            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
+            FILTER(?subject = <{vocab_uri}>)
+            FILTER (?object != <{vocab_uri}>)
         }}
         UNION
         {{
-            <{vocab_url}> a skos:ConceptScheme .
-            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
+            ?object a skos:ConceptScheme .
+            ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
             ?equivalentConceptScheme a skos:ConceptScheme .
             ?subject ?predicate ?equivalentConceptScheme .
-            ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
-            ?object a skos:ConceptScheme .
-            FILTER (?subject != <{vocab_url}>)
-            FILTER NOT EXISTS {{ ?subject ?predicate <{vocab_url}> }}
-            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
+            FILTER(?object = <{vocab_uri}>)
+            FILTER (?subject != <{vocab_uri}>)
         }}
-        UNION
-        {{ # Concept as subject
-            <{vocab_url}> a skos:ConceptScheme .
-            <{vocab_url}> (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
-            ?equivalentConceptScheme a skos:ConceptScheme .
-            ?subject skos:inScheme ?equivalentConceptScheme .
-            ?object (ldv:currentVersion | owl:sameAs)+ ?equivalentConceptScheme .
-            ?object a skos:ConceptScheme .
-            ?subject ?predicate ?equivalentConceptScheme .
-            FILTER NOT EXISTS {{ ?subject ?predicate <{vocab_url}> }}
-            #FILTER STRSTARTS(STR(?predicate), STR(skos:))
-        }}
+        FILTER NOT EXISTS {{ ?subject ?predicate ?object }}
+        #FILTER STRSTARTS(STR(?predicate), STR(skos:))
     }}
 }}
-'''.format(vocab_url=graph_name)
+'''.format(vocab_uri=graph_name)
 
-            print(sparql_query)
+            #print(sparql_query)
             self.submit_sparql_query(sparql_query, triple_store_name)
             
         return
