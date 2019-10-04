@@ -1896,6 +1896,54 @@ rdf_configs:
     rdf_file_path: ../data/www.w3.org/2006/time.rdf
     rdf_url: http://www.w3.org/2006/time
     source_type: http_get
+  naa_agift:
+    graph_label: Australian Governments Interactive Functions Thesaurus (AGIFT)
+    graph_name: http://data.naa.gov.au/def/agift
+    rdf_file_path: ../data/data.naa.gov.au/agift.rdf
+    rdf_url: http://data.naa.gov.au/def/agift/export/def/agift.rdf
+    source_type: http_get
+  crs-th:
+    format: ttl
+    graph_label: Commonwealth Record Series (CRS) thesaurus of government functions
+    graph_name: http://linked.data.gov.au/def/crs-th
+    rdf_file_path: ../data/linked.data.gov.au/crs-th.ttl
+    rdf_url: https://raw.githubusercontent.com/CSIRO-enviro-informatics/crs-th/master/crs-th.ttl
+    source_type: http_get
+  cofog-a:
+    format: ttl
+    graph_label: Classification of the functions of government - Australia (COFOG-A)
+    graph_name: http://linked.data.gov.au/def/cofog-a
+    rdf_file_path: ../data/linked.data.gov.au/cofog-a.ttl
+    rdf_url: https://raw.githubusercontent.com/CSIRO-enviro-informatics/cofog-a-vocab/master/cofog-a.ttl
+    source_type: http_get
+  cofog:
+    format: ttl
+    graph_label: Classification of the functions of government (COFOG)
+    graph_name: http://linked.data.gov.au/def/cofog
+    rdf_file_path: ../data/linked.data.gov.au/cofog.ttl
+    rdf_url: https://raw.githubusercontent.com/CSIRO-enviro-informatics/cofog-vocab/master/cofog.ttl
+    source_type: http_get
+#   agift_crs-th_linkset:
+#     format: ttl
+#     graph_label: AGIFT CRS Thesaurus Linkset
+#     graph_name: http://linked.data.gov.au/dataset/agiftcrsth
+#     rdf_file_path: ../data/linksets/agiftcrsth.ttl
+#     rdf_url: https://raw.githubusercontent.com/CSIRO-enviro-informatics/agiftcrsth-linkset/master/agiftcrsth.ttl
+#     source_type: http_get
+#   agiftcofoga_linkset:
+#     format: ttl
+#     graph_label: AGIFT / COFOG-A Linkset
+#     graph_name: http://linked.data.gov.au/dataset/agiftcofoga
+#     rdf_file_path: ../data/linksets/agiftcofoga.ttl
+#     rdf_url: https://raw.githubusercontent.com/CSIRO-enviro-informatics/agiftcofoga-linkset/master/agiftcofoga.ttl
+#     source_type: http_get
+#   cofogcofoga_linkset:
+#     format: ttl
+#     graph_label: COFOG / COFOG-A Linkset
+#     graph_name: http://linked.data.gov.au/dataset/cofogcofoga
+#     rdf_file_path: ../data/linksets/cofogcofoga.ttl
+#     rdf_url: https://raw.githubusercontent.com/CSIRO-enviro-informatics/cofogcofoga-linkset/master/cofogcofoga.ttl
+#     source_type: http_get
 regex_replacements:
 - - ^(\<\?xml version="1.0")\s*(\?\>.*)
   - \1 encoding="UTF-8"\2

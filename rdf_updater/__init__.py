@@ -71,6 +71,7 @@ class RDFUpdater(object):
         
     def get_rdfs(self):
         def get_rdf(rdf_config):
+            print(rdf_config)
             if rdf_config['source_type'] == 'sparql':
                 url = rdf_config['sparql_endpoint']
                 http_method = requests.post
@@ -82,22 +83,30 @@ class RDFUpdater(object):
                 data = '''CONSTRUCT {?s ?p ?o}
 WHERE {?s ?p ?o .}'''
             elif rdf_config['source_type'] == 'http_get':
+                rdf_url = rdf_config.get('rdf_url')
                 url = rdf_config['graph_name']
                 http_method = requests.get
+                headers = None
+                params = None
                 if rdf_config.get('format') == 'ttl':
-                    url += '/' # SISSVoc needs to have a trailing slash
-                    headers = None
-                    params = {'_format': 'text/turtle'}
+                    if rdf_url and 'github' in rdf_url: # File is to be retrieved from GitHub
+                        url = rdf_url
+                        headers = {'Accept': '*/*',
+                                   'Accept-Encoding': 'UTF-8'
+                                   }
+                    else: # Assume SISSVoc source
+                        url += '/' # SISSVoc needs to have a trailing slash
+                        params = {'_format': 'text/turtle'}
+                        headers = {'Accept': 'application/text',
+                                   'Accept-Encoding': 'UTF-8'
+                                   }
                 elif rdf_config.get('format') == 'nq':
-                    if rdf_config.get('rdf_url'):
-                        url = rdf_config.get('rdf_url')
-                    headers = None
-                    params = None
+                    if rdf_url:
+                        url = rdf_url
                 else:
                     headers = {'Accept': 'application/text',
                                'Accept-Encoding': 'UTF-8'
                                }
-                    params = None
 
                     if rdf_config.get('rdf_url'):
                         url = rdf_config.get('rdf_url')
@@ -152,7 +161,7 @@ WHERE {?s ?p ?o .}'''
         '''
         def put_rdf(rdf_config, rdf, triple_store_settings):
             url = triple_store_settings['url'] + '/data'
-            if rdf_config.get('format') == 'ttl': 
+            if not skosified and rdf_config.get('format') == 'ttl': 
                 headers = {'Content-Type': 'text/turtle'}
             else:
                 headers = {'Content-Type': 'application/rdf+xml'}
@@ -400,6 +409,8 @@ WHERE {?s ?p ?o .}'''
             
             if os.path.splitext(rdf_file_path)[-1] == '.nq':
                 rdf_format='nquads'
+            elif os.path.splitext(rdf_file_path)[-1] == '.ttl':
+                rdf_format='ttl'
             else:
                 rdf_format='xml'
             
