@@ -71,7 +71,7 @@ class RDFUpdater(object):
         
     def get_rdfs(self):
         def get_rdf(rdf_config):
-            print(rdf_config)
+            #print(rdf_config)
             if rdf_config['source_type'] == 'sparql':
                 url = rdf_config['sparql_endpoint']
                 http_method = requests.post
@@ -888,6 +888,116 @@ WHERE {{
 '''.format(vocab_uri=graph_name)
 
             #print(sparql_query)
+            self.submit_sparql_query(sparql_query, triple_store_name)
+            
+        return
+        
+                
+    def flatten_linksets(self, triple_store_name=None):
+        '''
+        Function to flatten linksets
+        Fix will only be performed on URIs matching self.settings['flatten_linkset_uri_regex']
+        '''
+        # Skip this operation if no URI regex defined
+        if not self.settings.get('flatten_linkset_uri_regex'):
+            return 
+    
+        for graph_name in self.get_graph_names(triple_store_name=triple_store_name):
+            # Only perform this operation on specified vocabs
+            if not re.search(self.settings['flatten_linkset_uri_regex'], graph_name):
+                continue
+            
+            logger.debug('Flattening linkset {}'.format(graph_name))
+            
+            sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX ldv: <http://purl.org/linked-data/version#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX rdfsn: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+INSERT {{ 
+    GRAPH <{linkset_graph}>
+    {{ ?subject ?predicate ?object }}
+    }}
+WHERE {{
+    {{ GRAPH <{linkset_graph}> {{
+        {{ 
+        ?statement a rdfsn:Statement .
+        ?statement rdfsn:subject ?subject .
+        ?statement rdfsn:predicate ?predicate .
+        ?statement rdfsn:object ?object .
+        {{ GRAPH ?conceptGraph {{?object a skos:Concept .}}}}
+        }}
+        UNION # Commutative predicates skos:exactMatch or skos:closeMatch
+        {{ ?statement a rdfsn:Statement .
+        ?statement rdfsn:subject ?object .
+        ?statement rdfsn:predicate ?predicate .
+        ?statement rdfsn:object ?subject .
+        {{ GRAPH ?conceptGraph {{?subject a skos:Concept .}}}}
+        FILTER((?predicate = skos:exactMatch) || (?predicate = skos:closeMatch))
+        }}
+        UNION
+        {{ ?statement a rdfsn:Statement .
+        ?statement rdfsn:subject ?object .
+        ?statement rdfsn:predicate ?broadMatch .
+        BIND(skos:narrowMatch AS ?predicate)
+        ?statement rdfsn:object ?subject .
+        {{ GRAPH ?conceptGraph {{?subject a skos:Concept .}}}}
+        FILTER(?broadMatch = skos:broadMatch)
+        }}
+        UNION
+        {{
+        ?statement a rdfsn:Statement .
+        ?statement rdfsn:subject ?object .
+        ?statement rdfsn:predicate ?narrowMatch .
+        BIND(skos:broadMatch AS ?predicate)
+        ?statement rdfsn:object ?subject .
+        {{ GRAPH ?conceptGraph {{?subject a skos:Concept .}}}}
+        FILTER(?narrowMatch = skos:narrowMatch)
+        }} 
+    }} }}
+    UNION
+    {{
+        {{ 
+        ?statement a rdfsn:Statement .
+        ?statement rdfsn:subject ?subject .
+        ?statement rdfsn:predicate ?predicate .
+        ?statement rdfsn:object ?object .
+        ?object a skos:Concept .
+        }}
+        UNION # Commutative predicates skos:exactMatch or skos:closeMatch
+        {{ ?statement a rdfsn:Statement .
+        ?statement rdfsn:subject ?object .
+        ?statement rdfsn:predicate ?predicate .
+        ?statement rdfsn:object ?subject .
+        ?subject a skos:Concept .
+        FILTER((?predicate = skos:exactMatch) || (?predicate = skos:closeMatch))
+        }}
+        UNION
+        {{ ?statement a rdfsn:Statement .
+        ?statement rdfsn:subject ?object .
+        ?statement rdfsn:predicate ?broadMatch .
+        BIND(skos:narrowMatch AS ?predicate)
+        ?statement rdfsn:object ?subject .
+        ?subject a skos:Concept .
+        FILTER(?broadMatch = skos:broadMatch)
+        }}
+        UNION
+        {{
+        ?statement a rdfsn:Statement .
+        ?statement rdfsn:subject ?object .
+        ?statement rdfsn:predicate ?narrowMatch .
+        BIND(skos:broadMatch AS ?predicate)
+        ?statement rdfsn:object ?subject .
+        ?subject a skos:Concept .
+        FILTER(?narrowMatch = skos:narrowMatch)
+        }}
+    }}
+    FILTER NOT EXISTS {{ ?subject ?predicate ?object }}
+}}
+'''.format(linkset_graph=graph_name)
+
+            print(sparql_query)
             self.submit_sparql_query(sparql_query, triple_store_name)
             
         return

@@ -1923,6 +1923,13 @@ rdf_configs:
     rdf_file_path: ../data/linked.data.gov.au/cofog.ttl
     rdf_url: https://raw.githubusercontent.com/CSIRO-enviro-informatics/cofog-vocab/master/cofog.ttl
     source_type: http_get
+  lgpc:
+    format: ttl
+    graph_label: Local Government Purpose Classification (LGPC)
+    graph_name: http://linked.data.gov.au/def/lgpc
+    rdf_file_path: ../data/linked.data.gov.au/lgpc.ttl
+    rdf_url: https://raw.githubusercontent.com/CSIRO-enviro-informatics/lgpc-vocab/master/lgpc.ttl
+    source_type: http_get
 #   agift_crs-th_linkset:
 #     format: ttl
 #     graph_label: AGIFT CRS Thesaurus Linkset
@@ -1944,6 +1951,13 @@ rdf_configs:
 #     rdf_file_path: ../data/linksets/cofogcofoga.ttl
 #     rdf_url: https://raw.githubusercontent.com/CSIRO-enviro-informatics/cofogcofoga-linkset/master/cofogcofoga.ttl
 #     source_type: http_get
+#   lgpccofog_linkset:
+#     format: ttl
+#     graph_label: LGPC / COFOG Linkset
+#     graph_name: http://linked.data.gov.au/dataset/lgpccofog
+#     rdf_file_path: ../data/linksets/lgpccofog.ttl
+#     rdf_url: https://raw.githubusercontent.com/CSIRO-enviro-informatics/lgpccofog-linkset/master/lgpccofog.ttl
+#     source_type: http_get
 regex_replacements:
 - - ^(\<\?xml version="1.0")\s*(\?\>.*)
   - \1 encoding="UTF-8"\2
@@ -1953,6 +1967,8 @@ regex_replacements:
     '
     
 fix_indirection_uri_regex: '^http://registry.it.csiro.au/def/isotc211/.+'
+
+flatten_linkset_uri_regex: 'http://linked.data.gov.au/dataset/(agiftcrsth|agiftcofoga|cofogcofoga|lgpccofog)'
 
 summary_output_path: ../data/summary_output.txt
 timeout: 60
