@@ -997,7 +997,7 @@ WHERE {{
 }}
 '''.format(linkset_graph=graph_name)
 
-            print(sparql_query)
+            #print(sparql_query)
             self.submit_sparql_query(sparql_query, triple_store_name)
             
         return
