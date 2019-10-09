@@ -915,8 +915,7 @@ PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX ldv: <http://purl.org/linked-data/version#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
 PREFIX rdfsn: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-INSERT {{ 
-    GRAPH <{linkset_graph}>
+INSERT {{ GRAPH <{linkset_graph}>
     {{ ?subject ?predicate ?object }}
     }}
 WHERE {{
@@ -926,14 +925,12 @@ WHERE {{
         ?statement rdfsn:subject ?subject .
         ?statement rdfsn:predicate ?predicate .
         ?statement rdfsn:object ?object .
-        {{ GRAPH ?conceptGraph {{?object a skos:Concept .}}}}
         }}
         UNION # Commutative predicates skos:exactMatch or skos:closeMatch
         {{ ?statement a rdfsn:Statement .
         ?statement rdfsn:subject ?object .
         ?statement rdfsn:predicate ?predicate .
         ?statement rdfsn:object ?subject .
-        {{ GRAPH ?conceptGraph {{?subject a skos:Concept .}}}}
         FILTER((?predicate = skos:exactMatch) || (?predicate = skos:closeMatch))
         }}
         UNION
@@ -942,7 +939,6 @@ WHERE {{
         ?statement rdfsn:predicate ?broadMatch .
         BIND(skos:narrowMatch AS ?predicate)
         ?statement rdfsn:object ?subject .
-        {{ GRAPH ?conceptGraph {{?subject a skos:Concept .}}}}
         FILTER(?broadMatch = skos:broadMatch)
         }}
         UNION
@@ -952,10 +948,11 @@ WHERE {{
         ?statement rdfsn:predicate ?narrowMatch .
         BIND(skos:broadMatch AS ?predicate)
         ?statement rdfsn:object ?subject .
-        {{ GRAPH ?conceptGraph {{?subject a skos:Concept .}}}}
         FILTER(?narrowMatch = skos:narrowMatch)
         }} 
-    }} }}
+    }} 
+    FILTER NOT EXISTS {{ ?subject ?predicate ?object }}
+    }}
     UNION
     {{
         {{ 
@@ -963,14 +960,12 @@ WHERE {{
         ?statement rdfsn:subject ?subject .
         ?statement rdfsn:predicate ?predicate .
         ?statement rdfsn:object ?object .
-        ?object a skos:Concept .
         }}
         UNION # Commutative predicates skos:exactMatch or skos:closeMatch
         {{ ?statement a rdfsn:Statement .
         ?statement rdfsn:subject ?object .
         ?statement rdfsn:predicate ?predicate .
         ?statement rdfsn:object ?subject .
-        ?subject a skos:Concept .
         FILTER((?predicate = skos:exactMatch) || (?predicate = skos:closeMatch))
         }}
         UNION
@@ -979,7 +974,6 @@ WHERE {{
         ?statement rdfsn:predicate ?broadMatch .
         BIND(skos:narrowMatch AS ?predicate)
         ?statement rdfsn:object ?subject .
-        ?subject a skos:Concept .
         FILTER(?broadMatch = skos:broadMatch)
         }}
         UNION
@@ -989,7 +983,6 @@ WHERE {{
         ?statement rdfsn:predicate ?narrowMatch .
         BIND(skos:broadMatch AS ?predicate)
         ?statement rdfsn:object ?subject .
-        ?subject a skos:Concept .
         FILTER(?narrowMatch = skos:narrowMatch)
         }}
     }}
@@ -997,7 +990,7 @@ WHERE {{
 }}
 '''.format(linkset_graph=graph_name)
 
-            #print(sparql_query)
+            print(sparql_query)
             self.submit_sparql_query(sparql_query, triple_store_name)
             
         return
