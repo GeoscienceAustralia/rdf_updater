@@ -493,7 +493,7 @@ WHERE {?s ?p ?o .}'''
                    'Accept-Encoding': 'UTF-8'
                    }
 
-        is_update = 'insert {' in sparql_query.lower() or 'update {' in sparql_query.lower()
+        is_update = 'insert {' in sparql_query.lower() or 'update {' in sparql_query.lower() or 'delete {' in sparql_query.lower()
         if is_update:
             url += '/update'
             headers['Content-Type'] = 'application/sparql-update'
@@ -953,40 +953,24 @@ WHERE {{
     }} 
     FILTER NOT EXISTS {{ ?subject ?predicate ?object }}
     }}
-    UNION
-    {{
-        {{ 
-        ?statement a rdfsn:Statement .
-        ?statement rdfsn:subject ?subject .
-        ?statement rdfsn:predicate ?predicate .
-        ?statement rdfsn:object ?object .
-        }}
-        UNION # Commutative predicates skos:exactMatch or skos:closeMatch
-        {{ ?statement a rdfsn:Statement .
-        ?statement rdfsn:subject ?object .
-        ?statement rdfsn:predicate ?predicate .
-        ?statement rdfsn:object ?subject .
-        FILTER((?predicate = skos:exactMatch) || (?predicate = skos:closeMatch))
-        }}
-        UNION
-        {{ ?statement a rdfsn:Statement .
-        ?statement rdfsn:subject ?object .
-        ?statement rdfsn:predicate ?broadMatch .
-        BIND(skos:narrowMatch AS ?predicate)
-        ?statement rdfsn:object ?subject .
-        FILTER(?broadMatch = skos:broadMatch)
-        }}
-        UNION
-        {{
-        ?statement a rdfsn:Statement .
-        ?statement rdfsn:subject ?object .
-        ?statement rdfsn:predicate ?narrowMatch .
-        BIND(skos:broadMatch AS ?predicate)
-        ?statement rdfsn:object ?subject .
-        FILTER(?narrowMatch = skos:narrowMatch)
-        }}
-    }}
-    FILTER NOT EXISTS {{ ?subject ?predicate ?object }}
+}}
+'''.format(linkset_graph=graph_name)
+
+            print(sparql_query)
+            self.submit_sparql_query(sparql_query, triple_store_name)
+            
+            logger.debug('Purging bad SKOS matches from linkset {}'.format(graph_name))
+            
+            sparql_query = '''PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+DELETE {{ GRAPH <{linkset_graph}> 
+    {{ ?s ?p ?o }}
+}} 
+WHERE {{GRAPH <{linkset_graph}>
+    {{?s ?p ?o .}}
+    FILTER (STRSTARTS(STR(?p), STR(skos:)))
+    FILTER (STRSTARTS(STR(?s), '{linkset_graph}/statement/') ||
+        STRSTARTS(STR(?o), '{linkset_graph}/statement/')
+        )
 }}
 '''.format(linkset_graph=graph_name)
 
