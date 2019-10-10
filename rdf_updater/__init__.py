@@ -184,7 +184,7 @@ WHERE {?s ?p ?o .}'''
         for triple_store_name, triple_store_settings in self.settings['triple_stores'].items():
             logger.info('Writing RDFs to triple-store {} from files'.format(triple_store_name))           
             for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
-                if skosified:
+                if skosified and (rdf_config.get('skos') is None or rdf_config['skos']):
                     rdf_file_path = os.path.splitext(rdf_config['rdf_file_path'])[0] + '_skos.rdf' # SKOSified RDF
                 else:
                     rdf_file_path = rdf_config['rdf_file_path'] # Original RDF
@@ -393,6 +393,10 @@ WHERE {?s ?p ?o .}'''
         '''
         def skosify_rdf(rdf_config, root_logger):
             rdf_file_path = rdf_config['rdf_file_path']
+            if rdf_config.get('skos') is not None and not rdf_config['skos']:
+                logger.debug('Skipping skosification of non-SKOS RDF file {}'.format(rdf_file_path))
+                return
+            
             skos_rdf_file_path = os.path.splitext(rdf_file_path)[0] + '_skos.rdf'
             skos_nt_file_path = os.path.splitext(rdf_file_path)[0] + '_skos.nt'
             log_file_name = os.path.splitext(rdf_file_path)[0] + '.log'
@@ -956,7 +960,7 @@ WHERE {{
 }}
 '''.format(linkset_graph=graph_name)
 
-            print(sparql_query)
+            #print(sparql_query)
             self.submit_sparql_query(sparql_query, triple_store_name)
             
 #===============================================================================
@@ -978,7 +982,7 @@ WHERE {{GRAPH <{linkset_graph}>
 }}
 '''.format(linkset_graph=graph_name)
  
-            print(sparql_query)
+            #print(sparql_query)
             self.submit_sparql_query(sparql_query, triple_store_name)
 #===============================================================================
             
