@@ -161,7 +161,7 @@ WHERE {?s ?p ?o .}'''
         '''
         def put_rdf(rdf_config, rdf, triple_store_settings):
             url = triple_store_settings['url'] + '/data'
-            if not skosified and rdf_config.get('format') == 'ttl': 
+            if not (skosified and (rdf_config.get('skos') is None or rdf_config['skos'])) and rdf_config.get('format') == 'ttl': 
                 headers = {'Content-Type': 'text/turtle'}
             else:
                 headers = {'Content-Type': 'application/rdf+xml'}
@@ -913,6 +913,7 @@ WHERE {{
             
             logger.debug('Flattening linkset {}'.format(graph_name))
             
+            # N.B: Update query ensures that both subject and object are known SKOS concepts - ignores non-concepts
             sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dct: <http://purl.org/dc/terms/>
@@ -954,9 +955,10 @@ WHERE {{
         ?statement rdfsn:object ?subject .
         FILTER(?narrowMatch = skos:narrowMatch)
         }} 
-    }} 
-    FILTER NOT EXISTS {{ ?subject ?predicate ?object }}
-    }}
+        FILTER NOT EXISTS {{ ?subject ?predicate ?object }}
+    }} }}
+    {{ GRAPH ?subjectGraph {{ ?subject a skos:Concept . }} }}
+    {{ GRAPH ?objectGraph {{ ?object a skos:Concept . }} }}
 }}
 '''.format(linkset_graph=graph_name)
 
@@ -964,26 +966,28 @@ WHERE {{
             self.submit_sparql_query(sparql_query, triple_store_name)
             
 #===============================================================================
-#TODO: REMOVE THIS SECTION OF CODE WHEN LINKSETS HAVE BEEN FIXED TO REMOVE BAD
-# LINKS TO NONEXISTENT '.../statement/' URIs
-
-            logger.debug('Purging bad SKOS matches from linkset {}'.format(graph_name))
-             
-            sparql_query = '''PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-DELETE {{ GRAPH <{linkset_graph}> 
-    {{ ?s ?p ?o }}
-}} 
-WHERE {{GRAPH <{linkset_graph}>
-    {{?s ?p ?o .}}
-    FILTER (STRSTARTS(STR(?p), STR(skos:)))
-    FILTER (STRSTARTS(STR(?s), '{linkset_graph}/statement/') ||
-        STRSTARTS(STR(?o), '{linkset_graph}/statement/')
-        )
-}}
-'''.format(linkset_graph=graph_name)
- 
-            #print(sparql_query)
-            self.submit_sparql_query(sparql_query, triple_store_name)
+# #===============================================================================
+# #TODO: REMOVE THIS SECTION OF CODE WHEN LINKSETS HAVE BEEN FIXED TO REMOVE BAD
+# # LINKS TO NONEXISTENT '.../statement/' URIs
+# 
+#             logger.debug('Purging bad SKOS matches from linkset {}'.format(graph_name))
+#              
+#             sparql_query = '''PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+# DELETE {{ GRAPH <{linkset_graph}> 
+#     {{ ?s ?p ?o }}
+# }} 
+# WHERE {{GRAPH <{linkset_graph}>
+#     {{?s ?p ?o .}}
+#     FILTER (STRSTARTS(STR(?p), STR(skos:)))
+#     FILTER (STRSTARTS(STR(?s), '{linkset_graph}/statement/') ||
+#         STRSTARTS(STR(?o), '{linkset_graph}/statement/')
+#         )
+# }}
+# '''.format(linkset_graph=graph_name)
+#  
+#             #print(sparql_query)
+#             self.submit_sparql_query(sparql_query, triple_store_name)
+# #===============================================================================
 #===============================================================================
             
         return
