@@ -104,7 +104,7 @@ WHERE {?s ?p ?o .}'''
                     if rdf_url:
                         url = rdf_url
                 else:
-                    headers = {'Accept': 'application/text',
+                    headers = {'Accept': 'application/text,application/rdf+xml',
                                'Accept-Encoding': 'UTF-8'
                                }
 
