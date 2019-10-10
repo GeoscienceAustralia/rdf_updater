@@ -160,6 +160,9 @@ WHERE {?s ?p ?o .}'''
         Function to write all RDFs to all triple-stores
         '''
         def put_rdf(rdf_config, rdf, triple_store_settings):
+            '''
+            Helper function to write RDF to triple store as per specified rdf_config settings
+            '''
             url = triple_store_settings['url'] + '/data'
             if not (skosified and (rdf_config.get('skos') is None or rdf_config['skos'])) and rdf_config.get('format') == 'ttl': 
                 headers = {'Content-Type': 'text/turtle'}
@@ -181,6 +184,13 @@ WHERE {?s ?p ?o .}'''
             assert response.status_code == 200 or response.status_code == 201, 'Response status code {}  != 200 or 201: {}'.format(response.status_code, response.content)
             return(response.content)
                 
+        def drop_graph(graph_name):
+            '''
+            Helper function to drop specified graph (possibly redundant ahead of data upload)
+            '''
+            sparql_query = 'DROP GRAPH <{}>'.format(graph_name)
+            self.submit_sparql_query(sparql_query)
+        
         for triple_store_name, triple_store_settings in self.settings['triple_stores'].items():
             logger.info('Writing RDFs to triple-store {} from files'.format(triple_store_name))           
             for _rdf_name, rdf_config in self.settings['rdf_configs'].items():
@@ -189,15 +199,20 @@ WHERE {?s ?p ?o .}'''
                 else:
                     rdf_file_path = rdf_config['rdf_file_path'] # Original RDF
                     
-                logger.info('Writing RDF from file {} to triple-store {}'.format(rdf_file_path, triple_store_settings['url']))
                 try:
+                    assert os.path.isfile(rdf_file_path), 'RDF file {} does not exist'.format(rdf_file_path)  
+                     
+                    logger.info('Dropping graph {} from triple-store {}'.format(rdf_config['graph_name'], triple_store_settings['url']))                    
+                    drop_graph(rdf_config['graph_name'])
+                    
+                    logger.info('Writing RDF from file {} to triple-store {}'.format(rdf_file_path, triple_store_settings['url']))
                     with open(rdf_file_path, 'r', encoding='utf-8') as rdf_file:
                         rdf = rdf_file.read()
                     #logger.debug('rdf = {}'.format(rdf))
                     result = json.loads(put_rdf(rdf_config, rdf, triple_store_settings))
                     #logger.debug('result = {}'.format(result))
-                    logger.info('{} triples (re)written to graph {}'.format(result['tripleCount'],
-                                                                            rdf_config['graph_name']))
+                    logger.info('{} triples written to graph {}'.format(result['tripleCount'],
+                                                                        rdf_config['graph_name']))
                 except Exception as e:
                     logger.error('ERROR: RDF put from file to triple-store failed: {}'.format(e))
                     
@@ -497,7 +512,7 @@ WHERE {?s ?p ?o .}'''
                    'Accept-Encoding': 'UTF-8'
                    }
 
-        is_update = 'insert {' in sparql_query.lower() or 'update {' in sparql_query.lower() or 'delete {' in sparql_query.lower()
+        is_update = re.search('(\n|^)\s*(((insert|update|delete)\s+{)|((drop|clear)\s+))', sparql_query.lower()) is not None
         if is_update:
             url += '/update'
             headers['Content-Type'] = 'application/sparql-update'
@@ -833,7 +848,7 @@ OFFSET {}'''.format(SPARQL_QUERY_LIMIT, query_offset)
             if not re.search(self.settings['fix_indirection_uri_regex'], graph_name):
                 continue
             
-            logger.debug('Resolving ConceptScheme indirection in vocab {}'.format(graph_name))
+            logger.info('Resolving ConceptScheme indirection in vocab {}'.format(graph_name))
             
             sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -897,21 +912,21 @@ WHERE {{
         return
         
                 
-    def flatten_linksets(self, triple_store_name=None):
+    def unpack_linksets(self, triple_store_name=None):
         '''
-        Function to flatten linksets
-        Fix will only be performed on URIs matching self.settings['flatten_linkset_uri_regex']
+        Function to unpack linksets
+        Fix will only be performed on URIs matching self.settings['unpack_linkset_uri_regex']
         '''
         # Skip this operation if no URI regex defined
-        if not self.settings.get('flatten_linkset_uri_regex'):
+        if not self.settings.get('unpack_linkset_uri_regex'):
             return 
     
         for graph_name in self.get_graph_names(triple_store_name=triple_store_name):
             # Only perform this operation on specified vocabs
-            if not re.search(self.settings['flatten_linkset_uri_regex'], graph_name):
+            if not re.search(self.settings['unpack_linkset_uri_regex'], graph_name):
                 continue
             
-            logger.debug('Flattening linkset {}'.format(graph_name))
+            logger.info('Unpacking linkset {}'.format(graph_name))
             
             # N.B: Update query ensures that both subject and object are known SKOS concepts - ignores non-concepts
             sparql_query = '''PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>

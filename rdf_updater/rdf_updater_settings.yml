@@ -1999,7 +1999,7 @@ regex_replacements:
     
 fix_indirection_uri_regex: '^http://registry.it.csiro.au/def/isotc211/.+'
 
-flatten_linkset_uri_regex: 'http://linked.data.gov.au/dataset/(agiftcrsth|agiftcofoga|cofogcofoga|lgpccofog)'
+unpack_linkset_uri_regex: 'http://linked.data.gov.au/dataset/(agiftcrsth|agiftcofoga|cofogcofoga|lgpccofog)'
 
 summary_output_path: ../data/summary_output.txt
 timeout: 60
