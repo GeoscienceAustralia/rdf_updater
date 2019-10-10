@@ -47,7 +47,7 @@ def main():
     
     rdf_updater.resolve_ConceptScheme_indirection()
     
-    rdf_updater.flatten_linksets()
+    rdf_updater.unpack_linksets()
 
     #rdf_updater.output_summary_text() # Output text summary to file
     
