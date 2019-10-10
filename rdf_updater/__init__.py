@@ -964,32 +964,7 @@ WHERE {{
 
             #print(sparql_query)
             self.submit_sparql_query(sparql_query, triple_store_name)
-            
-#===============================================================================
-# #===============================================================================
-# #TODO: REMOVE THIS SECTION OF CODE WHEN LINKSETS HAVE BEEN FIXED TO REMOVE BAD
-# # LINKS TO NONEXISTENT '.../statement/' URIs
-# 
-#             logger.debug('Purging bad SKOS matches from linkset {}'.format(graph_name))
-#              
-#             sparql_query = '''PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-# DELETE {{ GRAPH <{linkset_graph}> 
-#     {{ ?s ?p ?o }}
-# }} 
-# WHERE {{GRAPH <{linkset_graph}>
-#     {{?s ?p ?o .}}
-#     FILTER (STRSTARTS(STR(?p), STR(skos:)))
-#     FILTER (STRSTARTS(STR(?s), '{linkset_graph}/statement/') ||
-#         STRSTARTS(STR(?o), '{linkset_graph}/statement/')
-#         )
-# }}
-# '''.format(linkset_graph=graph_name)
-#  
-#             #print(sparql_query)
-#             self.submit_sparql_query(sparql_query, triple_store_name)
-# #===============================================================================
-#===============================================================================
-            
+                        
         return
         
                 
