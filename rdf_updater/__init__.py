@@ -931,12 +931,12 @@ WHERE {{
         ?statement rdfsn:predicate ?predicate .
         ?statement rdfsn:object ?object .
         }}
-        UNION # Commutative predicates skos:exactMatch or skos:closeMatch
+        UNION # Symmetric predicates skos:exactMatch, skos:closeMatch or skos:relatedMatch
         {{ ?statement a rdfsn:Statement .
         ?statement rdfsn:subject ?object .
         ?statement rdfsn:predicate ?predicate .
         ?statement rdfsn:object ?subject .
-        FILTER((?predicate = skos:exactMatch) || (?predicate = skos:closeMatch))
+        FILTER((?predicate = skos:exactMatch) || (?predicate = skos:closeMatch) || (?predicate = skos:relatedMatch))
         }}
         UNION
         {{ ?statement a rdfsn:Statement .

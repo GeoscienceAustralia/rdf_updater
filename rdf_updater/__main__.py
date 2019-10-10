@@ -51,6 +51,7 @@ def main():
 
     #rdf_updater.output_summary_text() # Output text summary to file
     
+    print('Finished!')
 
 if __name__ == '__main__':
     # Setup logging handler if required
