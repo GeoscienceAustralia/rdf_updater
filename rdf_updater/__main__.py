@@ -34,9 +34,9 @@ def main():
                              ) 
 
     rdf_updater.get_rdfs() # Read RDFs from sources into files
-     
+      
     print()
-       
+        
     if skosify:
         rdf_updater.skosify_rdfs()
         print()
@@ -46,6 +46,8 @@ def main():
     print()
     
     rdf_updater.resolve_ConceptScheme_indirection()
+    
+    print()
     
     rdf_updater.unpack_linksets()
 

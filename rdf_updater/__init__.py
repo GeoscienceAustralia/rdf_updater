@@ -878,7 +878,7 @@ WHERE {{
             FILTER(?object = <{vocab_uri}>)
             FILTER (?subject != <{vocab_uri}>)
         }}
-        FILTER NOT EXISTS {{ ?subject ?predicate ?object }}
+        FILTER (NOT EXISTS {{ ?subject ?predicate ?object }} && NOT EXISTS {{ ?subject ?predicate ?literalObject FILTER(isLiteral(?literalObject)) }} )
         #FILTER STRSTARTS(STR(?predicate), STR(skos:))
     }} }}
     UNION
@@ -900,7 +900,7 @@ WHERE {{
             FILTER(?object = <{vocab_uri}>)
             FILTER (?subject != <{vocab_uri}>)
         }}
-        FILTER NOT EXISTS {{ ?subject ?predicate ?object }}
+        FILTER (NOT EXISTS {{ ?subject ?predicate ?object }} && NOT EXISTS {{ ?subject ?predicate ?literalObject FILTER(isLiteral(?literalObject)) }} )
         #FILTER STRSTARTS(STR(?predicate), STR(skos:))
     }}
 }}
@@ -934,40 +934,40 @@ PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
 PREFIX dct: <http://purl.org/dc/terms/>
 PREFIX ldv: <http://purl.org/linked-data/version#>
 PREFIX owl: <http://www.w3.org/2002/07/owl#>
-PREFIX rdfsn: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 INSERT {{ GRAPH <{linkset_graph}>
     {{ ?subject ?predicate ?object }}
     }}
 WHERE {{
     {{ GRAPH <{linkset_graph}> {{
         {{ 
-        ?statement a rdfsn:Statement .
-        ?statement rdfsn:subject ?subject .
-        ?statement rdfsn:predicate ?predicate .
-        ?statement rdfsn:object ?object .
+        ?statement a rdf:Statement .
+        ?statement rdf:subject ?subject .
+        ?statement rdf:predicate ?predicate .
+        ?statement rdf:object ?object .
         }}
         UNION # Symmetric predicates skos:exactMatch, skos:closeMatch or skos:relatedMatch
-        {{ ?statement a rdfsn:Statement .
-        ?statement rdfsn:subject ?object .
-        ?statement rdfsn:predicate ?predicate .
-        ?statement rdfsn:object ?subject .
+        {{ ?statement a rdf:Statement .
+        ?statement rdf:subject ?object .
+        ?statement rdf:predicate ?predicate .
+        ?statement rdf:object ?subject .
         FILTER((?predicate = skos:exactMatch) || (?predicate = skos:closeMatch) || (?predicate = skos:relatedMatch))
         }}
         UNION
-        {{ ?statement a rdfsn:Statement .
-        ?statement rdfsn:subject ?object .
-        ?statement rdfsn:predicate ?broadMatch .
+        {{ ?statement a rdf:Statement .
+        ?statement rdf:subject ?object .
+        ?statement rdf:predicate ?broadMatch .
         BIND(skos:narrowMatch AS ?predicate)
-        ?statement rdfsn:object ?subject .
+        ?statement rdf:object ?subject .
         FILTER(?broadMatch = skos:broadMatch)
         }}
         UNION
         {{
-        ?statement a rdfsn:Statement .
-        ?statement rdfsn:subject ?object .
-        ?statement rdfsn:predicate ?narrowMatch .
+        ?statement a rdf:Statement .
+        ?statement rdf:subject ?object .
+        ?statement rdf:predicate ?narrowMatch .
         BIND(skos:broadMatch AS ?predicate)
-        ?statement rdfsn:object ?subject .
+        ?statement rdf:object ?subject .
         FILTER(?narrowMatch = skos:narrowMatch)
         }} 
         FILTER NOT EXISTS {{ ?subject ?predicate ?object }}
