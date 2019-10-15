@@ -225,37 +225,51 @@ WHERE {?s ?p ?o .}'''
         '''
         #TODO: Re-implement this with rdflib if possible
         vocab_tree = etree.fromstring(rdf_xml)
-        
+
         # Find all vocab elements
-        vocab_elements = vocab_tree.findall(path='skos:ConceptScheme', namespaces=vocab_tree.nsmap)
-        if not vocab_elements: #No skos:ConceptSchemes defined - look for resource element parents instead                      
+        vocab_elements = vocab_tree.findall(path='.//rdf:type[@rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"]..', namespaces=vocab_tree.nsmap)
+        vocab_uris = {vocab_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about'): vocab_element for vocab_element in vocab_elements}
+        
+        if not vocab_uris: #No skos:ConceptSchemes defined - look for resource element parents instead                      
+            vocab_elements = vocab_tree.findall(path='.//skos:ConceptScheme', namespaces=vocab_tree.nsmap)
+            vocab_uris = {vocab_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about'): vocab_element for vocab_element in vocab_elements}
+            
+        if not vocab_uris: #No skos:ConceptSchemes defined - look for resource element parents instead                      
+            vocab_elements = vocab_tree.findall(path='.//skos:inScheme', namespaces=vocab_tree.nsmap)
+            vocab_uris = {vocab_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}resource'): None for vocab_element in vocab_elements}
+            
+        if not vocab_uris: #No skos:ConceptSchemes defined - look for resource element parents instead                      
             logger.error('ERROR: RDF has no explicit skos:ConceptScheme elements')
             return
         
-        #logger.debug('vocab_elements = {}'.format(pformat(vocab_elements)))
+        #logger.debug('vocab_uris = {}'.format(pformat(vocab_uris)))
         
-        if len(vocab_elements) == 1:
-            vocab_element = vocab_elements[0]
-            graph_name = vocab_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
+        if len(vocab_uris) == 1:
+            graph_name, vocab_element = list(vocab_uris.items())[0]
         else:
             logger.warning('WARNING: RDF has multiple vocab elements')
             #TODO: Make this work better when there are multiple vocabs in one RDF
             # Find shortest URI for vocab and use that for named graphs
-            # This is a bit nasty, but it works for poorly-defined subcollection schemes
+            # This is a bit nasty, but it works for poorly-defined vocabs
             vocab_element = None
             graph_name = None
-            for search_vocab_element in vocab_elements:
-                search_vocab_uri = search_vocab_element.attrib.get('{' + vocab_tree.nsmap['rdf'] + '}about')
+            for search_vocab_uri, search_vocab_element in vocab_uris.items():
                 if (not graph_name) or len(search_vocab_uri) < len(graph_name):
                     graph_name = search_vocab_uri
                     vocab_element = search_vocab_element
+                    
+        label_element = None
+        if vocab_element is not None:    
+            label_element = vocab_element.find(path = 'rdfs:label', namespaces=vocab_tree.nsmap)
+            if label_element is None:
+                label_element = vocab_element.find(path = 'skos:prefLabel[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
+            if label_element is None:
+                label_element = vocab_element.find(path = 'dcterms:title[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
             
-        label_element = vocab_element.find(path = 'rdfs:label', namespaces=vocab_tree.nsmap)
-        if label_element is None:
-            label_element = vocab_element.find(path = 'skos:prefLabel[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
-        if label_element is None:
-            label_element = vocab_element.find(path = 'dcterms:title[@{http://www.w3.org/XML/1998/namespace}lang="en"]', namespaces=vocab_tree.nsmap)
-        graph_label = label_element.text
+        if label_element is not None:
+            graph_label = label_element.text
+        else:
+            graph_label = os.path.basename(graph_name)
                     
         return graph_name, graph_label
     
@@ -269,7 +283,7 @@ WHERE {?s ?p ?o .}'''
         for dir_name, dir_config in self.settings['directory_configs'].items():
             logger.debug('Reading configurations for {}'.format(dir_name))
             for rdf_path in glob(os.path.join(dir_config['source_dir'], '*.rdf'), recursive=False):
-                try:
+                if True:#try:
                     with open(rdf_path, 'r') as rdf_file:
                         rdf_xml = rdf_file.read()
                         
@@ -279,7 +293,7 @@ WHERE {?s ?p ?o .}'''
                     
                     graph_name, graph_label = self.get_graph_values_from_rdf(rdf_xml.encode('utf-8'))                        
 
-                except Exception as e:       
+                else:#except Exception as e:       
                     logger.warning('Unable to find vocab information in file {}: {}'.format(rdf_path, e))
                     continue
                 
@@ -371,7 +385,7 @@ WHERE {?s ?p ?o .}'''
                     }
             #logger.debug('url_list = {}'.format(pformat(url_list)))
             for rdf_name, rdf_url in rdfs.items():
-                try:
+                if True:#try:
                     # Skip non-RDF files
                     if os.path.splitext(os.path.basename(rdf_url))[1] != '.rdf':
                         logger.debug('Skipping {}'.format(rdf_url))
@@ -383,7 +397,7 @@ WHERE {?s ?p ?o .}'''
                     assert response.status_code == 200, 'Response status code != 200'
     
                     graph_name, graph_label = self.get_graph_values_from_rdf(response.content)                        
-                except Exception as e:
+                else:#except Exception as e:
                     logger.warning('Unable to find vocab information in {}: {}'.format(rdf_url, e))
                     continue
                 
