@@ -1989,6 +1989,19 @@ rdf_configs:
     rdf_url: http://www.w3.org/2006/time
     skos: false
     source_type: http_get
+  ggic_tenement_type:
+    graph_label: GGIC Tenement Type
+    graph_name: http://resource.geoscience.gov.au/classifierscheme/ggic/2016.01/tenementtype
+    rdf_file_path: ../data/ggic/ga_tenement-type_v0-1.rdf
+    rdf_url: https://vocabs.ands.org.au/registry/api/resource/downloads/187/ga_tenement-type_v0-1.rdf
+    source_type: http_get    
+  ggic_tenement_status:
+    graph_label: GGIC Tenement Status
+    graph_name: http://resource.geoscience.gov.au/classifierscheme/ggic/2016.01/tenement-status
+    rdf_file_path: ../data/ggic/ga_tenement-status_v0-1.rdf
+    rdf_url: https://vocabs.ands.org.au/registry/api/resource/downloads/190/ga_tenement-status_v0-1.rdf
+    source_type: http_get
+    
 regex_replacements:
 - - ^(\<\?xml version="1.0")\s*(\?\>.*)
   - \1 encoding="UTF-8"\2
